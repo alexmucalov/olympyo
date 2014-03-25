@@ -1,0 +1,5 @@
+*.pyc
+
+olympyo/settings.py
+
+*.json

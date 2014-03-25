@@ -1,0 +1,13 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+{% load staticfiles %}
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link href="{{STATIC_URL}}base.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>

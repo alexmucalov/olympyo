@@ -1,0 +1,5 @@
+App changes
+
+Django-registration
+1. Use RegistrationFormUniqueEmail in forms.py
+2. Implement patch in auth_urls.py, as currently updated

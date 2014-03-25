@@ -1,0 +1,182 @@
+div{
+font-family:arial; color:black;
+}
+
+/*This was to test whether css was being read in properly - it is!*/
+html{
+font-family:arial; color:black;
+}
+
+
+
+a{
+color:blue; text-decoration:none;
+}
+a:hover{
+text-decoration:underline;
+}
+/*This gets rid of post-border image outline in FF and IE*/
+a:active, a:focus, input[type="image"] {
+outline:0;
+}
+
+input{
+font-family:arial; color:black;
+}
+
+/*Relevant heights are contained in main and content*/
+.main{
+min-height:430px;
+}
+/*As written, if the height of the nav bar exceeds the height of the content frame, the footer will float above the bottom of the nav bar (shouldn't be a problem, in theory)*/
+	.sideBarLeft{
+	position:relative; float:left; width:250px; min-height:97%;
+	}
+		.decal{
+		text-align:center; 
+		}
+			.logo{
+			
+			}
+			/*Border = 0 gets rid of border that appears in Firefox and IE*/
+			#logo{
+			border:0px;
+			}
+			.sect{
+			padding-top:10px;
+			}
+				.sectEl{
+				display:inline; padding-left:3px; padding-right:3px; font-size:15px;
+				}
+		.nav{
+		padding-top:35px; padding-right:10px; padding-left:20px;
+		}
+			.navBlock{
+			padding-bottom:45px;
+			}
+				.navLevel1{
+				font-size:15px; padding-top:0px;
+				}
+					.navLevel2{
+					font-size:14px; color:#3F3F3F; padding-left:0px; padding-top:17px; cursor:pointer;
+					}
+					.navLevel3Cont{
+					display:none; padding-left:15px; 
+					}
+						.navLevel3{
+						padding-top:0px; 
+						}
+							/*navLevel3 items are 'a' elements, which are blue by default, hence the important 'grey' item*/
+							.navLevel3El{
+							font-size:13px; color:#5F5F5F !important; 
+							}
+	/*Firefox interprets min-height %s as percentages of the containing div, not the page height (as with IE and Chrome); need to fix min-height to be relative to screen size for Firefox, somehow*/
+	.content{
+	margin-left:250px; padding-left:20px; min-height:430px; border-left:solid grey 1px;
+	}
+		.title{
+		width:650px; padding-bottom:; font-size:25px; font-weight:normal;
+		}
+		/*Text min-width is the sum of comment width and assertion min-width*/
+		.contentTop{
+		width:700px; height:300px;
+		}
+			.subtitle{
+			font-size:12px; font-weight:bold; padding-top:0px; margin-top:0px; margin-bottom:0px; border-bottom:solid grey 1px;
+			}
+			.contentTopLeft{
+			position:relative; float:left; width:320px; height:300px; 
+			}
+			.contentTopRight{
+			margin-left:340px; padding-left:20px; height:300px; width:; padding-bottom:0px; border-left:solid grey 1px;
+			}
+				
+				.column{
+				float:left; width:33%; height:94%;
+				}
+				
+					.tree{
+					height:33%; background:url(../Images/smalltrees.png) no-repeat center center; text-align:center; line-height:30px;
+					}
+						
+						.tree span{
+						background-color:white; outline:solid grey 1px;
+						}
+					
+				form{
+				width: 100%; clear:
+				}
+				
+				#creategame{
+				
+				}
+					
+					.form label{
+					font-size:10px;
+					}
+					
+					.form input{
+        			width: 98%; clear: ; margin-bottom:10px;
+					}
+					
+			/*Height and width depend on whether we want comments!*/
+				/*
+				.comment{
+				position:relative; float:right; width:250px; height:0px;
+				font-size:13px; color:grey; overflow:hidden;
+				}
+				Margin takes into account comment width; min-width is for screen adjustment purposes.
+				.assertion{
+				margin-right:250px; padding-right:20px; min-width:650px;
+				font-size:14px;
+				}
+					.textAnchor{
+					color:black !important;
+					}
+					.textAnchor:hover{
+					text-decoration:none !important;
+					}
+				*/
+		.contentBottom{
+		min-height:30px; width:700px; border-top:;
+		}
+		
+			.tertitle{
+			font-size:10px;
+			}
+		
+			form{
+			font-size:10px; font-weight:bold;
+			}
+				
+				.startpars{
+				width:38px;
+				}
+				
+				#simname{
+				width:125px;
+				}
+		
+			.timeline{
+			padding-top:0px; height:30px; width:100%
+			}
+				
+				.timelineEl{
+				display:inline; background:url(../Images/dot.png) no-repeat center center; padding-top:5px; padding-bottom:2px; padding-left:8px; padding-right:16px; border:solid grey 0px; background-color:white; /*rgb(236,194,133);*/ vertical-align:top;
+				}
+				
+					.timelineEl span{
+					font-size:10px; outline:solid grey 1px; background-color:white;
+					}
+				
+				#creategameform{
+				text-align:center;
+				}
+		
+.foot{
+text-align:center; padding-top:20px;
+}
+
+	.footEl{
+	display:inline; padding-left:15px; padding-right:15px; font-size:12px;
+	}
