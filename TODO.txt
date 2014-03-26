@@ -1,2 +1,20 @@
 TODO
 
+FILE STRUCTURE
+1. Move registration-default templates into templates folder, and declassify as an app
+
+REGISTRATION/LOGIN
+1. Make registration page the landing page, and provide link to login page
+2. Add design to all registration/login templates
+
+GAME LOBBY
+1. Design
+2. Implement
+
+GAME STAGING AREA
+1. Design
+2. Implement
+
+MISCELLANEOUS
+1. Add requirements.txt file
+2. Add README file
