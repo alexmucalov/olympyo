@@ -2,6 +2,7 @@
 {% load i18n %}
 {% block title %}{% trans "Olympyo" %}{% endblock %}
 {% block content %}
+
 <table>
     <form method='post' action=''>{% csrf_token %}
         {{ form }}
