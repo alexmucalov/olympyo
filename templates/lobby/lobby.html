@@ -1,0 +1,11 @@
+{% load staticfiles %}
+{% url 'auth_logout' as logout_url%}
+
+
+<html>
+<head>
+</head>
+<body>
+	<a href="{{ logout_url }}">Logout</a>
+</body>
+</html>

@@ -9,7 +9,8 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('home.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^', include('home.urls')),
+    url(r'^', include('lobby.urls')),
     url(r'^', include('game.urls')),
 )
