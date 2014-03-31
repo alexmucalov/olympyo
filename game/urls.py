@@ -5,5 +5,5 @@ admin.autodiscover()
 
 urlpatterns = patterns('game.views',
 
-    #url(r'^', 'home'),
+    url(r'^game/', 'game'),
 )
