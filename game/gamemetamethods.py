@@ -1,6 +1,10 @@
 # Defines methods used by gamecontroller.py
 
 from game.models import LoggedUser
+from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
+from datetime import datetime
+
 
 def login_user(sender, request, user, **kwargs):
 	"""
@@ -15,17 +19,12 @@ def logout_user(sender, request, user, **kwargs):
 	# Called in gamecontroller.py when user logs out
 	# Deletes all instances of LoggedUser from DB table
 	"""
-	try:
+    try:
 		u = LoggedUser.objects.get(pk=user.username)
 		u.delete()
-	except LoggedUser.DoesNotExist:
+    except LoggedUser.DoesNotExist:
 		pass
 
-
-"""
-from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
-from datetime import datetime
 
 def get_all_logged_in_users():
     # Query all non-expired sessions
@@ -39,4 +38,3 @@ def get_all_logged_in_users():
 
     # Query all logged in users based on id list
     return User.objects.filter(id__in=uid_list)
-"""

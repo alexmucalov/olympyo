@@ -11,6 +11,9 @@
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from game.gamemetamethods import login_user, logout_user
 
+
+
+
 """
 Supposed to assign users to game slots when they log in - doesn't seem to work yet
 Remove users from game slots when they log out
@@ -33,11 +36,12 @@ Remove users from game slots when they log out
 """
 So:
 
-1) Use logged_user table for now, for waitroom members
-2) Create lobby app, with views and urlconfs for /lobby/ and /waitroom/
+1) Use logged_user table for now, for waitroom members - okay
+2) Create lobby app, with views and urlconfs for /lobby/ and /waitroom/ - done
 3) With waitroom view, call the function that will add user to logged_user table (can
 	find now in gamemetamethods - login_user
 4) Add link in /waitroom/ to /game/
 5) Have game render with users as context
 6) When first human enters game, create player objects in InitState
+7) At some point, move logged_user table to lobby.models, not game.models
 """

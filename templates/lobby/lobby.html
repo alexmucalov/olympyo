@@ -1,11 +1,13 @@
 {% load staticfiles %}
 {% url 'auth_logout' as logout_url%}
+{% load logged_users %}
 
 
 <html>
 <head>
 </head>
 <body>
+	{% render_logged_in_user_list %}
 	<a href="{{ logout_url }}">Logout</a>
 </body>
 </html>
