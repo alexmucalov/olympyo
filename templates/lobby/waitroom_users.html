@@ -1,7 +1,7 @@
-{% if logged_users %}
-Logged in users
+{% if waitroom_users %}
+Waitroom users
 <ul class="user-list">
-    {% for user in logged_users %}
+    {% for user in waitroom_users %}
     <li>{{ user }}</li>
     {% endfor %}
 </ul>

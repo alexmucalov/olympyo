@@ -6,19 +6,16 @@ from django.contrib.sessions.models import Session
 from datetime import datetime
 
 
-def login_user(sender, request, user, **kwargs):
-	"""
-	# Called in gamecontroller.py when user logs in
-	# Creates and saves instance of LoggedUser to DB table
-	"""
+def get_user_who_clicked(request):
+	user = request.user
+	return user
+
+
+def add_user_to_waitroom(user):
 	LoggedUser(username=user.username).save()
 	
 
-def logout_user(sender, request, user, **kwargs):
-    """
-	# Called in gamecontroller.py when user logs out
-	# Deletes all instances of LoggedUser from DB table
-	"""
+def take_user_out_of_waitroom(user):
     try:
 		u = LoggedUser.objects.get(pk=user.username)
 		u.delete()
@@ -38,3 +35,8 @@ def get_all_logged_in_users():
 
     # Query all logged in users based on id list
     return User.objects.filter(id__in=uid_list)
+
+
+def get_all_waitroom_users():
+	waitroom_users = LoggedUser.objects.all()
+	return waitroom_users

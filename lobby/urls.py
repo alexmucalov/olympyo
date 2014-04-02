@@ -5,6 +5,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('lobby.views',
 
-    url(r'^lobby/', 'lobby'),
-    url(r'^waitroom/', 'waitroom'),
+    url(r'^lobby/', 'lobby',
+    	name='lobby'),
+    url(r'^waitroom/', 'waitroom',
+    	name='waitroom'),
 )

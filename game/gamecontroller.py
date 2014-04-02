@@ -38,9 +38,9 @@ So:
 
 1) Use logged_user table for now, for waitroom members - okay
 2) Create lobby app, with views and urlconfs for /lobby/ and /waitroom/ - done
-3) With waitroom view, call the function that will add user to logged_user table (can
-	find now in gamemetamethods - login_user
-4) Add link in /waitroom/ to /game/
+3) With waitroom view, call the function that will add user to logged_user table - done
+4) Add link in /waitroom/ to /game/ - done (NOW NEED TO REMOVE USERS FROM LOGGED_USER
+	TABLE WHEN THEY LEAVE THE WAITROOM!)
 5) Have game render with users as context
 6) When first human enters game, create player objects in InitState
 7) At some point, move logged_user table to lobby.models, not game.models

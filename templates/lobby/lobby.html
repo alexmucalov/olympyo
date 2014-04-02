@@ -1,6 +1,7 @@
 {% load staticfiles %}
-{% url 'auth_logout' as logout_url%}
-{% load logged_users %}
+{% url 'auth_logout' as logout_url %}
+{% url 'waitroom' as waitroom_url %}
+{% load selected_users %}
 
 
 <html>
@@ -8,6 +9,7 @@
 </head>
 <body>
 	{% render_logged_in_user_list %}
+	<a href="{{ waitroom_url }}">Waitroom</a><br />
 	<a href="{{ logout_url }}">Logout</a>
 </body>
 </html>
