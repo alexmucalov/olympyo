@@ -2,19 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Table of users who are logged in, identified by username
-class LoggedUser(models.Model):
-	username = models.CharField(max_length=30, primary_key=True)
-  
-	def __unicode__(self):
-		return self.username
-
-
 class Game(models.Model):
+	id = models.AutoField(primary_key=True)
 	rules = models.CharField(max_length=30)
 	
 	def __unicode__(self):
-		return self.id
+		return u"%s" % self.id
+
+
+# Table of users who are in a waiting room, identified by username; launched = playing a game right now
+class ActiveUser(models.Model):
+	user = models.ForeignKey(User, null=True)
+	game = models.ForeignKey(Game)
+	launched = models.BooleanField()
+  
+	def __unicode__(self):
+		return u"%s" % self.user
 
 
 class GameParameter(models.Model):
@@ -24,11 +27,11 @@ class GameParameter(models.Model):
 
 
 class Instance(models.Model):
-	username = models.ForeignKey(User)
+	user = models.ForeignKey(User, null=True)
 	type = models.CharField(max_length=30)
 	
 	def __unicode__(self):
-		return self.id
+		return u"%s" % self.id
 
 
 class Action(models.Model):
@@ -40,7 +43,7 @@ class Action(models.Model):
     affected = models.CharField(max_length=30)
 
     #def __unicode__(self):
-		#return self.id
+		#return u"%s" % self.id
 
 
 class InitState(models.Model):

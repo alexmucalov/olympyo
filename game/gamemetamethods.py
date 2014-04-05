@@ -1,6 +1,6 @@
 # Defines methods used by gamecontroller.py
 
-from game.models import LoggedUser
+from game.models import ActiveUser, Game
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from datetime import datetime
@@ -11,15 +11,17 @@ def get_user_who_clicked(request):
 	return user
 
 
-def add_user_to_waitroom(user):
-	LoggedUser(username=user.username).save()
+def add_user_to_waitroom(u):
+	# For now, only one game
+	g = Game.objects.get(id=4)
+	ActiveUser(user=u, game=g, launched=False).save()
 	
 
-def remove_user_from_waitroom(user):
+def remove_user_from_waitroom(u):
     try:
-		u = LoggedUser.objects.get(pk=user.username)
-		u.delete()
-    except LoggedUser.DoesNotExist:
+		uid = ActiveUser.objects.get(user=u)
+		uid.delete()
+    except ActiveUser.DoesNotExist:
 		pass
 
 
@@ -38,5 +40,5 @@ def get_all_logged_in_users():
 
 
 def get_all_waitroom_users():
-	waitroom_users = LoggedUser.objects.all()
+	waitroom_users = ActiveUser.objects.all()
 	return waitroom_users
