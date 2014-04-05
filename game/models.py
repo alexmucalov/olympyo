@@ -27,11 +27,11 @@ class GameParameter(models.Model):
 
 
 class Instance(models.Model):
-	user = models.ForeignKey(User, null=True)
+	user = models.ForeignKey(User, blank=True, null=True)
 	type = models.CharField(max_length=30)
 	
 	def __unicode__(self):
-		return u"%s" % self.id
+		return u"%s: id=%s" % (self.type, self.id)
 
 
 class Action(models.Model):
