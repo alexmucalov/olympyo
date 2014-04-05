@@ -15,7 +15,7 @@ def add_user_to_waitroom(user):
 	LoggedUser(username=user.username).save()
 	
 
-def take_user_out_of_waitroom(user):
+def remove_user_from_waitroom(user):
     try:
 		u = LoggedUser.objects.get(pk=user.username)
 		u.delete()

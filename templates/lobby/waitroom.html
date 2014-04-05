@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% url 'auth_logout' as logout_url %}
+{% url 'lobby' as lobby_url %}
 {% url 'game' as game_url %}
 {% load selected_users %}
 
@@ -10,6 +10,6 @@
 <body>
 	{% render_waitroom_user_list %}
 	<a href="{{ game_url }}">Game</a><br />
-	<a href="{{ logout_url }}">Logout</a>
+	<a href="{{ lobby_url }}">Lobby</a>
 </body>
 </html>
