@@ -42,8 +42,8 @@ class Action(models.Model):
     parameters = models.CharField(max_length=30)
     affected = models.CharField(max_length=30)
 
-    #def __unicode__(self):
-		#return u"%s" % self.id
+    def __unicode__(self):
+		return u"%s" % self.id
 
 
 class InitState(models.Model):
