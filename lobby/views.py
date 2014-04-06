@@ -6,14 +6,14 @@ from django.http import Http404
 
 
 def lobby(request):
-    user = request.user
-    remove_user_from_waitroom(user)
+    #user = request.user
+    #remove_user_from_waitroom(user)
     return render(request, 'lobby/lobby.html')
 
 
 def waitroom(request):
-	user = request.user
-	add_user_to_waitroom(user)
+	#user = request.user
+	#add_user_to_waitroom(user)
 	return render(request, 'lobby/waitroom.html')
 
 

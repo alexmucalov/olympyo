@@ -1,6 +1,6 @@
 # Defines methods used by gamecontroller.py
 
-from game.models import GameUser, Game
+from game.models import Game
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from datetime import datetime
@@ -10,6 +10,11 @@ from datetime import datetime
 """
 Waitroom
 """
+
+"""
+Define these as instance methods, instead
+
+
 def add_user_to_waitroom(game, user):
 	# For now, only one game
 	#game = Game.objects.get(id=4)
@@ -33,7 +38,7 @@ def get_all_waitroom_users():
 
 def assign_user_to_player(u):
 	pass
-
+"""
 
 
 """
