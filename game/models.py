@@ -3,41 +3,41 @@ from django.contrib.auth.models import User
 
 # Game Template Models
 class Game(models.Model):
-	name = models.CharField(max_length=30)
-	rules = models.CharField(max_length=30)
+    name = models.CharField(max_length=30)
+    rules = models.CharField(max_length=30)
 	
-	def __unicode__(self):
-		return u'%s' % self.name
+    def __unicode__(self):
+        return u'%s' % self.name
 	
-	def add_user_to_waitroom(self, user):
-		pass
+    def add_user_to_waitroom(self, user):
+        pass
 		
-	def create_instance(self, users):
-		instance = GameInstance(game=self, users=users)
-		for game_object in self.game_objects.all():
-			game_object.get_instance_copy(instance)
-		return instance
+    def create_instance(self, users):
+        instance = GameInstance(game=self, users=users)
+        for game_object in self.game_objects.all():
+            game_object.get_instance_copy(instance)
+        return instance
 
 
 class GameObject(models.Model):
-	game = models.ForeignKey(Game)
-	type = models.CharField(max_length=30)
-	label = models.CharField(max_length=255)
-	default_value = models.CharField(max_length=255)
+    game = models.ForeignKey(Game)
+    type = models.CharField(max_length=30)
+    label = models.CharField(max_length=255)
+    default_value = models.CharField(max_length=255)
 	
-	def __unicode__(self):
-		return u'%s: id=%s' % (self.type, self.id)
+    def __unicode__(self):
+        return u'%s: id=%s' % (self.type, self.id)
 
-	def get_instance_copy(self, instance):
-		return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
+    def get_instance_copy(self, instance):
+        return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
 
 
 class WaitRoom(models.Model):
-	game = models.ForeignKey(Game)
-	user = models.ForeignKey(User)
+    game = models.ForeignKey(Game)
+    user = models.ForeignKey(User)
 	
-	def __unicode__(self):
-		return u'%s: id=%s' % (self.game, self.user)
+    def __unicode__(self):
+        return u'%s: id=%s' % (self.game, self.user)
 
 
 # Game Instance Models
