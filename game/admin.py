@@ -1,44 +1,34 @@
 from django.contrib import admin
-from game.models import ActiveUser, Game, GameParameter, Instance, Action, InitState, TempState, WorkingState
-
-
-class ActiveUserAdmin(admin.ModelAdmin):
-	list_display = ('user','game','launched')
+from game.models import Game, GameObject, WaitRoom, GameInstance, GameInstanceObject, Action
 
 
 class GameAdmin(admin.ModelAdmin):
-	list_display = ('id','rules')
+	list_display = ('id','name','rules')
 
 
-class GameParameterAdmin(admin.ModelAdmin):
-	pass
+class GameObjectAdmin(admin.ModelAdmin):
+	list_display = ('id','game','type','label','default_value')
 
 
-class InstanceAdmin(admin.ModelAdmin):
-	list_display = ('id','type','user')
+class WaitRoomAdmin(admin.ModelAdmin):
+	list_display = ('id','game','user')
+
+
+class GameInstanceAdmin(admin.ModelAdmin):
+	list_display = ('id','game')
+
+
+class GameInstanceObjectAdmin(admin.ModelAdmin):
+	list_display = ('id','instance','game_object')
 
 
 class ActionAdmin(admin.ModelAdmin):
-	pass
+	list_display = ('id','instance','turn', 'initiator','function','parameters','affected')
 
 
-class InitStateAdmin(admin.ModelAdmin):
-	list_display = ('game','instance','attribute', 'value')
-
-
-class TempStateAdmin(admin.ModelAdmin):
-	pass
-
-
-class WorkingStateAdmin(admin.ModelAdmin):
-	pass
-
-
-admin.site.register(ActiveUser, ActiveUserAdmin)
 admin.site.register(Game, GameAdmin)
-admin.site.register(GameParameter)
-admin.site.register(Instance, InstanceAdmin)
-admin.site.register(Action)
-admin.site.register(InitState, InitStateAdmin)
-admin.site.register(TempState)
-admin.site.register(WorkingState)
+admin.site.register(GameObject, GameObjectAdmin)
+admin.site.register(WaitRoom, WaitRoomAdmin)
+admin.site.register(GameInstance, GameInstanceAdmin)
+admin.site.register(GameInstanceObject, GameInstanceObjectAdmin)
+admin.site.register(Action, ActionAdmin)
