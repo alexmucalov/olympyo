@@ -20,10 +20,10 @@ def waitroom(request):
 """
 def register_user_for_game(request):
 	game = Game.objects.get(id=request.GET.get('game_id'))
+	users = ...
 	game_user = game.game_users.create(user=request.user, game, instance=None)
 	if GameUser.objects.filter(game=game, instance=None).count() >= game.minimum_players:
-		instance = GameInstance(game=game, users=GameUser.filter(game=game, instance=None))
-		instance.save()
+		game.create_instance(users)
 """
 
 """

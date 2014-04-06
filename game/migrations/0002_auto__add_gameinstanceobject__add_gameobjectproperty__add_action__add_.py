@@ -11,38 +11,61 @@ class Migration(SchemaMigration):
         # Adding model 'GameInstanceObject'
         db.create_table(u'game_gameinstanceobject', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameInstance'])),
-            ('game_object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameObject'])),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instance_objects', to=orm['game.GameInstance'])),
+            ('game_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instance_objects', to=orm['game.GameObject'])),
         ))
         db.send_create_signal(u'game', ['GameInstanceObject'])
+
+        # Adding model 'GameObjectProperty'
+        db.create_table(u'game_gameobjectproperty', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('game_object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameObject'])),
+            ('property', self.gf('django.db.models.fields.CharField')(max_length=30)),
+            ('init_value', self.gf('django.db.models.fields.CharField')(max_length=30)),
+        ))
+        db.send_create_signal(u'game', ['GameObjectProperty'])
 
         # Adding model 'Action'
         db.create_table(u'game_action', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameInstance'])),
+            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='actions', to=orm['game.GameInstance'])),
             ('turn', self.gf('django.db.models.fields.IntegerField')()),
-            ('initiator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameObject'])),
+            ('initiator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='actions', to=orm['game.GameObject'])),
             ('function', self.gf('django.db.models.fields.CharField')(max_length=30)),
             ('parameters', self.gf('django.db.models.fields.CharField')(max_length=30)),
             ('affected', self.gf('django.db.models.fields.CharField')(max_length=30)),
         ))
         db.send_create_signal(u'game', ['Action'])
 
+        # Adding model 'GameInstanceObjectProperty'
+        db.create_table(u'game_gameinstanceobjectproperty', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameInstanceObject'])),
+            ('game_object_property', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameObjectProperty'])),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length=30)),
+        ))
+        db.send_create_signal(u'game', ['GameInstanceObjectProperty'])
+
         # Adding model 'GameObject'
         db.create_table(u'game_gameobject', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('game', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.Game'])),
             ('type', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('default_value', self.gf('django.db.models.fields.CharField')(max_length=255)),
         ))
         db.send_create_signal(u'game', ['GameObject'])
+
+        # Adding M2M table for field game on 'GameObject'
+        m2m_table_name = db.shorten_name(u'game_gameobject_game')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('gameobject', models.ForeignKey(orm[u'game.gameobject'], null=False)),
+            ('game', models.ForeignKey(orm[u'game.game'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['gameobject_id', 'game_id'])
 
         # Adding model 'GameInstance'
         db.create_table(u'game_gameinstance', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('game', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.Game'])),
+            ('game', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instances', to=orm['game.Game'])),
         ))
         db.send_create_signal(u'game', ['GameInstance'])
 
@@ -66,8 +89,8 @@ class Migration(SchemaMigration):
         # Adding model 'WaitRoom'
         db.create_table(u'game_waitroom', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('game', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.Game'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('game', self.gf('django.db.models.fields.related.ForeignKey')(related_name='waitrooms', to=orm['game.Game'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='waitrooms', to=orm['auth.User'])),
         ))
         db.send_create_signal(u'game', ['WaitRoom'])
 
@@ -76,11 +99,20 @@ class Migration(SchemaMigration):
         # Deleting model 'GameInstanceObject'
         db.delete_table(u'game_gameinstanceobject')
 
+        # Deleting model 'GameObjectProperty'
+        db.delete_table(u'game_gameobjectproperty')
+
         # Deleting model 'Action'
         db.delete_table(u'game_action')
 
+        # Deleting model 'GameInstanceObjectProperty'
+        db.delete_table(u'game_gameinstanceobjectproperty')
+
         # Deleting model 'GameObject'
         db.delete_table(u'game_gameobject')
+
+        # Removing M2M table for field game on 'GameObject'
+        db.delete_table(db.shorten_name(u'game_gameobject_game'))
 
         # Deleting model 'GameInstance'
         db.delete_table(u'game_gameinstance')
@@ -137,8 +169,8 @@ class Migration(SchemaMigration):
             'affected': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'function': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'initiator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameObject']"}),
-            'instance': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameInstance']"}),
+            'initiator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'actions'", 'to': u"orm['game.GameObject']"}),
+            'instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'actions'", 'to': u"orm['game.GameInstance']"}),
             'parameters': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'turn': ('django.db.models.fields.IntegerField', [], {})
         },
@@ -150,30 +182,41 @@ class Migration(SchemaMigration):
         },
         u'game.gameinstance': {
             'Meta': {'object_name': 'GameInstance'},
-            'game': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.Game']"}),
+            'game': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instances'", 'to': u"orm['game.Game']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'users': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'symmetrical': 'False'})
+            'users': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'game_instances'", 'symmetrical': 'False', 'to': u"orm['auth.User']"})
         },
         u'game.gameinstanceobject': {
             'Meta': {'object_name': 'GameInstanceObject'},
-            'game_object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameObject']"}),
+            'game_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instance_objects'", 'to': u"orm['game.GameObject']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'instance': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameInstance']"}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+            'instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instance_objects'", 'to': u"orm['game.GameInstance']"})
+        },
+        u'game.gameinstanceobjectproperty': {
+            'Meta': {'object_name': 'GameInstanceObjectProperty'},
+            'game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameInstanceObject']"}),
+            'game_object_property': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameObjectProperty']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'value': ('django.db.models.fields.CharField', [], {'max_length': '30'})
         },
         u'game.gameobject': {
             'Meta': {'object_name': 'GameObject'},
-            'default_value': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'game': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.Game']"}),
+            'game': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'game_objects'", 'symmetrical': 'False', 'to': u"orm['game.Game']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'label': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '30'})
+        },
+        u'game.gameobjectproperty': {
+            'Meta': {'object_name': 'GameObjectProperty'},
+            'game_object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameObject']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'init_value': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'property': ('django.db.models.fields.CharField', [], {'max_length': '30'})
         },
         u'game.waitroom': {
             'Meta': {'object_name': 'WaitRoom'},
-            'game': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.Game']"}),
+            'game': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'waitrooms'", 'to': u"orm['game.Game']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'waitrooms'", 'to': u"orm['auth.User']"})
         }
     }
 

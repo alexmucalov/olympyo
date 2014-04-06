@@ -20,11 +20,9 @@ class Game(models.Model):
 
 
 class GameObject(models.Model):
-    game = models.ForeignKey(Game)
+    game = models.ManyToManyField(Game, related_name='game_objects')
     type = models.CharField(max_length=30)
-    label = models.CharField(max_length=255)
-    default_value = models.CharField(max_length=255)
-	
+
     def __unicode__(self):
         return u'%s: id=%s' % (self.type, self.id)
 
@@ -32,37 +30,48 @@ class GameObject(models.Model):
         return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
 
 
+class GameObjectProperty(models.Model):
+    game_object = models.ForeignKey(GameObject)
+    property = models.CharField(max_length=30)
+    init_value = models.CharField(max_length=30)
+
+
 class WaitRoom(models.Model):
-    game = models.ForeignKey(Game)
-    user = models.ForeignKey(User)
+    game = models.ForeignKey(Game, related_name='waitrooms')
+    user = models.ForeignKey(User, related_name='waitrooms')
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
 
 
 # Game Instance Models
-# Created only when enough users are in waitroom! Doesn't exist beforehand
 class GameInstance(models.Model):
-    game = models.ForeignKey(Game)
-    users = models.ManyToManyField(User)
+    game = models.ForeignKey(Game, related_name='game_instances')
+    users = models.ManyToManyField(User, related_name='game_instances')
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.id)
 
 
 class GameInstanceObject(models.Model):
-    instance = models.ForeignKey(GameInstance)
-    game_object = models.ForeignKey(GameObject)
-    value = models.CharField(max_length=255)
+    instance = models.ForeignKey(GameInstance, related_name='game_instance_objects')
+    game_object = models.ForeignKey(GameObject, related_name='game_instance_objects')
 
     def __unicode__(self):
         return u'Game instance: %s, id=%s' % (self.instance, self.id)
 		
 
+class GameInstanceObjectProperty(models.Model):
+    game_instance_object = models.ForeignKey(GameInstanceObject)
+    game_object_property = models.ForeignKey(GameObjectProperty)
+    value = models.CharField(max_length=30)
+
+
+# Action Models
 class Action(models.Model):
-    instance = models.ForeignKey(GameInstance)
+    instance = models.ForeignKey(GameInstance, related_name='actions')
     turn = models.IntegerField()
-    initiator = models.ForeignKey(GameObject)
+    initiator = models.ForeignKey(GameObject, related_name='actions')
     function = models.CharField(max_length=30)
     parameters = models.CharField(max_length=30)
     affected = models.CharField(max_length=30)
@@ -71,7 +80,6 @@ class Action(models.Model):
         return u'%s' % self.id
 
 """
-remember related name for FK fields
-remember model managers
+remember model managers (see Jared's e-mail for example usage)
 remember to use instance methods
 """
