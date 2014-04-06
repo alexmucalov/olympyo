@@ -43,20 +43,20 @@ class WaitRoom(models.Model):
 # Game Instance Models
 # Created only when enough users are in waitroom! Doesn't exist beforehand
 class GameInstance(models.Model):
-	game = models.ForeignKey(Game)
-	users = models.ManyToManyField(User)
+    game = models.ForeignKey(Game)
+    users = models.ManyToManyField(User)
 	
-	def __unicode__(self):
-		return u'%s: id=%s' % (self.game, self.id)
+    def __unicode__(self):
+        return u'%s: id=%s' % (self.game, self.id)
 
 
 class GameInstanceObject(models.Model):
-	instance = models.ForeignKey(GameInstance)
-	game_object = models.ForeignKey(GameObject)
-	value = models.CharField(max_length=255)
+    instance = models.ForeignKey(GameInstance)
+    game_object = models.ForeignKey(GameObject)
+    value = models.CharField(max_length=255)
 
-	def __unicode__(self):
-		return u'Game instance: %s, id=%s' % (self.instance, self.id)
+    def __unicode__(self):
+        return u'Game instance: %s, id=%s' % (self.instance, self.id)
 		
 
 class Action(models.Model):
@@ -68,5 +68,10 @@ class Action(models.Model):
     affected = models.CharField(max_length=30)
 
     def __unicode__(self):
-		return u'%s' % self.id
+        return u'%s' % self.id
 
+"""
+remember related name for FK fields
+remember model managers
+remember to use instance methods
+"""

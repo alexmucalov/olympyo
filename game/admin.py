@@ -3,27 +3,27 @@ from game.models import Game, GameObject, WaitRoom, GameInstance, GameInstanceOb
 
 
 class GameAdmin(admin.ModelAdmin):
-	list_display = ('id','name','rules')
+    list_display = ('id','name','rules')
 
 
 class GameObjectAdmin(admin.ModelAdmin):
-	list_display = ('id','game','type','label','default_value')
+    list_display = ('id','game','type','label','default_value')
 
 
 class WaitRoomAdmin(admin.ModelAdmin):
-	list_display = ('id','game','user')
+    list_display = ('id','game','user')
 
 
 class GameInstanceAdmin(admin.ModelAdmin):
-	list_display = ('id','game')
+    list_display = ('id','game')
 
 
 class GameInstanceObjectAdmin(admin.ModelAdmin):
-	list_display = ('id','instance','game_object')
+    list_display = ('id','instance','game_object')
 
 
 class ActionAdmin(admin.ModelAdmin):
-	list_display = ('id','instance','turn', 'initiator','function','parameters','affected')
+    list_display = ('id','instance','turn', 'initiator','function','parameters','affected')
 
 
 admin.site.register(Game, GameAdmin)
