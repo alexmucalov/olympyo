@@ -24,7 +24,7 @@ class GameObjectArchAttribute(models.Model):
     default_value = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return u'%s' % (self.game_object)
+        return u'%s' % (self.game_object_arch)
 
     #def get_instance_copy(self, instance):
     #    return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
@@ -46,7 +46,7 @@ class GameObjectSet(models.Model):
     no_of_objects = models.IntegerField()
 
     def __unicode__(self):
-        return u'%s' % self.game
+        return u'%s: %s' % (self.game_object, self.game)
 	
     def add_user_to_waitroom(self, user):
         pass
@@ -69,12 +69,11 @@ class WaitRoomUser(models.Model):
 
 # Game Instance Models
 class GameObjectInstance(models.Model):
-    game = models.ForeignKey(Game, related_name='game_object_instances')
-    game_object_instance = models.ForeignKey(GameObjectSet)
+    game_object_instance = models.ForeignKey(GameObjectSet, related_name='game_object_instances')
     users = models.ManyToManyField(User, related_name='game_object_instances', blank=True, null=True)
 	
     def __unicode__(self):
-        return u'%s: instance id=%s' % (self.game, self.id)
+        return u'%s: instance id=%s' % (self.game_object_instance, self.id)
 
 
 class GameObjectInstanceAttribute(models.Model):

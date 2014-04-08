@@ -27,7 +27,7 @@ class WaitRoomUserAdmin(admin.ModelAdmin):
 
 
 class GameObjectInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'game', 'game_object_instance',)
+    list_display = ('id', 'game_object_instance',)
 
 
 class GameObjectInstanceAttributeAdmin(admin.ModelAdmin):

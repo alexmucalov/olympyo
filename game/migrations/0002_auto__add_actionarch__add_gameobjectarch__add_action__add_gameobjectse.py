@@ -71,8 +71,7 @@ class Migration(SchemaMigration):
         # Adding model 'GameObjectInstance'
         db.create_table(u'game_gameobjectinstance', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('game', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_object_instances', to=orm['game.Game'])),
-            ('game_object_instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.GameObjectSet'])),
+            ('game_object_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_object_instances', to=orm['game.GameObjectSet'])),
         ))
         db.send_create_signal(u'game', ['GameObjectInstance'])
 
@@ -197,8 +196,7 @@ class Migration(SchemaMigration):
         },
         u'game.gameobjectinstance': {
             'Meta': {'object_name': 'GameObjectInstance'},
-            'game': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_object_instances'", 'to': u"orm['game.Game']"}),
-            'game_object_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.GameObjectSet']"}),
+            'game_object_instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_object_instances'", 'to': u"orm['game.GameObjectSet']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'game_object_instances'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['auth.User']"})
         },
