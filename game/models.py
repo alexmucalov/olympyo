@@ -33,10 +33,23 @@ class ArchGameObject(models.Model):
         return u'%s' % (self.arch_game_object)
 
 
+class ArchAttributeSet(models.Model):
+    attribute_set = models.CharField(max_length=255)
+    #game_object = models.ForeignKey(ArchGameObject)
+    # Might need game_object to add extra validation - when adding attribute_set
+    # to GameObject, check that game_object fields in both models match
+
+    def __unicode__(self):
+        return u'%s' % (self.attribute_set)
+
+
 class ArchGameObjectAttributeValue(models.Model):
     arch_game_object = models.ForeignKey(ArchGameObject)
     attribute = models.ForeignKey(ArchAttribute)
     default_value = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('arch_game_object','attribute')
 
     def __unicode__(self):
         return u'%s: %s' % (self.arch_game_object, self.attribute)
@@ -54,18 +67,14 @@ class GameObjectSet(models.Model):
         return u'%s' % self.game_object_set
 
 
-# Good! Ideally, though, could only choose sets that apply to the same game object types
-# as GameObjectTypeValuesDefined
-
-
 class GameObject(models.Model):
-    # May want to make game_object_set a ManyToManyField
     game_object_set = models.ForeignKey(GameObjectSet, related_name='game_objects')
     game_object = models.ForeignKey(ArchGameObject, related_name='game_objects')
-    attribute_set = models.CharField(max_length=255)
+    attribute_set = models.ForeignKey(ArchAttributeSet, related_name='game_objects')
+    # Ideally, game_object would determine attribute_sets available...
 
     def __unicode__(self):
-        return u'%s' % (self.game_object)
+        return u'%s: id=%s' % (self.game_object, self.id)
 	
     def add_user_to_waitroom(self, user):
         pass
@@ -78,9 +87,13 @@ class GameObject(models.Model):
 
 
 class AttributeValue(models.Model):
-    attribute_set = models.ForeignKey(GameObject) # Ideally would be defined and available for a given game_object_type, and no other
+    attribute_set = models.ForeignKey(ArchAttributeSet)
     attribute = models.ForeignKey(ArchAttribute)
     value = models.CharField(max_length = 255)
+    # Ideally would be defined and available for a given game_object_type, and no other
+    
+    class Meta:
+        unique_together = ('attribute_set','attribute')
 
     def __unicode__(self):
         return u'%s: %s - %s' % (self.attribute_set, self.attribute, self.value)
@@ -89,10 +102,12 @@ class AttributeValue(models.Model):
 class Game(models.Model):
     game_object_set = models.ForeignKey(GameObjectSet, related_name='games')
     game_rules = models.ForeignKey(GameRule, related_name='games')
-    # Game is the same if rules and object_set are the same - can define more precisely like this? With 'unique' or something like this?
+
+    class Meta:
+        unique_together = ('game_object_set','game_rules')
 
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game, self.user)
+        return u'%s: id=%s' % (self.game_object_set, self.game_rules)
 
 
 class WaitRoomUser(models.Model):
@@ -125,6 +140,9 @@ class GameInstanceObjectAttributeValue(models.Model):
     game_instance_object = models.ForeignKey(GameInstanceObject, related_name='game_instance_object_attribute_values')
     attribute = models.ForeignKey(ArchAttribute)
     value = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('game_instance_object','attribute')
 
     def __unicode__(self):
         return u'%s' % (self.attribute)

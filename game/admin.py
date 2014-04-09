@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchGameObjectAttributeValue, GameObjectSet, GameObject, AttributeValue, Game, WaitRoomUser, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, Action
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, GameObjectSet, GameObject, AttributeValue, Game, WaitRoomUser, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, Action
 
 
 class GameRuleAdmin(admin.ModelAdmin):
@@ -18,6 +18,10 @@ class ArchGameObjectAdmin(admin.ModelAdmin):
     list_display = ('arch_game_object',)
 
 
+class ArchAttributeSetAdmin(admin.ModelAdmin):
+    list_display = ('attribute_set',)
+
+
 class ArchGameObjectAttributeValueAdmin(admin.ModelAdmin):
     list_display = ('arch_game_object', 'attribute', 'default_value',)
 
@@ -27,7 +31,7 @@ class GameObjectSetAdmin(admin.ModelAdmin):
 
 
 class GameObjectAdmin(admin.ModelAdmin):
-    list_display = ('game_object_set','game_object','attribute_set',)
+    list_display = ('id','game_object_set','game_object','attribute_set',)
 
 
 class AttributeValueAdmin(admin.ModelAdmin):
@@ -62,6 +66,7 @@ admin.site.register(GameRule, GameRuleAdmin)
 admin.site.register(ArchAction, ArchActionAdmin)
 admin.site.register(ArchAttribute, ArchAttributeAdmin)
 admin.site.register(ArchGameObject, ArchGameObjectAdmin)
+admin.site.register(ArchAttributeSet, ArchAttributeSetAdmin)
 admin.site.register(ArchGameObjectAttributeValue, ArchGameObjectAttributeValueAdmin)
 admin.site.register(GameObjectSet, GameObjectSetAdmin)
 admin.site.register(GameObject, GameObjectAdmin)
