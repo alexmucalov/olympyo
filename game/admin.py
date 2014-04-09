@@ -1,49 +1,74 @@
 from django.contrib import admin
-from game.models import ActionArch, GameObjectArch, GameObjectArchAttribute, Game, GameObjectSet, WaitRoomUser, GameObjectInstance, GameObjectInstanceAttribute, Action
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchGameObjectAttributeValue, GameObjectSet, GameObject, AttributeValue, Game, WaitRoomUser, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, Action
 
 
-class ActionArchAdmin(admin.ModelAdmin):
-    list_display = ('action_arch',)
+class GameRuleAdmin(admin.ModelAdmin):
+    list_display = ('game_rules',)
 
 
-class GameObjectArchAdmin(admin.ModelAdmin):
-    list_display = ('game_object_arch',)
+class ArchActionAdmin(admin.ModelAdmin):
+    list_display = ('arch_action',)
 
 
-class GameObjectArchAttributeAdmin(admin.ModelAdmin):
-    list_display = ('game_object_arch', 'attribute', 'default_value',)
+class ArchAttributeAdmin(admin.ModelAdmin):
+    list_display = ('arch_attribute',)
 
 
-class GameAdmin(admin.ModelAdmin):
-    list_display = ('name','rules',)
+class ArchGameObjectAdmin(admin.ModelAdmin):
+    list_display = ('arch_game_object',)
+
+
+class ArchGameObjectAttributeValueAdmin(admin.ModelAdmin):
+    list_display = ('arch_game_object', 'attribute', 'default_value',)
 
 
 class GameObjectSetAdmin(admin.ModelAdmin):
-    list_display = ('game', 'game_object', 'no_of_objects',)
+    list_display = ('game_object_set',)
+
+
+class GameObjectAdmin(admin.ModelAdmin):
+    list_display = ('game_object_set','game_object','attribute_set',)
+
+
+class AttributeValueAdmin(admin.ModelAdmin):
+    list_display = ('attribute_set','attribute','value',)
+
+
+class GameAdmin(admin.ModelAdmin):
+    list_display = ('game_object_set','game_rules',)
 
 
 class WaitRoomUserAdmin(admin.ModelAdmin):
-    list_display = ('game','user',)
+    list_display = ('game',)
 
 
-class GameObjectInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'game_object_instance',)
+class GameInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','game',)
 
 
-class GameObjectInstanceAttributeAdmin(admin.ModelAdmin):
-    list_display = ('game_object_instance', 'attribute', 'value',)
+class GameInstanceObjectAdmin(admin.ModelAdmin):
+    list_display = ('game_instance', 'game_object',)
+
+
+class GameInstanceObjectAttributeValueAdmin(admin.ModelAdmin):
+    list_display = ('game_instance_object', 'attribute', 'value',)
 
 
 class ActionAdmin(admin.ModelAdmin):
     list_display = ('id', 'turn', 'initiator','action','parameters','affected',)
 
 
-admin.site.register(ActionArch, ActionArchAdmin)
-admin.site.register(GameObjectArch, GameObjectArchAdmin)
-admin.site.register(GameObjectArchAttribute, GameObjectArchAttributeAdmin)
-admin.site.register(Game, GameAdmin)
+admin.site.register(GameRule, GameRuleAdmin)
+admin.site.register(ArchAction, ArchActionAdmin)
+admin.site.register(ArchAttribute, ArchAttributeAdmin)
+admin.site.register(ArchGameObject, ArchGameObjectAdmin)
+admin.site.register(ArchGameObjectAttributeValue, ArchGameObjectAttributeValueAdmin)
 admin.site.register(GameObjectSet, GameObjectSetAdmin)
+admin.site.register(GameObject, GameObjectAdmin)
+admin.site.register(AttributeValue, AttributeValueAdmin)
+admin.site.register(Game, GameAdmin)
 admin.site.register(WaitRoomUser, WaitRoomUserAdmin)
-admin.site.register(GameObjectInstance, GameObjectInstanceAdmin)
-admin.site.register(GameObjectInstanceAttribute, GameObjectInstanceAttributeAdmin)
+admin.site.register(GameInstance, GameInstanceAdmin)
+admin.site.register(GameInstanceObject, GameInstanceObjectAdmin)
+admin.site.register(GameInstanceObjectAttributeValue, GameInstanceObjectAttributeValueAdmin)
 admin.site.register(Action, ActionAdmin)
