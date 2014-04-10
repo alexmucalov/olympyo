@@ -58,6 +58,12 @@ class ArchGameObjectAttributeValue(models.Model):
     #    return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
 
 
+class ArchRelationship(models.Model):
+    arch_relationship = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return u'%s' % self.arch_relationship
+
 
 # Game Template Models
 class GameObjectSet(models.Model):
@@ -67,10 +73,20 @@ class GameObjectSet(models.Model):
         return u'%s' % self.game_object_set
 
 
+class GameObjectRelationshipSet(models.Model):
+    game_object_relationship_set = models.CharField(max_length=255)
+    #game_object_set = models.ForeignKey(GameObjectSet)
+    # Might need game_object_set to add extra validation - when adding game_object_relationship_set
+    # to Game, check that game_object_set fields in both models match
+        
+    def __unicode__(self):
+        return u'%s' % self.game_object_relationships
+
+
 class GameObject(models.Model):
     game_object_set = models.ForeignKey(GameObjectSet, related_name='game_objects')
     game_object = models.ForeignKey(ArchGameObject, related_name='game_objects')
-    attribute_set = models.ForeignKey(ArchAttributeSet, related_name='game_objects')
+    attribute_set = models.ForeignKey(ArchAttributeSet, related_name='game_objects', blank=True, null=True)
     # Ideally, game_object would determine attribute_sets available...
 
     def __unicode__(self):
@@ -84,6 +100,16 @@ class GameObject(models.Model):
     #    for game_object in self.game_objects.all():
     #        game_object.get_instance_copy(instance)
     #    return instance
+
+
+class GameObjectRelationship(models.Model):
+    relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='relationships')
+    subject_game_object = models.ForeignKey(GameObject, related_name='game_object_relationship_subjects')
+    relationship = models.ForeignKey(ArchRelationship, related_name='relationships')
+    object_game_object = models.ForeignKey(GameObject, related_name='game_object_relationship_objects')
+
+    def __unicode__(self):
+        return u'id=%s' % self.id
 
 
 class AttributeValue(models.Model):
@@ -101,22 +127,22 @@ class AttributeValue(models.Model):
 
 class Game(models.Model):
     game_object_set = models.ForeignKey(GameObjectSet, related_name='games')
+    game_object_relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='games')
     game_rules = models.ForeignKey(GameRule, related_name='games')
 
     class Meta:
-        unique_together = ('game_object_set','game_rules')
+        unique_together = ('game_object_set','game_object_relationship_set','game_rules')
 
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game_object_set, self.game_rules)
+        return u'%s: id=%s' % (self.game_object_set, self.id)
 
 
-class WaitRoomUser(models.Model):
-    game = models.ForeignKey(Game, related_name='waitroom_users')
-    user = models.ManyToManyField(User, related_name='waitroom_users')
+class Waitroom(models.Model):
+    game = models.ForeignKey(Game, related_name='waitroom')
+    user = models.ManyToManyField(User, related_name='waitroom')
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
-
 
 
 # Game Instance Models
@@ -132,8 +158,11 @@ class GameInstanceObject(models.Model):
     game_object = models.ForeignKey(GameObject, related_name='game_instance_objects')
     users = models.ManyToManyField(User, related_name='game_instance_objects', blank=True, null=True)
 	
+    class Meta:
+	    unique_together = ('game_instance','game_object')
+
     def __unicode__(self):
-        return u'%s: instance id=%s' % (self.game_object_instance, self.id)
+        return u'%s: instance id=%s' % (self.game_object, self.id)
 
 
 class GameInstanceObjectAttributeValue(models.Model):
