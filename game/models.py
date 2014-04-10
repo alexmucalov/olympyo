@@ -173,10 +173,10 @@ class GameInstanceObject(models.Model):
     def act(self, action_name, parameters, affected_id=None):
         action = ArchAction.objects.get(arch_action=action_name)
         turn = self.game_instance.turn
-        try:
-            affected = GameInstanceObject.objects.get(id=affected_id)
-        except:
+        if affected_id is None:
             affected = None
+        else:
+            affected = GameInstanceObject.objects.get(id=affected_id)
         Action.objects.create_action(turn=turn, initiator=self, action=action, parameters=parameters, affected=affected)
 
 
