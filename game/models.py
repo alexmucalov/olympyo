@@ -139,7 +139,7 @@ class Game(models.Model):
         unique_together = (('game_object_set','game_object_relationship_set','game_rules',),('name',),)
 
     def __unicode__(self):
-        return u'game id=%s' % (self.id)
+        return u'%s' % (self.name)
 
 
 class Waitroom(models.Model):
@@ -170,6 +170,15 @@ class GameInstanceObject(models.Model):
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game_object, self.id)
 
+    def act(self, action_name, parameters, affected_id=None):
+        action = ArchAction.objects.get(arch_action=action_name)
+        turn = self.game_instance.turn
+        try:
+            affected = GameInstanceObject.objects.get(id=affected_id)
+        except:
+            affected = None
+        Action.objects.create_action(turn=turn, initiator=self, action=action, parameters=parameters, affected=affected)
+
 
 class GameInstanceObjectAttributeValue(models.Model):
     game_instance_object = models.ForeignKey(GameInstanceObject, related_name='game_instance_object_attribute_values')
@@ -198,6 +207,12 @@ class GameInstanceObjectRelationship(models.Model):
 
 
 # Action Models
+class ActionManager(models.Manager):
+    def create_action(self, turn, initiator, action, parameters, affected=None):
+        action = self.create(turn=turn, initiator=initiator, action=action, parameters=parameters, affected=affected)
+        return action
+
+
 class Action(models.Model):
     turn = models.IntegerField()
     initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
@@ -205,16 +220,10 @@ class Action(models.Model):
     parameters = models.CharField(max_length=30)
     affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions', blank=True, null=True)
 
+    objects = ActionManager()
+
     class Meta:
         unique_together = ('turn','initiator','action','affected',)
 
     def __unicode__(self):
         return u'Action id: %s' % self.id
-
-
-
-
-"""
-remember model managers (see Jared's e-mail for example usage)
-remember to use instance methods
-"""

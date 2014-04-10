@@ -51,7 +51,7 @@ class AttributeValueAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('game_object_set','game_object_relationship_set','game_rules',)
+    list_display = ('name','game_object_set','game_object_relationship_set','game_rules','turns',)
 
 
 class WaitroomAdmin(admin.ModelAdmin):
@@ -59,11 +59,11 @@ class WaitroomAdmin(admin.ModelAdmin):
 
 
 class GameInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','game',)
+    list_display = ('id','game','turn',)
 
 
 class GameInstanceObjectAdmin(admin.ModelAdmin):
-    list_display = ('game_instance', 'game_object',)
+    list_display = ('id','game_instance', 'game_object',)
 
 
 class GameInstanceObjectAttributeValueAdmin(admin.ModelAdmin):
