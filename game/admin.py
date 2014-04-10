@@ -43,7 +43,7 @@ class GameObjectAdmin(admin.ModelAdmin):
 
 
 class GameObjectRelationshipAdmin(admin.ModelAdmin):
-    list_display = ('subject_game_object','relationship','object_game_object',)
+    list_display = ('relationship_set','subject_game_object','relationship','object_game_object',)
 
 
 class AttributeValueAdmin(admin.ModelAdmin):
@@ -51,7 +51,7 @@ class AttributeValueAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('game_object_set','game_rules',)
+    list_display = ('game_object_set','game_object_relationship_set','game_rules',)
 
 
 class WaitroomAdmin(admin.ModelAdmin):
@@ -84,6 +84,7 @@ admin.site.register(ArchAttribute, ArchAttributeAdmin)
 admin.site.register(ArchGameObject, ArchGameObjectAdmin)
 admin.site.register(ArchAttributeSet, ArchAttributeSetAdmin)
 admin.site.register(ArchGameObjectAttributeValue, ArchGameObjectAttributeValueAdmin)
+admin.site.register(ArchRelationship, ArchRelationshipAdmin)
 admin.site.register(GameObjectSet, GameObjectSetAdmin)
 admin.site.register(GameObjectRelationshipSet, GameObjectRelationshipSetAdmin)
 admin.site.register(GameObject, GameObjectAdmin)

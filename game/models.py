@@ -80,7 +80,7 @@ class GameObjectRelationshipSet(models.Model):
     # to Game, check that game_object_set fields in both models match
         
     def __unicode__(self):
-        return u'%s' % self.game_object_relationships
+        return u'%s' % self.game_object_relationship_set
 
 
 class GameObject(models.Model):
@@ -129,15 +129,17 @@ class AttributeValue(models.Model):
 
 
 class Game(models.Model):
+    name = models.CharField(max_length=255)
     game_object_set = models.ForeignKey(GameObjectSet, related_name='games')
     game_object_relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='games')
     game_rules = models.ForeignKey(GameRule, related_name='games')
+    turns = models.IntegerField()
 
     class Meta:
-        unique_together = ('game_object_set','game_object_relationship_set','game_rules')
+        unique_together = (('game_object_set','game_object_relationship_set','game_rules',),('name',),)
 
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game_object_set, self.id)
+        return u'game id=%s' % (self.id)
 
 
 class Waitroom(models.Model):
@@ -151,9 +153,10 @@ class Waitroom(models.Model):
 # Game Instance Models
 class GameInstance(models.Model):
     game = models.ForeignKey(Game)
+    turn = models.IntegerField()
     
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game, self.id)
+        return u'%s: instance id=%s' % (self.game, self.id)
 
 
 class GameInstanceObject(models.Model):
@@ -197,13 +200,13 @@ class GameInstanceObjectRelationship(models.Model):
 # Action Models
 class Action(models.Model):
     turn = models.IntegerField()
-    initiator = models.ForeignKey(GameInstanceObject, related_name='action_initiators')
+    initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
     action = models.ForeignKey(ArchAction, related_name='actions')
     parameters = models.CharField(max_length=30)
-    affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions')
+    affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions', blank=True, null=True)
 
     class Meta:
-        unique_together = ('turn','initiator','action','parameters','affected',)
+        unique_together = ('turn','initiator','action','affected',)
 
     def __unicode__(self):
         return u'Action id: %s' % self.id
