@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, AttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, Action
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, AttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action
 
 
 class GameRuleAdmin(admin.ModelAdmin):
@@ -70,6 +70,10 @@ class GameInstanceObjectAttributeValueAdmin(admin.ModelAdmin):
     list_display = ('game_instance_object', 'attribute', 'value',)
 
 
+class GameInstanceObjectRelationshipAdmin(admin.ModelAdmin):
+    list_display = ('game_instance','subject_game_instance_object','relationship','object_game_instance_object',)
+
+
 class ActionAdmin(admin.ModelAdmin):
     list_display = ('id', 'turn', 'initiator','action','parameters','affected',)
 
@@ -90,4 +94,5 @@ admin.site.register(Waitroom, WaitroomAdmin)
 admin.site.register(GameInstance, GameInstanceAdmin)
 admin.site.register(GameInstanceObject, GameInstanceObjectAdmin)
 admin.site.register(GameInstanceObjectAttributeValue, GameInstanceObjectAttributeValueAdmin)
+admin.site.register(GameInstanceObjectRelationship, GameInstanceObjectRelationshipAdmin)
 admin.site.register(Action, ActionAdmin)

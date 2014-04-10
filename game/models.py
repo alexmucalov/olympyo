@@ -108,6 +108,9 @@ class GameObjectRelationship(models.Model):
     relationship = models.ForeignKey(ArchRelationship, related_name='relationships')
     object_game_object = models.ForeignKey(GameObject, related_name='game_object_relationship_objects')
 
+    class Meta:
+        unique_together = ('relationship_set','subject_game_object','relationship','object_game_object',)
+
     def __unicode__(self):
         return u'id=%s' % self.id
 
@@ -177,6 +180,19 @@ class GameInstanceObjectAttributeValue(models.Model):
         return u'%s' % (self.attribute)
 
 
+class GameInstanceObjectRelationship(models.Model):
+    game_instance = models.ForeignKey(GameInstance, related_name='relationships')
+    subject_game_instance_object = models.ForeignKey(GameObject, related_name='game_instance_object_relationship_subjects')
+    relationship = models.ForeignKey(ArchRelationship, related_name='instance_relationships')
+    object_game_instance_object = models.ForeignKey(GameObject, related_name='game_instance_object_relationship_objects')
+    
+    class Meta:
+        unique_together = ('game_instance','subject_game_instance_object','relationship','object_game_instance_object',)
+
+    def __unicode__(self):
+        return u'%s' % self.id
+
+
 
 # Action Models
 class Action(models.Model):
@@ -185,6 +201,9 @@ class Action(models.Model):
     action = models.ForeignKey(ArchAction, related_name='actions')
     parameters = models.CharField(max_length=30)
     affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions')
+
+    class Meta:
+        unique_together = ('turn','initiator','action','parameters','affected',)
 
     def __unicode__(self):
         return u'Action id: %s' % self.id
