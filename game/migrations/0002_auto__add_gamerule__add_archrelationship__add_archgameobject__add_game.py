@@ -62,13 +62,10 @@ class Migration(SchemaMigration):
             ('turn', self.gf('django.db.models.fields.IntegerField')()),
             ('initiator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='initiated_actions', to=orm['game.GameInstanceObject'])),
             ('action', self.gf('django.db.models.fields.related.ForeignKey')(related_name='actions', to=orm['game.ArchAction'])),
-            ('parameters', self.gf('django.db.models.fields.CharField')(max_length=30)),
+            ('parameters', self.gf('django.db.models.fields.CharField')(max_length=30, null=True, blank=True)),
             ('affected', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='affected_by_actions', null=True, to=orm['game.GameInstanceObject'])),
         ))
         db.send_create_signal(u'game', ['Action'])
-
-        # Adding unique constraint on 'Action', fields ['turn', 'initiator', 'action', 'affected']
-        db.create_unique(u'game_action', ['turn', 'initiator_id', 'action_id', 'affected_id'])
 
         # Adding model 'GameObjectSet'
         db.create_table(u'game_gameobjectset', (
@@ -80,7 +77,7 @@ class Migration(SchemaMigration):
         # Adding model 'GameInstanceObjectAttributeValue'
         db.create_table(u'game_gameinstanceobjectattributevalue', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instance_object_attribute_values', to=orm['game.GameInstanceObject'])),
+            ('game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attribute_values', to=orm['game.GameInstanceObject'])),
             ('attribute', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['game.ArchAttribute'])),
             ('value', self.gf('django.db.models.fields.CharField')(max_length=255)),
         ))
@@ -157,9 +154,9 @@ class Migration(SchemaMigration):
         db.create_table(u'game_gameobjectrelationship', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('relationship_set', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationships', to=orm['game.GameObjectRelationshipSet'])),
-            ('subject_game_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_object_relationship_subjects', to=orm['game.GameObject'])),
+            ('subject_game_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationship_subjects', to=orm['game.GameObject'])),
             ('relationship', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationships', to=orm['game.ArchRelationship'])),
-            ('object_game_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_object_relationship_objects', to=orm['game.GameObject'])),
+            ('object_game_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationship_objects', to=orm['game.GameObject'])),
         ))
         db.send_create_signal(u'game', ['GameObjectRelationship'])
 
@@ -170,9 +167,9 @@ class Migration(SchemaMigration):
         db.create_table(u'game_gameinstanceobjectrelationship', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('game_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationships', to=orm['game.GameInstance'])),
-            ('subject_game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instance_object_relationship_subjects', to=orm['game.GameObject'])),
+            ('subject_game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationship_subjects', to=orm['game.GameInstanceObject'])),
             ('relationship', self.gf('django.db.models.fields.related.ForeignKey')(related_name='instance_relationships', to=orm['game.ArchRelationship'])),
-            ('object_game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='game_instance_object_relationship_objects', to=orm['game.GameObject'])),
+            ('object_game_instance_object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='relationship_objects', to=orm['game.GameInstanceObject'])),
         ))
         db.send_create_signal(u'game', ['GameInstanceObjectRelationship'])
 
@@ -232,9 +229,6 @@ class Migration(SchemaMigration):
 
         # Removing unique constraint on 'GameInstanceObjectAttributeValue', fields ['game_instance_object', 'attribute']
         db.delete_unique(u'game_gameinstanceobjectattributevalue', ['game_instance_object_id', 'attribute_id'])
-
-        # Removing unique constraint on 'Action', fields ['turn', 'initiator', 'action', 'affected']
-        db.delete_unique(u'game_action', ['turn', 'initiator_id', 'action_id', 'affected_id'])
 
         # Removing unique constraint on 'GameInstanceObject', fields ['game_instance', 'game_object']
         db.delete_unique(u'game_gameinstanceobject', ['game_instance_id', 'game_object_id'])
@@ -341,12 +335,12 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'game.action': {
-            'Meta': {'unique_together': "(('turn', 'initiator', 'action', 'affected'),)", 'object_name': 'Action'},
+            'Meta': {'object_name': 'Action'},
             'action': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'actions'", 'to': u"orm['game.ArchAction']"}),
             'affected': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'affected_by_actions'", 'null': 'True', 'to': u"orm['game.GameInstanceObject']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'initiator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'initiated_actions'", 'to': u"orm['game.GameInstanceObject']"}),
-            'parameters': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'parameters': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
             'turn': ('django.db.models.fields.IntegerField', [], {})
         },
         u'game.archaction': {
@@ -413,7 +407,7 @@ class Migration(SchemaMigration):
         u'game.gameinstanceobjectattributevalue': {
             'Meta': {'unique_together': "(('game_instance_object', 'attribute'),)", 'object_name': 'GameInstanceObjectAttributeValue'},
             'attribute': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['game.ArchAttribute']"}),
-            'game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instance_object_attribute_values'", 'to': u"orm['game.GameInstanceObject']"}),
+            'game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attribute_values'", 'to': u"orm['game.GameInstanceObject']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
@@ -421,9 +415,9 @@ class Migration(SchemaMigration):
             'Meta': {'unique_together': "(('game_instance', 'subject_game_instance_object', 'relationship', 'object_game_instance_object'),)", 'object_name': 'GameInstanceObjectRelationship'},
             'game_instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationships'", 'to': u"orm['game.GameInstance']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object_game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instance_object_relationship_objects'", 'to': u"orm['game.GameObject']"}),
+            'object_game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationship_objects'", 'to': u"orm['game.GameInstanceObject']"}),
             'relationship': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'instance_relationships'", 'to': u"orm['game.ArchRelationship']"}),
-            'subject_game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_instance_object_relationship_subjects'", 'to': u"orm['game.GameObject']"})
+            'subject_game_instance_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationship_subjects'", 'to': u"orm['game.GameInstanceObject']"})
         },
         u'game.gameobject': {
             'Meta': {'object_name': 'GameObject'},
@@ -435,10 +429,10 @@ class Migration(SchemaMigration):
         u'game.gameobjectrelationship': {
             'Meta': {'unique_together': "(('relationship_set', 'subject_game_object', 'relationship', 'object_game_object'),)", 'object_name': 'GameObjectRelationship'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object_game_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_object_relationship_objects'", 'to': u"orm['game.GameObject']"}),
+            'object_game_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationship_objects'", 'to': u"orm['game.GameObject']"}),
             'relationship': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationships'", 'to': u"orm['game.ArchRelationship']"}),
             'relationship_set': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationships'", 'to': u"orm['game.GameObjectRelationshipSet']"}),
-            'subject_game_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'game_object_relationship_subjects'", 'to': u"orm['game.GameObject']"})
+            'subject_game_object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relationship_subjects'", 'to': u"orm['game.GameObject']"})
         },
         u'game.gameobjectrelationshipset': {
             'Meta': {'object_name': 'GameObjectRelationshipSet'},

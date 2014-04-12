@@ -104,9 +104,9 @@ class GameObject(models.Model):
 
 class GameObjectRelationship(models.Model):
     relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='relationships')
-    subject_game_object = models.ForeignKey(GameObject, related_name='game_object_relationship_subjects')
+    subject_game_object = models.ForeignKey(GameObject, related_name='relationship_subjects')
     relationship = models.ForeignKey(ArchRelationship, related_name='relationships')
-    object_game_object = models.ForeignKey(GameObject, related_name='game_object_relationship_objects')
+    object_game_object = models.ForeignKey(GameObject, related_name='relationship_objects')
 
     class Meta:
         unique_together = ('relationship_set','subject_game_object','relationship','object_game_object',)
@@ -170,7 +170,7 @@ class GameInstanceObject(models.Model):
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game_object, self.id)
 
-    def act(self, action_name, parameters, affected_id=None):
+    def act(self, action_name, parameters=None, affected_id=None):
         action = ArchAction.objects.get(arch_action=action_name)
         turn = self.game_instance.turn
         if affected_id is None:
@@ -181,7 +181,7 @@ class GameInstanceObject(models.Model):
 
 
 class GameInstanceObjectAttributeValue(models.Model):
-    game_instance_object = models.ForeignKey(GameInstanceObject, related_name='game_instance_object_attribute_values')
+    game_instance_object = models.ForeignKey(GameInstanceObject, related_name='attribute_values')
     attribute = models.ForeignKey(ArchAttribute)
     value = models.CharField(max_length=255)
 
@@ -194,9 +194,9 @@ class GameInstanceObjectAttributeValue(models.Model):
 
 class GameInstanceObjectRelationship(models.Model):
     game_instance = models.ForeignKey(GameInstance, related_name='relationships')
-    subject_game_instance_object = models.ForeignKey(GameObject, related_name='game_instance_object_relationship_subjects')
+    subject_game_instance_object = models.ForeignKey(GameInstanceObject, related_name='relationship_subjects')
     relationship = models.ForeignKey(ArchRelationship, related_name='instance_relationships')
-    object_game_instance_object = models.ForeignKey(GameObject, related_name='game_instance_object_relationship_objects')
+    object_game_instance_object = models.ForeignKey(GameInstanceObject, related_name='relationship_objects')
     
     class Meta:
         unique_together = ('game_instance','subject_game_instance_object','relationship','object_game_instance_object',)
@@ -205,10 +205,9 @@ class GameInstanceObjectRelationship(models.Model):
         return u'%s' % self.id
 
 
-
 # Action Models
 class ActionManager(models.Manager):
-    def create_action(self, turn, initiator, action, parameters, affected=None):
+    def create_action(self, turn, initiator, action, parameters=None, affected=None):
         action = self.create(turn=turn, initiator=initiator, action=action, parameters=parameters, affected=affected)
         return action
 
@@ -217,13 +216,10 @@ class Action(models.Model):
     turn = models.IntegerField()
     initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
     action = models.ForeignKey(ArchAction, related_name='actions')
-    parameters = models.CharField(max_length=30)
+    parameters = models.CharField(max_length=30, blank=True, null=True)
     affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions', blank=True, null=True)
 
     objects = ActionManager()
-
-    class Meta:
-        unique_together = ('turn','initiator','action','affected',)
 
     def __unicode__(self):
         return u'Action id: %s' % self.id
