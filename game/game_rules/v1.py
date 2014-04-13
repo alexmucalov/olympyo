@@ -46,78 +46,119 @@ And when the turn timer runs out, the game engine has to operate over the
 					--- ** What conditions dictate that AI won't work in a turn??
 						Use something as close to the most basic micro model, to test!
 """
-from django.db.models import Q
-from django.db.models import F
+from django.db.models import Q, F
+from game.game_rules.components import eat, reset_labour_working, work_own_farm, labour_worked, produce, earn, profit, enjoy_leisure
+from game.models import *
+"""
+*** Intended initial DB definition ***
 
+*Arch_actions: work, take_wage, set_wage
+*Arch_attribute_sets: normal_player, normal_labour, normal_farm
+*Arch_attributes: productivity, labour_spots, labour_working, production, cost, leisure, wealth
+*Arch_game_objects: player, labour, farm, nature
+*Arch_game_object_attribute_values: [farm, labour_working, 0], [farm, labour_spots, 2], [farm, production, 0], [farm, productivity, 2], [farm, cost, 2], [player, leisure, 0], [player, wealth, 2], [labour, leisure, 0], [labour, wealth, 2]
+*Attribute_values: as directly above, but with 'normal_' prepended to each game_object
+*Game_object_relationship_sets: modest_ownership
+*Game_objects: [farm_village, player, normal_player]*2, [farm_village, labour, normal_labour]*3, [farm_village, farm, normal_farm]*2, [farm_village, nature, (None)]
+*Game_object_relationships:[modest_ownership, player1, owns, farm1], [modest_ownership, player2, owns, farm2]
+*Games: [farm_village_modest_ownership, farm_village, modest_ownership, v1, 20]
+*Game_instances: [farm_village_modest_ownership, 1]
+*Game_instance_objects: as in Game_objects, but attach players to users
+*Game_instance_object_relationships: as in Game_object_relationships, for a given game instance
+*Game_instance_object_attribute_values: according to Attribute_values, but for each game_instance_object (20 records total)
+*Actions: GIO players 1 and 2 can set two wages each - each affecting their own farms - to test
+
+*Note: All game_instance tables should be populated properly as part of 'Game' instance method 'create_game_instance', referenced below
+*Add 'alive' as a Bool attr for players and labourers? Yes - but later; then condition any player or labour activity on players or labourers being alive
+"""
+"""
+NOTES
 #Nomic; make it possible to encapsulate a rule, as a part of a ruleset, and store it somewhere (in a databaset) so that users can share them!
+#Put under instance method 'create_game_instance': create all game instance objects, and create all their starting attributes... BE CAREFUL WITH THIS - COULD BE INVOLVED
+#Use map, here
+"""
 
-#def update_turn(instance_id, turn):
-    #First, have labour take action to take wages:
+# Instance method on GameInstance objects; ruleset is called dynamically 
+def update_turn(instance):
+    instance_id = instance.id
+    turn = instance.turn
     
-    #set_wage_actions = Action.objects.filter(initiator.game_instance.id__exact=instance_id, turn__exact=turn, action.arch_action__exact='set_wage')
-    #sorted_set_wage_actions = set_wage_actions.order_by('parameters')
-    #labour = GameInstanceObject.objects.get(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='labour')
-    #labour_and_wages_offered = zip(labour, sorted_set_wage actions)
-    #for (labourer, wage_offered) in labour and wages_offered:
-        #labourer.act('work')
-        #labourer.act('take_wage', wage_offered.parameters, wage_offered.affected)
+    #Players and labourers eat 1 wealth:
+    players = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='player')
+    labourers = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='labour')
+    for player in players:
+        player.eat()
+    for labour in labourers:
+        labour.eat()
 
+    #Farms reset labour_working to zero:
+    farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='farm')
+    for farm in farms:
+        farm.reset_labour_working()
     
-    #Second, reset labour_working on each farm:
+    #Farm increases labour_working by one if its owner worked it
+    players_who_worked_farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='player', initiated_actions.turn__exact=turn, initiated_actions.action__exact='work')
+    for player in players_who_worked_farms:
+        player.work_own_farm()
     
-    #farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='farm')
-    #for farm in farms:
-        #labour_working_attr = farm.attribute_values.get(attribute='labour_working')
-        #labour_working_attr.value = 0
-        #labour_working_attr.save(update_fields=['value'])
-
-
-    #Third, determine which players worked their own farms, and increment labour_working if they are:
+    #Have labour take action to take wages, work, and get paid:
+    sorted_set_wage_actions = Action.objects.filter(initiator.game_instance.id__exact=instance_id, turn__exact=turn, action.arch_action__exact='set_wage').order_by('-parameters')
+    labour_and_wages_offered = zip(labourers, sorted_set_wage actions)
+    for (labour, wage_offered) in labour_and_wages_offered:
+        labour.act('take_wage', wage_offered.parameters, wage_offered.affected)
+        labour.act('work')
     
-    #players_who_worked_farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='player', initiated_actions.turn__exact=turn, initiated_actions.action__exact='work')
-    #for player in players_who_worked_farms:
-        #player_farm = player.relationship_subjects.get(relationship.arch_relationship='owns').object_game_instance_object
-        #labour_working_attr = player_farm.attribute_values.get(attribute='labour_working')
-        #labour_working_attr.value = F('value') + 1
-        #labour_working_attr.save(update_fields=['value'])
+    #Farm increases labour_working for all labourers working it:
+    worked_farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_instance.turn__exact=turn, affected_by_actions.action.arch_action__exact='set_wage', affected_by_actions.action.arch_action__exact='take_wage')
+    for farm in worked_farms:
+        farm.labour_worked()
+
+    #Farms produce based on total labour_working, then split production between wages and profits:
+    for farm in farms:
+        farm.produce()
+        
+        # Common source values
+        farm_production_attr = farm.attribute_values.get(attribute__exact='production')
+        farm_owner = farm.relationship_objects.get(relationship__exact='owns').subject_game_instance_object
+        farm_owner_wealth_attr = owner.attribute_values.get(attribute__exact='wealth')
+        farm_labour_actions = farm.affected_by_actions.filter(action__exact='take_wage', turn__exact=turn)
+        labour_count = len(farm_labour_actions)
+        farm_wages_offered = []
+        for farm_labour_action in farm_labour_actions:
+            farm_wage_offered = [farm_labour_action.parameters]
+            farm_wages_offered = farm_wages_offered + farm_wage_offered
+        
+        # If owner can pay all costs, do so, then keep the rest
+        if farm_owner_wealth_attr.value + farm_production_attr.value >= sum(farm_wages_offered):
+            farm_labour_costs = 0
+            for farm_labour_action in farm_labour_actions:
+                farm_wage_offered = farm_labour_action.parameters
+                farm_labour_costs += farm_wage_offered
+                farm_labour_wealth_attr = farm_labour_action.initiator.attribute_values.get(attribute__exact='wealth')
+                farm_labour_wealth_attr.value = F('value') + farm_wage_offered
+                farm_labour_wealth_attr.save(update_fields['value'])
+            farm_owner_wealth_attr.value = F('value') + farm_production_attr - farm_labour_costs
+            farm_owner_wealth_attr.save(update_fields=['value'])
+        
+        # If owner can't pay all the costs, pay as much as possible evenly among all labourers, then set owner wealth = 0
+        else:
+            farm_labour_costs = farm_owner_wealth_attr.value + farm_production_attr.value
+            for farm_labour_action in farm_labour_actions:
+                farm_labour_wealth_attr = farm_labour_action.initiator.attribute_values.get(attribute__exact='wealth')
+                farm_labour_wealth_attr.value = F('value') + 1/labour_count*farm_labour_costs
+                farm_labour_wealth_attr.save(update_fields=['value'])
+            farm_owner_wealth_attr.value = 0
+            farm_owner_wealth_attr.save(update_fields=['value'])
+
+    #(Check if any players or labourers have died:)
+
+    #Update all players' and labourers' leisure:
+    labourers_who_didnt_work = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='labour', initiated_actions.turn__exact=turn, ~Q(initiated_actions.action__exact='work'))
+    players_who_didnt_work = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='player', initiated_actions.turn__exact=turn, ~Q(initiated_actions.action__exact='work'))
+    for labour in labourers_who_didnt_work:
+        labour.enjoy_leisure()
+    for player in players_who_didnt_work:
+        player.enjoy_leisure()
     
-    
-    #Fourth, recalculate total labour_working on each farm:
-
-    #worked_farms = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_instance.turn__exact=turn, affected_by_actions.action.arch_action__exact='set_wage', affected_by_actions.action.arch_action__exact='take_wage')
-    #for farm in worked_farms:
-        #count_set_wage_actions = farm.affected_by_actions.filter(action.arch_action__exact='set_wage').count()
-        #count_take_wage_actions = farm.affected_by_actions.filter(action.arch_action__exact='take_wage').count()
-        #labour_working = min(count_set_wage_actions, count_take_wage_actions)
-        #labour_working_attr = farm.attribute_values.get(attribute__exact='labour_working')
-        #labour_working_attr.value = F('value') + labour_working
-        #labour_working_attr.save(update_fields=['value'])
-
-
-    #Fifth, calculate this turn's production:
-    
-    #for each farm in farms:
-        #production_attr = farm.attribute_values.get(attribute__exact='production')
-        #labour_working_attr = farm.attribute_values.get(attribute__exact='labour_working')
-        #productivity_attr = farm.attribute_values.get(attribute__exact='productivity')
-        #production_attr.value = labour_working_attr.value ** productivity_attr.value
-        #production_attr.save(update_fields=['value'])
-
-
-    #Sixth, update all players' and labourers' wealth and leisure:
-    
-    #LEISURE
-    #labourers_who_didnt_work = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='labour', initiated_actions.turn__exact=turn, ~Q(initiated_actions.action__exact='work'))
-    #players_who_didnt_work = GameInstanceObject.objects.filter(game_instance.id__exact=instance_id, game_object.game_object.arch_game_object__exact='player', initiated_actions.turn__exact=turn, ~Q(initiated_actions.action__exact='work'))
-    #for labour in labourers_who_didnt_work:
-        #leisure_attr = labour.attribute_values.get(attribute__exact='leisure')
-        #leisure_attr.value = F('value') + 1
-        #leisure_attr.save(update_fields = ['value'])
-    #for player in players_who_didnt_work:
-        #leisure_attr = player.attribute_values.get(attribute__exact='leisure')
-        #leisure_attr.value = F('value') + 1
-        #leisure_attr.save(update_fields = ['value'])
-    #WEALTH
-    #
-
-    # !!! Get a queryset of all players filtered to turn=1 and game instance=1 !!!
+    #Update turn no.
+    turn = F('turn') + 1    

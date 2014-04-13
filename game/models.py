@@ -157,6 +157,12 @@ class GameInstance(models.Model):
     
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game, self.id)
+    
+    def update_turn(self):
+        ruleset = self.game.game_rules.game_rules
+        ruleset_path = 'game.game_rules.' + ruleset
+        mod = __import__(ruleset_path, fromlist=[])
+        mod.update_turn(self)
 
 
 class GameInstanceObject(models.Model):
