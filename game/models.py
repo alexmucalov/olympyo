@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from game.game_rules.v1 import perform
+#hopefully temporary, until dynamic imports set up (WIP commented out right now, in GameInstance)
 
 
 # Game Rules Models
@@ -159,10 +161,12 @@ class GameInstance(models.Model):
         return u'%s: instance id=%s' % (self.game, self.id)
     
     def update_turn(self):
-        ruleset = self.game.game_rules.game_rules
-        ruleset_path = 'game.game_rules.' + ruleset
-        mod = __import__(ruleset_path, fromlist=[])
-        mod.update_turn(self)
+        perform(self)
+        #ruleset = self.game.game_rules.game_rules
+        #ruleset_path = 'game.game_rules.' + ruleset
+        #mod = __import__(ruleset_path, fromlist=[])
+        #mod
+        #perform(self)
 
 
 class GameInstanceObject(models.Model):
