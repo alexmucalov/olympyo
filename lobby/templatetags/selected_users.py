@@ -1,5 +1,5 @@
 from django import template
-from game.gamemetamethods import get_all_logged_in_users
+from game.metamethods import get_all_logged_in_users
 register = template.Library()
 
 
