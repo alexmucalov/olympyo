@@ -1,52 +1,4 @@
 """
-specifies turn update logic for version 1 rules
-		-2div-v, below
-		-imports from gameforms.py for specific actions' forms (useful for validating)
-		-defines the game functions that each view function will call when a given button 
-			is pressed
-		-(When you POST, you post to the same urlconf, which calls a view function, which 
-			can in turn call any other function you want - but you want to keep views and
-			game logic separate! Want refreshed pages to query all players' updated info?
-			Or keep all hidden? Or keep all other players' info hidden? Not difficult, no
-			matter what.)
-			-- Push public/private wage display, e.g., back to game rules, and leave as 
-				an argument in game rules' functions
-			-- Leave as arguments, for game rules to read, things like player_wage_info
-				(public or private), farm_productivity_parameter (squared, cubed, etc.)
-			-- Put these parameters in the DB attached to each game, under something like
-				a rule_parameters column and a rule_values column, and have the game 
-				rules query those parameters and store those values locally when a 
-				game_init function is called
-		-So:
-			-- On a turn, gamerules house the DB query functions that views will call
-			-- When turns update - called by gamecontroller - gamerules will update state,
-				per 2dv. below; and then gamecontroller (?) will log all changes
-"""
-"""
-And when the turn timer runs out, the game engine has to operate over the
-			actions committed that turn, and correctly calculate the next game state
-			- At first, just let owners choose whether to work one of their own plots,
-				assign labour to wages, and calculate new state: 
-				-- Query AI labour count at a given turn
-				-- Sort player wages entered in a given turn
-				-- Find top (labour_count) wages, and assign AI labourers to positions
-					(randomly? Does each AI labourer have an identity? Yes - more robust)
-				-- Then, for each farm, calculate production:
-					--- If farm_labour_count == 2: farm_production = 4
-					--- If farm_labour_count == 1: farm_production = 1
-					--- If farm_labour_count == 0: farm_production = 0
-				-- Update food_counts:
-					--- If owner_food_count + farm_production > sum of wages
-						Then each AI gets wage, player gets farm_production - wages
-					--- Else: AI gets owner_food_count + farm_production,
-						owner dies
-				-- Update player_leisure_count:
-					--- If owner didn't work: player_leisure_count += 1
-					--- If AI didn't work: AI_leisure_count += 1
-					--- ** What conditions dictate that AI won't work in a turn??
-						Use something as close to the most basic micro model, to test!
-"""
-"""
 *** Intended initial DB definition ***
 
 *Arch_actions: work, take_wage, set_wage
@@ -75,13 +27,13 @@ NOTES
 #Remember get_or_create, here
 #Use map, here
 """
-
 # Instance method on GameInstance objects; ruleset is called dynamically - not yet, but soon I hope
 # Right now, functions imported from components are global; what about using inheritance 
 # to extend GameInstanceObjects? E.g., class Player(GameInstanceObject)...
 # and then defining the methods that apply to that class (e.g., eat) (which can themselves be drawn
 # from components)? Would be much better, no? Then how to define existing GameInstanceObjects
 # as members of new subclasses like Player? Instead of eat(labour), would have labour.eat()
+
 def perform(instance):
     from django.db.models import Q, F
     from game.game_rules.components import eat, reset_labour_working, work_own_farm, labour_worked, produce, enjoy_leisure
@@ -116,7 +68,8 @@ def perform(instance):
         labour.act("work")
     
     #Farm increases labour_working for all labourers working it:
-    worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action="set_wage").filter(affected_by_actions__action__arch_action="take_wage")
+    #Buggy...
+    worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action="take_wage").distinct()
     for farm in worked_farms:
         labour_worked(farm)
 
@@ -160,12 +113,13 @@ def perform(instance):
     #(Check if any players or labourers have died:)
 
     #Update all players' and labourers' leisure:
-    labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="labour", initiated_actions__turn=turn)
-    players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="player", initiated_actions__turn=turn)
+    labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="labour", initiated_actions__turn=turn).distinct()
+    players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="player", initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:
         enjoy_leisure(labour)
     for player in players_who_didnt_work:
         enjoy_leisure(player)
     
     #Update turn no.
-    turn = F('turn') + 1    
+    turn = F('turn') + 1
+    instance.save(update_fields=['turn'])
