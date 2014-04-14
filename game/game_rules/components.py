@@ -13,6 +13,8 @@ def eat(living_object):
 
 
 #v1 - applies to farms
+#Might not be working: Didn't seem to reset between turns on testing! But actually probably a problem with labour_worked
+#down below: looks like that filter might not filter by turn!
 def reset_labour_working(farm):
     labour_working_attr = farm.attribute_values.all().get(attribute__arch_attribute="labour_working")
     labour_working_attr.value = 0
@@ -30,8 +32,9 @@ def work_own_farm(living_object):
 
 #v1 - applies to all farms
 def labour_worked(farm):
-    count_set_wage_actions = farm.affected_by_actions.all().filter(action__arch_action="set_wage").count()
-    count_take_wage_actions = farm.affected_by_actions.all().filter(action__arch_action="take_wage").count()
+    turn = farm.game_instance.turn
+    count_set_wage_actions = farm.affected_by_actions.all().filter(turn=turn, action__arch_action="set_wage").count()
+    count_take_wage_actions = farm.affected_by_actions.all().filter(turn=turn, action__arch_action="take_wage").count()
     labour_working = min(count_set_wage_actions, count_take_wage_actions)
     labour_working_attr = farm.attribute_values.all().get(attribute__arch_attribute="labour_working")
     labour_working_attr.value = F('value') + labour_working
