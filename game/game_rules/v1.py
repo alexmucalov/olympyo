@@ -112,7 +112,6 @@ def perform(instance):
     #(Check if any players or labourers have died:)
 
     #Update all players' and labourers' leisure:
-    #Check: leisure might add 1 too many leisure in turn 2
     labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="labour", initiated_actions__turn=turn).distinct()
     players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="player", initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:
