@@ -121,5 +121,5 @@ def perform(instance):
         enjoy_leisure(player)
     
     #Update turn no.
-    turn = F('turn') + 1
+    instance.turn = F('turn') + 1
     instance.save(update_fields=['turn'])
