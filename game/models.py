@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from game.game_rules.v1 import perform
-#hopefully temporary, until dynamic imports set up (WIP commented out right now, in GameInstance)
 
 
 # Game Rules Models
@@ -56,9 +54,6 @@ class ArchGameObjectAttributeValue(models.Model):
     def __unicode__(self):
         return u'%s: %s' % (self.arch_game_object, self.attribute)
 
-    #def get_instance_copy(self, instance):
-    #    return GameInstanceObject.objects.create(instance=instance, game_object=self, value=self.default_value)
-
 
 class ArchRelationship(models.Model):
     arch_relationship = models.CharField(max_length=255)
@@ -93,15 +88,6 @@ class GameObject(models.Model):
 
     def __unicode__(self):
         return u'%s: id=%s' % (self.game_object, self.id)
-	
-    def add_user_to_waitroom(self, user):
-        pass
-		
-    #def create_instance(self, users):
-    #    instance = GameInstance(game=self, users=users)
-    #    for game_object in self.game_objects.all():
-    #        game_object.get_instance_copy(instance)
-    #    return instance
 
 
 class GameObjectRelationship(models.Model):
@@ -143,14 +129,30 @@ class Game(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
+    #def create_instance(self, users):
+    #    instance = GameInstance(game=self, turn=1)
+    #    for game_object in self.game_objects.all():
+    #        game_object.get_instance_copy(instance)
+    #    return instance
+
 
 class Waitroom(models.Model):
     game = models.ForeignKey(Game, related_name='waitroom')
     user = models.ManyToManyField(User, related_name='waitroom')
+	#Should be labelled 'users', on a many to many field
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
 
+    #def add_user_to_waitroom(self, request):
+        #room = request.room
+        #waitroom = Waitroom.objects.get(id=room)
+        #waitroom.add(request.user)
+        #waitroom_user_count = waitroom.user_set.all().count()
+        #game_player_count = waitroom.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
+        #if waitroom_user_count >= game_player_count:
+        #    Send users to /game/, using nodejs or Python Twisted
+        #    self.game.create_instance(users)
 
 # Game Instance Models
 class GameInstance(models.Model):
@@ -161,12 +163,9 @@ class GameInstance(models.Model):
         return u'%s: instance id=%s' % (self.game, self.id)
     
     def update_turn(self):
+        ruleset = self.game.game_rules.game_rules
+        exec "from game.game_rules.%s import perform" % ruleset
         perform(self)
-        #ruleset = self.game.game_rules.game_rules
-        #ruleset_path = 'game.game_rules.' + ruleset
-        #mod = __import__(ruleset_path, fromlist=[])
-        #mod
-        #perform(self)
 
 
 class GameInstanceObject(models.Model):
@@ -179,6 +178,9 @@ class GameInstanceObject(models.Model):
 
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game_object, self.id)
+
+    #def get_instance_copy(self, instance):
+    #    return GameInstanceObject.objects.create(instance=instance, game_object=self, users=...)
 
     def act(self, action_name, parameters=None, affected_id=None):
         action = ArchAction.objects.get(arch_action=action_name)
