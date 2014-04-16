@@ -104,7 +104,7 @@ class GameObjectRelationship(models.Model):
 
 
 class AttributeValue(models.Model):
-    attribute_set = models.ForeignKey(ArchAttributeSet)
+    attribute_set = models.ForeignKey(ArchAttributeSet, related_name='attribute_values')
     attribute = models.ForeignKey(ArchAttribute)
     value = models.CharField(max_length = 255)
     # Ideally would be defined and available for a given game_object_type, and no other
@@ -130,10 +130,7 @@ class Game(models.Model):
         return u'%s' % (self.name)
 
     #def create_instance(self, users):
-    #    instance = GameInstance(game=self, turn=1)
-    #    for game_object in self.game_objects.all():
-    #        game_object.get_instance_copy(instance)
-    #    return instance
+    #    GameInstance.objects.create_game_instance(game=self, turn=1)
 
 
 class Waitroom(models.Model):
@@ -154,7 +151,16 @@ class Waitroom(models.Model):
         #    Send users to /game/, using nodejs or Python Twisted
         #    self.game.create_instance(users)
 
+
 # Game Instance Models
+class GameInstanceManager(models.Manager):
+    def create_game_instance(self, game, turn):
+        game_instance = self.create(game=game, turn=turn)
+        #for game_object in self.game.game_object_set.game_objects.all():
+        #    GameInstanceObject.objects.create_game_instance_object(parameters as defined in game_object)
+        return game_instance
+
+
 class GameInstance(models.Model):
     game = models.ForeignKey(Game)
     turn = models.IntegerField()
@@ -167,20 +173,35 @@ class GameInstance(models.Model):
         exec "from game.game_rules.%s import perform" % ruleset
         perform(self)
 
+    def create_game_instance_objects():
+        #instance = GameInstance(game=self, turn=1)
+        #for game_object in self.game_objects.all():
+        #    game_object.get_instance_copy(instance)
+        #return instance
+        pass
+
+
+class GameInstanceObjectManager(models.Manager):
+    pass
+    #def create_game_instance_object(self, instance):
+    #    copy = GameInstanceObject.objects.create(game_instance=instance, game_object=self, users=...)
+    #    for game_instance_object_attr in self.attribute_set.attribute_values.all():
+    #        GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(parameters as defined in game_instance_object_attr) 
+    #return copy
+
 
 class GameInstanceObject(models.Model):
     game_instance = models.ForeignKey(GameInstance, related_name='game_instance_objects')
     game_object = models.ForeignKey(GameObject, related_name='game_instance_objects')
     users = models.ManyToManyField(User, related_name='game_instance_objects', blank=True, null=True)
+    
+    objects = GameInstanceObjectManager()
 	
     class Meta:
 	    unique_together = ('game_instance','game_object')
 
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game_object, self.id)
-
-    #def get_instance_copy(self, instance):
-    #    return GameInstanceObject.objects.create(instance=instance, game_object=self, users=...)
 
     def act(self, action_name, parameters=None, affected_id=None):
         action = ArchAction.objects.get(arch_action=action_name)
@@ -190,6 +211,13 @@ class GameInstanceObject(models.Model):
         else:
             affected = GameInstanceObject.objects.get(id=affected_id)
         Action.objects.create_action(turn=turn, initiator=self, action=action, parameters=parameters, affected=affected)
+
+
+class GameInstanceObjectAttributeValueManager(models.Manager):
+    pass
+    #def create_game_instance_object_attribute_value():
+    #    attribute_value = create it...
+    #    return attribute_value
 
 
 class GameInstanceObjectAttributeValue(models.Model):
