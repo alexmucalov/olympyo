@@ -90,7 +90,7 @@ class GameObject(models.Model):
         return u'%s: id=%s' % (self.game_object, self.id)
 
     def create_instance_object():
-        #instance_object = GameInstanceObject.create_game_instance_object(Parameters defined in GameObject)
+        #instance_object = GameInstanceObject.objects.create_game_instance_object(Parameters defined GameObject)
         #return instance_object
         pass
 
@@ -107,10 +107,11 @@ class GameObjectRelationship(models.Model):
     def __unicode__(self):
         return u'id=%s' % self.id
 
-    def create_object_relationship():
-        #instance_object_relationship = GameInstanceObjectRelationship.create_game_instance_object_relationship(Parameters defined in GameObjectRelationship)
+    def create_instance_object_relationship():
+        #instance_object_relationship = GameInstanceObjectRelationship.create_game_instance_object_relationship(Parameters defined GameObjectRelationship)
         #return instance_object_relationship
         pass
+
 
 class AttributeValue(models.Model):
     attribute_set = models.ForeignKey(ArchAttributeSet, related_name='attribute_values')
@@ -143,9 +144,9 @@ class Game(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
-    #def create_instance(self, users):
-    #    instance = GameInstance.objects.create_game_instance(game=self, turn=1)
-    #    return instance
+    def create_instance(self, users):
+        instance = GameInstance.objects.create_game_instance(game=self, turn=1)
+        return instance
 
 
 class Waitroom(models.Model):
