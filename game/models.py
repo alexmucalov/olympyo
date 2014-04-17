@@ -89,10 +89,10 @@ class GameObject(models.Model):
     def __unicode__(self):
         return u'%s: id=%s' % (self.game_object, self.id)
 
-    def create_instance_object():
-        #instance_object = GameInstanceObject.objects.create_game_instance_object(Parameters defined GameObject)
-        #return instance_object
-        pass
+    def create_instance_object(self, game_instance, users):
+        game_object = self.game_object
+        instance_object = GameInstanceObject.objects.create_game_instance_object(self, game_instance=game_instance, game_object=game_object, users=users)
+        return instance_object
 
 
 class GameObjectRelationship(models.Model):
@@ -107,10 +107,12 @@ class GameObjectRelationship(models.Model):
     def __unicode__(self):
         return u'id=%s' % self.id
 
-    def create_instance_object_relationship():
-        #instance_object_relationship = GameInstanceObjectRelationship.create_game_instance_object_relationship(Parameters defined GameObjectRelationship)
-        #return instance_object_relationship
-        pass
+    def create_instance_object_relationship(self, game_instance):
+        subject_game_instance_object = self.subject_game_object.game_instance_objects.all().get(game_instance=game_instance)
+        relationship = self.relationship
+        object_game_instance_object = self.object_game_object.game_instance_objects.all().get(game_instance=game_instance)
+        instance_object_relationship = GameInstanceObjectRelationship.objects.create_game_instance_object_relationship(game_instance=game_instance, subject_game_instance_object=subject_game_instance_object, relationship=relationship, object_game_instance_object=object_game_instance_object)
+        return instance_object_relationship
 
 
 class AttributeValue(models.Model):
@@ -125,10 +127,12 @@ class AttributeValue(models.Model):
     def __unicode__(self):
         return u'%s: %s - %s' % (self.attribute_set, self.attribute, self.value)
 
-    def create_instance_attribute_value():
-        #instance_attribute_value = GameInstanceObjectAttributeValue.create_game_instance_object_attribute_value(Parameters defined in GameObject)
-        #return instance_attribute_value
-        pass
+    def create_instance_attribute_value(self, game_instance_object):
+        attribute = self.attribute
+        value = self.value
+        attribute_set = self.attribute_set
+        instance_attribute_value = GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(game_instance_object=game_instance_object, attribute=attribute, value=value)
+        return instance_attribute_value
 
 
 class Game(models.Model):
@@ -144,10 +148,25 @@ class Game(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
-    def create_instance(self, users):
+    def create_instance(self):
         instance = GameInstance.objects.create_game_instance(game=self, turn=1)
         return instance
-
+    
+    def create_all_instance_objects(self, users):
+        game_instance = self.create_instance()
+        i = 0
+        for game_object in self.game_object_set.game_objects.all():
+            if game_object.arch_game_object == 'player':
+                game_object_user = users[i]
+                i += 1
+            else:
+                game_object_user = None
+            game_instance_object = game_object.create_instance_object(game_instance, game_object_user)
+            for attribute_value in game_object.attribute_set.attribute_values.all():
+                game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
+        for game_object_relationship in self.game_object_relationship_set.relationships.all():
+            game_object_relationship.create_instance_object_relationship(game_instance)
+        
 
 class Waitroom(models.Model):
     game = models.ForeignKey(Game, related_name='waitroom')
@@ -157,7 +176,7 @@ class Waitroom(models.Model):
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
 
-    #def add_user_to_waitroom(self, request):
+    #def add_user(self, request):
         #room = request.room
         #waitroom = Waitroom.objects.get(id=room)
         #waitroom.add(request.user)
@@ -165,7 +184,7 @@ class Waitroom(models.Model):
         #game_player_count = waitroom.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
         #if waitroom_user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
-        #    self.game.create_instance(users)
+        #    self.game.create_all_instance_objects(users)
 
 
 # Game Instance Models
@@ -191,10 +210,9 @@ class GameInstance(models.Model):
 
 
 class GameInstanceObjectManager(models.Manager):
-    #def create_game_instance_object(self, instance):
-    #    game_instance_object = GameInstanceObject.objects.create(game_instance=instance, game_object=self, users=...)
-    #    return game_instance_object
-    pass
+    def create_game_instance_object(self, instance, game_object, users):
+        game_instance_object = self.create(game_instance=instance, game_object=game_object, users=users)
+        return game_instance_object
 
 
 class GameInstanceObject(models.Model):
@@ -221,10 +239,9 @@ class GameInstanceObject(models.Model):
 
 
 class GameInstanceObjectAttributeValueManager(models.Manager):
-    #def create_game_instance_object_attribute_value():
-    #    attribute_value = create it...
-    #    return attribute_value
-    pass
+    def create_game_instance_object_attribute_value(self, game_instance_object, attribute, value):
+        attribute_value = self.create(game_instance_object=game_instance_object, attribute=attribute, value=value)
+        return attribute_value
 
 
 class GameInstanceObjectAttributeValue(models.Model):
@@ -242,10 +259,9 @@ class GameInstanceObjectAttributeValue(models.Model):
 
 
 class GameInstanceObjectRelationshipManager(models.Manager):
-    #def create_game_instance_object_relationship():
-    #    relationship = create it...
-    #    return relationship
-    pass
+    def create_game_instance_object_relationship(self, game_instance, subject_game_instance_object, relationship, object_game_instance_object):
+        relationship = self.create(game_instance=game_instance, subject_game_instance_object=subject_game_instance_object, relationship=relationship, object_game_instance_object=object_game_instance_object)
+        return relationship
 
 
 class GameInstanceObjectRelationship(models.Model):
