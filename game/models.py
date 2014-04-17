@@ -90,9 +90,12 @@ class GameObject(models.Model):
         return u'%s: id=%s' % (self.game_object, self.id)
 
     def create_instance_object(self, game_instance, users):
-        game_object = self.game_object
-        instance_object = GameInstanceObject.objects.create_game_instance_object(self, game_instance=game_instance, game_object=game_object, users=users)
+        game_object = self
+        instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object)
+        instance_object.users.add(users)
         return instance_object
+        #http://stackoverflow.com/questions/8677750/django-model-error-typeerror-xxx-is-an-invalid-keyword-argument-for-this-fu
+        #Must instantiate model without users, then add users and save
 
 
 class GameObjectRelationship(models.Model):
@@ -210,8 +213,8 @@ class GameInstance(models.Model):
 
 
 class GameInstanceObjectManager(models.Manager):
-    def create_game_instance_object(self, instance, game_object, users):
-        game_instance_object = self.create(game_instance=instance, game_object=game_object, users=users)
+    def create_game_instance_object(self, game_instance, game_object):
+        game_instance_object = self.create(game_instance=game_instance, game_object=game_object)
         return game_instance_object
 
 
