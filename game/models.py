@@ -89,13 +89,12 @@ class GameObject(models.Model):
     def __unicode__(self):
         return u'%s: id=%s' % (self.game_object, self.id)
 
-    def create_instance_object(self, game_instance, users):
+    def create_instance_object(self, game_instance, users=None):
         game_object = self
         instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object)
-        instance_object.users.add(users)
+        if users:
+            instance_object.users.add(users)
         return instance_object
-        #http://stackoverflow.com/questions/8677750/django-model-error-typeerror-xxx-is-an-invalid-keyword-argument-for-this-fu
-        #Must instantiate model without users, then add users and save
 
 
 class GameObjectRelationship(models.Model):
@@ -159,14 +158,15 @@ class Game(models.Model):
         game_instance = self.create_instance()
         i = 0
         for game_object in self.game_object_set.game_objects.all():
-            if game_object.arch_game_object == 'player':
+            if game_object.game_object.arch_game_object == 'player':
                 game_object_user = users[i]
                 i += 1
             else:
                 game_object_user = None
             game_instance_object = game_object.create_instance_object(game_instance, game_object_user)
-            for attribute_value in game_object.attribute_set.attribute_values.all():
-                game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
+            if game_object.attribute_set:
+                for attribute_value in game_object.attribute_set.attribute_values.all():
+                    game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
         for game_object_relationship in self.game_object_relationship_set.relationships.all():
             game_object_relationship.create_instance_object_relationship(game_instance)
         
