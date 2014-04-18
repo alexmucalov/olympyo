@@ -179,15 +179,15 @@ class Waitroom(models.Model):
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
 
-    #def add_user(self, request):
-        #room = request.room
-        #waitroom = Waitroom.objects.get(id=room)
-        #waitroom.add(request.user)
-        #waitroom_user_count = waitroom.user_set.all().count()
-        #game_player_count = waitroom.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
-        #if waitroom_user_count >= game_player_count:
+    def add_user(self, user):
+        self.user.add(user)
+        users = self.user.all()
+        user_count = self.user.all().count()
+        game_player_count = self.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
+        if user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
-        #    self.game.create_all_instance_objects(users)
+            self.game.create_all_instance_objects(users)
+            self.delete()
 
 
 # Game Instance Models
