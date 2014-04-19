@@ -1,7 +1,9 @@
+<!DOCTYPE html>
+
 {% load staticfiles %}
 {% url 'auth_logout' as logout_url%}
 
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
@@ -9,8 +11,8 @@
 
     <title>Olympyo</title>
 
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/less.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/less.css">
 
 </head>
 <body>
@@ -80,9 +82,9 @@
     </footer>
 
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/retina-1.1.0.min.js"></script>
-    <script src="js/defaults.js"></script>
+    <script src="{{STATIC_URL}}game/js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}game/js/retina-1.1.0.min.js"></script>
+    <script src="{{STATIC_URL}}game/js/defaults.js"></script>
 
 </body>
 </html>
