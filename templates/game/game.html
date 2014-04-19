@@ -1,11 +1,88 @@
 {% load staticfiles %}
 {% url 'auth_logout' as logout_url%}
 
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Olympyo</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/less.css">
+
 </head>
 <body>
-	<a href="{{ logout_url }}">Logout</a>
+
+    <header id="header" class="container">
+        <h1 id="branding">OLYMPYO</h1>
+    </header>
+
+    <nav id="gui"></nav>
+
+    <div id="content">
+        <div id="plot-1" class="farm plot">
+
+        </div>
+        <div id="plot-2" class="farm plot">
+
+        </div>
+        <div id="plot-3" class="farm plot">
+
+        </div>
+        <div id="plot-4" class="farm plot">
+
+        </div>
+        <div id="plot-5" class="farm plot">
+
+        </div>
+        <div id="plot-6" class="plot">
+
+        </div>
+        <div id="plot-7" class="plot">
+
+        </div>
+        <div id="plot-8" class="plot">
+
+        </div>
+        <div id="plot-9" class="plot">
+
+        </div>
+        <div id="village-1" class="village">
+
+        </div>
+    </div>
+
+    <footer id="footer">
+        <div id="hud" class="container">
+            <div id="hud-timer" class="col-sm-9">
+                <div id="notifications">
+                    <span class="label label-default">11:05:36</span> This is the latest notice.
+                </div>
+
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">26:42</div>
+                </div>
+            </div>
+            <div id="hud-stats" class="col-sm-3">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="badge">5</span>Food
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge">2</span>Leisure
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <a href="{{ logout_url }}">Logout</a>
+    </footer>
+
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/retina-1.1.0.min.js"></script>
+    <script src="js/defaults.js"></script>
+
 </body>
 </html>

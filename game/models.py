@@ -174,7 +174,7 @@ class Game(models.Model):
 class Waitroom(models.Model):
     game = models.ForeignKey(Game, related_name='waitroom')
     user = models.ManyToManyField(User, related_name='waitroom')
-	#Should be labelled 'users', on a many to many field
+    #Should be labelled 'users', on a many to many field
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.user)
