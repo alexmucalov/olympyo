@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import Http404
 
+from game.models import Action
+
 def game(request):
     user = request.user
     
