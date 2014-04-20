@@ -227,6 +227,7 @@ class GameInstanceObject(models.Model):
 	
     class Meta:
 	    unique_together = ('game_instance','game_object')
+	    get_latest_by = "id"
 
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game_object, self.id)
