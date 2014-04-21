@@ -43,12 +43,11 @@
         <h2 class="form-signin-heading">Please sign in</h2>
         {{ form.username|bootstrap }}
         {{ form.password|bootstrap }}  
-        <!-- <input type="email" class="form-control" placeholder="Email address" required autofocus> -->
-        <!-- <input type="password" class="form-control" placeholder="Password" required> -->
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-          <p>{% blocktrans %}
-              <a href="{{ auth_pwd_reset_url }}">Forgot</a> your password?
-              <a href="{{ register_url }}">Need an account</a>?
+          <p>
+          {% blocktrans %}
+              <a href="{{ auth_pwd_reset_url }}">Forgot your password?</a>
+              <a href="{{ register_url }}">Need an account?</a>
               {% endblocktrans %}
           </p>
           {% if form.errors %}

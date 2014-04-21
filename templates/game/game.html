@@ -13,6 +13,13 @@
 
     <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
     <link rel="stylesheet" href="{{STATIC_URL}}game/css/less.css">
+    
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}js/retina-1.1.0.min.js"></script>
+    <script src="{{STATIC_URL}}js/defaults.js"></script>
 
 </head>
 <body>
@@ -58,36 +65,80 @@
 
     <footer id="footer">
         <div id="hud" class="container">
-            <div id="static-bar">
-            </div>
-            <div id="hud-timer" class="col-sm-9">
-                <div id="notifications">
-                    <span class="label label-default">11:05:36</span> This is the latest notice.
+            <div id="static-bar" class="row">
+                <div id="hud-action-log" class="col-sm-4">
+                    <div id="notifications">
+                        <span class="label label-default">11:05:36</span> This is the latest notice.
+                    </div>
                 </div>
-
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">26:42</div>
+                <div id="hud-timer" class="col-sm-4">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">26:42</div>
+                    </div>
+                </div>
+                <div id="hud-player-stats" class="col-sm-4">
+                    <div class="col-sm-6">Food <span class="badge">5</span></div>
+                    <div class="col-sm-6">Leisure <span class="badge">2</span></div>
                 </div>
             </div>
-            <div id="hud-stats" class="col-sm-3">
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <span class="badge">5</span>Food
-                    </li>
-                    <li class="list-group-item">
-                        <span class="badge">2</span>Leisure
-                    </li>
-                </ul>
+            
+            <div id="hud-object-stats" class="row">
+                <div class="col-sm-4">
+                    <h5 class="text-center">Farm id: 7</h5>
+                    <div class="text-center">
+                        <img src="{{STATIC_URL}}game/images/ic-farm-circled-2.png" alt="..." class="img-circle">
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div>
+                            Relationships
+                        </div>
+                        <div>
+                            <ul class="list-group">
+                                <li class="list-group-item">Productivity<span class="badge">2</span></li>
+                                <li class="list-group-item">Cost<span class="badge">2</span></li>
+                                <li class="list-group-item">Positions<span class="badge">2</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <h5 class="text-center">Actions available</h5>
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="inputAction1" class="col-sm-4 control-label">Set wage</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="inputAction1" placeholder="1.5">
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" class="btn btn-default">Commit</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputAction2" class="col-sm-4 control-label">Work?</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="inputAction2" placeholder="Yes">
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" class="btn btn-default">Commit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-        <a href="{{ logout_url }}">Logout</a>
+        <!-- <a href="{{ logout_url }}">Logout</a> -->
     </footer>
-
-    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
-    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
-    <script src="{{STATIC_URL}}js/retina-1.1.0.min.js"></script>
-    <script src="{{STATIC_URL}}js/defaults.js"></script>
-
+    
+    <!--
+    <script type="text/javascript">
+        $(function(){
+            $('#content').slimScroll({
+                height: '250px'
+            });
+        });
+    </script>
+    -->
 </body>
 </html>
