@@ -193,7 +193,7 @@ class Game(models.Model):
                 i += 1
             else:
                 game_object_user = None
-            game_instance_object = game_object.create_instance_object(game_instance, game_object_user)
+            game_instance_object = game_object.create_instance_object(game_instance=game_instance, user=game_object_user)
             if game_object.attribute_set:
                 for attribute_value in game_object.attribute_set.attribute_values.all():
                     game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
@@ -243,7 +243,7 @@ class GameInstance(models.Model):
 
 class GameInstanceObjectManager(models.Manager):
     def create_game_instance_object(self, game_instance, game_object, user=None):
-        game_instance_object = self.create(game_instance=game_instance, game_object=game_object)
+        game_instance_object = self.create(game_instance=game_instance, game_object=game_object, user=user)
         return game_instance_object
 
 
