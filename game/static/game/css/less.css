@@ -16,21 +16,9 @@
 .layout-object {
   height: 100px;
 }
-
 .logo {
   height: 200px;
   background-image: url("../images/logo.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-.plot {
-  /*display: block;*/
-  background-image: url("../images/ic-field-circled-adj.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-.farm {
-  background-image: url("../images/ic-farm-circled-2.png");
   background-position: center center;
   background-repeat: no-repeat;
 }

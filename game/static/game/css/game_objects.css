@@ -1,0 +1,11 @@
+.plot {
+  /*display: block;*/
+  background-image: url("../images/ic-field-circled-adj.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.farm {
+  background-image: url("../images/ic-farm-circled-2.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
