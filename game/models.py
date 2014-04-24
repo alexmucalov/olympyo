@@ -6,21 +6,40 @@ from django.contrib.auth.models import User
 class GameRule(models.Model):
     game_rules = models.CharField(max_length=30)
 
+    class Meta:
+        unique_together = ('game_rules',)
+
     def __unicode__(self):
         return u'%s' % (self.game_rules)
 
 
 
 # Archetype Models
+class ArchLayoutType(models.Model):
+    arch_layout = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ('arch_layout',)    
+
+    def __unicode__(self):
+        return u'%s' % (self.arch_layout)
+
+
 class ArchAction(models.Model):
-    arch_action = models.CharField(max_length=30)
+    arch_action = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('arch_action',)
 
     def __unicode__(self):
         return u'%s' % (self.arch_action)
 
 
 class ArchAttribute(models.Model):
-    arch_attribute = models.CharField(max_length=30)
+    arch_attribute = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('arch_attribute',)
 
     def __unicode__(self):
         return u'%s' % (self.arch_attribute)
@@ -28,6 +47,10 @@ class ArchAttribute(models.Model):
 
 class ArchGameObject(models.Model):
     arch_game_object = models.CharField(max_length=255)
+    layout_type = models.ForeignKey(ArchLayoutType)
+
+    class Meta:
+        unique_together = ('arch_game_object',)
 
     def __unicode__(self):
         return u'%s' % (self.arch_game_object)
@@ -38,6 +61,9 @@ class ArchAttributeSet(models.Model):
     #game_object = models.ForeignKey(ArchGameObject)
     # Might need game_object to add extra validation - when adding attribute_set
     # to GameObject, check that game_object fields in both models match
+
+    class Meta:
+        unique_together = ('attribute_set',)
 
     def __unicode__(self):
         return u'%s' % (self.attribute_set)
@@ -58,6 +84,9 @@ class ArchGameObjectAttributeValue(models.Model):
 class ArchRelationship(models.Model):
     arch_relationship = models.CharField(max_length=255)
 
+    class Meta:
+        unique_together = ('arch_relationship',)
+
     def __unicode__(self):
         return u'%s' % self.arch_relationship
 
@@ -65,6 +94,9 @@ class ArchRelationship(models.Model):
 # Game Template Models
 class GameObjectSet(models.Model):
     game_object_set = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ('game_object_set',)
     
     def __unicode__(self):
         return u'%s' % self.game_object_set
@@ -89,11 +121,9 @@ class GameObject(models.Model):
     def __unicode__(self):
         return u'%s: id=%s' % (self.game_object, self.id)
 
-    def create_instance_object(self, game_instance, users=None):
+    def create_instance_object(self, game_instance, user=None):
         game_object = self
-        instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object)
-        if users:
-            instance_object.users.add(users)
+        instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object, user=user)
         return instance_object
 
 
@@ -117,7 +147,7 @@ class GameObjectRelationship(models.Model):
         return instance_object_relationship
 
 
-class AttributeValue(models.Model):
+class GameObjectAttributeValue(models.Model):
     attribute_set = models.ForeignKey(ArchAttributeSet, related_name='attribute_values')
     attribute = models.ForeignKey(ArchAttribute)
     value = models.CharField(max_length = 255)
@@ -173,16 +203,15 @@ class Game(models.Model):
 
 class Waitroom(models.Model):
     game = models.ForeignKey(Game, related_name='waitroom')
-    user = models.ManyToManyField(User, related_name='waitroom')
-    #Should be labelled 'users', on a many to many field
+    users = models.ManyToManyField(User, related_name='waitroom')
 	
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game, self.user)
+        return u'%s: id=%s' % (self.game, self.users)
 
     def add_user(self, user):
-        self.user.add(user)
-        users = self.user.all()
-        user_count = self.user.all().count()
+        self.users.add(user)
+        users = self.users.all()
+        user_count = self.users.all().count()
         game_player_count = self.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
         if user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
@@ -213,7 +242,7 @@ class GameInstance(models.Model):
 
 
 class GameInstanceObjectManager(models.Manager):
-    def create_game_instance_object(self, game_instance, game_object):
+    def create_game_instance_object(self, game_instance, game_object, user=None):
         game_instance_object = self.create(game_instance=game_instance, game_object=game_object)
         return game_instance_object
 
@@ -221,7 +250,7 @@ class GameInstanceObjectManager(models.Manager):
 class GameInstanceObject(models.Model):
     game_instance = models.ForeignKey(GameInstance, related_name='game_instance_objects')
     game_object = models.ForeignKey(GameObject, related_name='game_instance_objects')
-    users = models.ManyToManyField(User, related_name='game_instance_objects', blank=True, null=True)
+    user = models.ForeignKey(User, related_name='game_instance_objects', blank=True, null=True)
     
     objects = GameInstanceObjectManager()
 	
@@ -294,7 +323,7 @@ class Action(models.Model):
     turn = models.IntegerField()
     initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
     action = models.ForeignKey(ArchAction, related_name='actions')
-    parameters = models.CharField(max_length=30, blank=True, null=True)
+    parameters = models.CharField(max_length=255, blank=True, null=True)
     affected = models.ForeignKey(GameInstanceObject, related_name='affected_by_actions', blank=True, null=True)
 
     objects = ActionManager()

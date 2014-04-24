@@ -7,8 +7,6 @@ from game.models import Action
 def game(request):
     user = request.user
     
-    #Assuming for now that each player only "is" one game object... okay! Because can
-    #control 'owned' objects through relationship table
     game_instance_object = user.game_instance_objects.latest()
     game_instance = game_instance_object.game_instance
     

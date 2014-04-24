@@ -1,9 +1,13 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, AttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType
 
 
 class GameRuleAdmin(admin.ModelAdmin):
     list_display = ('game_rules',)
+
+
+class ArchLayoutTypeAdmin(admin.ModelAdmin):
+    list_display = ('arch_layout',)
 
 
 class ArchActionAdmin(admin.ModelAdmin):
@@ -46,7 +50,7 @@ class GameObjectRelationshipAdmin(admin.ModelAdmin):
     list_display = ('relationship_set','subject_game_object','relationship','object_game_object',)
 
 
-class AttributeValueAdmin(admin.ModelAdmin):
+class GameObjectAttributeValueAdmin(admin.ModelAdmin):
     list_display = ('attribute_set','attribute','value',)
 
 
@@ -79,6 +83,7 @@ class ActionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(GameRule, GameRuleAdmin)
+admin.site.register(ArchLayoutType, ArchLayoutTypeAdmin)
 admin.site.register(ArchAction, ArchActionAdmin)
 admin.site.register(ArchAttribute, ArchAttributeAdmin)
 admin.site.register(ArchGameObject, ArchGameObjectAdmin)
@@ -89,7 +94,7 @@ admin.site.register(GameObjectSet, GameObjectSetAdmin)
 admin.site.register(GameObjectRelationshipSet, GameObjectRelationshipSetAdmin)
 admin.site.register(GameObject, GameObjectAdmin)
 admin.site.register(GameObjectRelationship, GameObjectRelationshipAdmin)
-admin.site.register(AttributeValue, AttributeValueAdmin)
+admin.site.register(GameObjectAttributeValue, GameObjectAttributeValueAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(Waitroom, WaitroomAdmin)
 admin.site.register(GameInstance, GameInstanceAdmin)

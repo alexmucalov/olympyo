@@ -1,12 +1,15 @@
 """
 *** Intended initial DB definition ***
 
+*Arch_layout_type: display_object, autonomous_object, nature_object
 *Arch_actions: work, take_wage, set_wage
 *Arch_attribute_sets: normal_player, normal_labour, normal_farm
 *Arch_attributes: productivity, labour_spots, labour_working, production, cost, leisure, wealth
 *Arch_game_objects: player, labour, farm, nature
 *Arch_game_object_attribute_values: [farm, labour_working, 0], [farm, labour_spots, 2], [farm, production, 0], [farm, productivity, 2], [farm, cost, 2], [player, leisure, 0], [player, wealth, 2], [labour, leisure, 0], [labour, wealth, 2]
-*Attribute_values: as directly above, but with 'normal_' prepended to each game_object
+*Arch_relationships: owns
+*Game_object_attribute_values: as directly above, but with 'normal_' prepended to each game_object
+*Game_object_sets: farm_village
 *Game_object_relationship_sets: modest_ownership
 *Game_objects: [farm_village, player, normal_player]*2, [farm_village, labour, normal_labour]*3, [farm_village, farm, normal_farm]*2, [farm_village, nature, (None)]
 *Game_object_relationships:[modest_ownership, player1, owns, farm1], [modest_ownership, player2, owns, farm2]
