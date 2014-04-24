@@ -24,7 +24,7 @@ def game(request):
     # Display rules
     display_rules = game_instance.game.display_ruleset.arch_display_ruleset
     exec "from game.display_rules.%s import centre_displays" % display_rules
-    
+    centre_display = centre_displays(game_instance)
     
     #For a given action_object, what are the available actions? E.g., for a farm that a
     #player owns, can set_wage or work
@@ -32,5 +32,6 @@ def game(request):
     #Later, include timer: http://keith-wood.name/countdown.html 
 
     
-    return render(request, 'game/game.html')
+    return render(request, 'game/game.html', {'centre_display': centre_display, 'display_objects': display_objects})
     #include variables: display_objects, autonomous_objects, player_actions, player_stats
+    #for now, permit centre_display with at most two elements

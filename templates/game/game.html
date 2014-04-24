@@ -58,9 +58,9 @@
                 </div>
             </div>
             <div id="logo" class="col-sm-6 text-right logo">
-                Players <span class="badge">2</span><br /> 
-                Labour <span class="badge">3</span>
-
+                {% for el in centre_display %}
+                    {{ el.0 }} <span class="badge">{{ el.1 }}</span><br />
+                {% endfor %}
 <!-- Include count of players and labour... but how, robustly, to get counts of other objects without being able to filter on template? Have to filter in view... but then ties game view to a particular game type. Could perhaps import game-specific views into generic game view, but then need game-type-specific view for each game type... much less extensible... -->
 
 <!-- Use template tags to get or filter objects in template: http://stackoverflow.com/questions/21175455/django-templates-is-there-a-way-to-query-a-specific-object-based-on-its-propert -->                
@@ -109,7 +109,7 @@
                 <div id="hud-player-stats" class="col-sm-4 text-center">
                     <!-- {% for attribute in player_stats.attributes %}
                     
-                    <div class="col-sm-6">{{ attribute.attribute }} <span class="badge">{{ attribute.value }}</span></div>
+                    <div>{{ attribute.attribute }} <span class="badge">{{ attribute.value }}</span></div>
 
                     {% endfor %} -->
                 </div>
