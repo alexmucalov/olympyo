@@ -33,58 +33,61 @@
 
     <div id="content" class="container">
         <div id="row1" class="row">
-            <div id="object-1" class="col-sm-3 layout-object plot"> 
-            
-<!-- Last class will be a variable written from game view! Will be the arch_game_object of the object being written into the template; and this class will be attached to the correct icon as a background image in the css, in a separate style sheet -->
+            <div id="object-1" class="col-sm-3 layout-object {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
                 
             </div>
-            <div id="object-2" class="col-sm-3 layout-object plot">
+            <div id="object-2" class="col-sm-3 layout-object {{ display_objects.1.game_object.game_object.arch_game_object }}">
 
             </div>
-            <div id="object-3" class="col-sm-3 layout-object plot">
+            <div id="object-3" class="col-sm-3 layout-object {{ display_objects.2.game_object.game_object.arch_game_object }}">
 
             </div>
-            <div id="object-4" class="col-sm-3 layout-object plot">
+            <div id="object-4" class="col-sm-3 layout-object {{ display_objects.3.game_object.game_object.arch_game_object }}">
             
             </div>
         </div>
         <div id="row2" class="row">
             <div class="col-sm-3">
                 <div class="row">
-                    <div id="object-5" class="col-sm-12 layout-object farm">
+                    <div id="object-5" class="col-sm-12 layout-object {{ display_objects.4.game_object.game_object.arch_game_object }}">
                     </div>
                 </div>
                 <div class="row">
-                    <div id="object-7" class="col-sm-12 layout-object plot">
+                    <div id="object-7" class="col-sm-12 layout-object {{ display_objects.6.game_object.game_object.arch_game_object }}">
                     </div>
                 </div>
             </div>
             <div id="logo" class="col-sm-6 text-right logo">
-                Players <span class="badge">2</span><br />
+                Players <span class="badge">2</span><br /> 
                 Labour <span class="badge">3</span>
+
+<!-- Include count of players and labour... but how, robustly, to get counts of other objects without being able to filter on template? Have to filter in view... but then ties game view to a particular game type. Could perhaps import game-specific views into generic game view, but then need game-type-specific view for each game type... much less extensible... -->
+
+<!-- Use template tags to get or filter objects in template: http://stackoverflow.com/questions/21175455/django-templates-is-there-a-way-to-query-a-specific-object-based-on-its-propert -->                
+
             </div>
             <div class="col-sm-3">
                 <div class="row">
-                    <div id="object-6" class="col-sm-12 layout-object farm">
+                    <div id="object-6" class="col-sm-12 layout-object {{ display_objects.5.game_object.game_object.arch_game_object }}">
                     </div>
                 </div>
                 <div class="row">
-                    <div id="object-8" class="col-sm-12 layout-object plot">
+                    <div id="object-8" class="col-sm-12 layout-object {{ display_objects.7.game_object.game_object.arch_game_object }}">
                     </div>
                 </div>
             </div>
         </div>
         <div id="row3" class="row">
-            <div id="object-9" class="col-sm-3 layout-object plot">
+            <div id="object-9" class="col-sm-3 layout-object {{ display_objects.8.game_object.game_object.arch_game_object }}">
 
             </div>
-            <div id="object-10" class="col-sm-3 layout-object plot">
+            <div id="object-10" class="col-sm-3 layout-object {{ display_objects.9.game_object.game_object.arch_game_object }}">
 
             </div>
-            <div id="object-11" class="col-sm-3 layout-object plot">
+            <div id="object-11" class="col-sm-3 layout-object {{ display_objects.10.game_object.game_object.arch_game_object }}">
 
             </div>
-            <div id="object-12" class="col-sm-3 layout-object plot">
+            <div id="object-12" class="col-sm-3 layout-object {{ display_objects.11.game_object.game_object.arch_game_object }}">
             
             </div>
         </div>
@@ -104,8 +107,11 @@
                     </div>
                 </div>
                 <div id="hud-player-stats" class="col-sm-4 text-center">
-                    <div class="col-sm-6">Food <span class="badge">5</span></div>
-                    <div class="col-sm-6">Leisure <span class="badge">2</span></div>
+                    <!-- {% for attribute in player_stats.attributes %}
+                    
+                    <div class="col-sm-6">{{ attribute.attribute }} <span class="badge">{{ attribute.value }}</span></div>
+
+                    {% endfor %} -->
                 </div>
             </div>
             <div id="hud-object-stats" class="row">
@@ -133,7 +139,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-4">
-                    <h5 class="text-center">Actions available</h5>
+                    <h5 class="text-center">Actions available on object</h5>
                     <form class="form-horizontal" role="form">
                         <div class="form-group">
                             <label for="inputAction1" class="col-sm-4 control-label">Set wage</label>

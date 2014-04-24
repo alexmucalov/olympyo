@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType, ArchDisplayRuleset
 
 
 class GameRuleAdmin(admin.ModelAdmin):
@@ -8,6 +8,10 @@ class GameRuleAdmin(admin.ModelAdmin):
 
 class ArchLayoutTypeAdmin(admin.ModelAdmin):
     list_display = ('arch_layout',)
+
+
+class ArchDisplayRulesetAdmin(admin.ModelAdmin):
+    list_display = ('arch_display_ruleset',)
 
 
 class ArchActionAdmin(admin.ModelAdmin):
@@ -55,7 +59,7 @@ class GameObjectAttributeValueAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('name','game_object_set','game_object_relationship_set','game_rules','turns',)
+    list_display = ('name','game_object_set','game_object_relationship_set','game_rules','display_ruleset','turns',)
 
 
 class WaitroomAdmin(admin.ModelAdmin):
@@ -84,6 +88,7 @@ class ActionAdmin(admin.ModelAdmin):
 
 admin.site.register(GameRule, GameRuleAdmin)
 admin.site.register(ArchLayoutType, ArchLayoutTypeAdmin)
+admin.site.register(ArchDisplayRuleset, ArchDisplayRulesetAdmin)
 admin.site.register(ArchAction, ArchActionAdmin)
 admin.site.register(ArchAttribute, ArchAttributeAdmin)
 admin.site.register(ArchGameObject, ArchGameObjectAdmin)

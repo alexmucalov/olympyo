@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 # Game Rules Models
 class GameRule(models.Model):
     game_rules = models.CharField(max_length=30)
+    #Should be called a ruleset, not rules; then, later, rulesets can be composed of rules
 
     class Meta:
         unique_together = ('game_rules',)
@@ -23,6 +24,16 @@ class ArchLayoutType(models.Model):
 
     def __unicode__(self):
         return u'%s' % (self.arch_layout)
+
+
+class ArchDisplayRuleset(models.Model):
+    arch_display_ruleset = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ('arch_display_ruleset',)
+    
+    def __unicode__(self):
+        return u'%s' % (self.arch_display_ruleset)
 
 
 class ArchAction(models.Model):
@@ -172,6 +183,7 @@ class Game(models.Model):
     game_object_set = models.ForeignKey(GameObjectSet, related_name='games')
     game_object_relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='games')
     game_rules = models.ForeignKey(GameRule, related_name='games')
+    display_ruleset = models.ForeignKey(ArchDisplayRuleset, related_name='games')
     turns = models.IntegerField()
 
     class Meta:
