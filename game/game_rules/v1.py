@@ -30,7 +30,7 @@ NOTES
 #Remember get_or_create, here
 #Use map, here
 """
-# Instance method on GameInstance objects; ruleset is called dynamically - not yet, but soon I hope
+# Instance method on GameInstance objects; ruleset is called dynamically
 # Right now, functions imported from components are global; what about using inheritance 
 # to extend GameInstanceObjects? E.g., class Player(GameInstanceObject)...
 # and then defining the methods that apply to that class (e.g., eat) (which can themselves be drawn
@@ -48,6 +48,7 @@ def perform(instance):
     #Players and labourers eat 1 wealth:
     players = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="player")
     labourers = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="labour")
+    farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="farm")
     for player in players:
         eat(player)
     for labour in labourers:
@@ -69,12 +70,17 @@ def perform(instance):
     for farm in farms:
         produce(farm)
         
+        # Split production only if farm is owned
+        try:
+            farm_owner = farm.relationship_objects.all().get(relationship__arch_relationship="owns").subject_game_instance_object
+        except:
+            continue
+        
         # Common source values
         farm_production_attr = farm.attribute_values.all().get(attribute__arch_attribute="production")
-        farm_owner = farm.relationship_objects.all().get(relationship__arch_relationship="owns").subject_game_instance_object
         farm_owner_wealth_attr = farm_owner.attribute_values.all().get(attribute__arch_attribute="wealth")
         farm_take_wage_actions = farm.affected_by_actions.all().filter(action__arch_action="take_wage", turn=turn)
-        labour_count = len(farm_labour_actions)
+        labour_count = len(farm_take_wage_actions)
         farm_wages_offered = []
         for farm_take_wage_action in farm_take_wage_actions:
             farm_wage_offered = [float(farm_take_wage_action.parameters)]
