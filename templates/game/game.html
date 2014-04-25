@@ -121,14 +121,19 @@
                 </div>
                 <div class="col-sm-2">
                     <h5 class="text-center">Selected object</h5>
+                    <div class="text-center">{{ game_object.game_object|capfirst }}</div>
                     <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}'>
                     </div>
-                    {% if game_object.relationship_subjects.all %}
                     <h5 class="text-center">Owns</h5>
+                    <ul class="list-group text-center">   
                         {% for relationship in game_object.relationship_subjects.all %}
-                        <li class="list-group-item">{{ relationship.object_game_instance_object|capfirst }}</li>
+                        <li class="list-group-item">
+                            <a href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object|capfirst }}</a>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">Nothing</li>
                         {% endfor %}
-                    {% endif %}
+                    </ul>
                 </div>
                 <div class="col-sm-3">
                     <h5 class="text-center">Object attributes</h5>
