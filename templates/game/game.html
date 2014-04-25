@@ -33,63 +33,59 @@
 
     <div id="content" class="container">
         <div id="row1" class="row">
-            <div id="object-1" class="col-sm-3 layout-object {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
+            <a href="?game_object_id={{ display_objects.0.id }}" id="{{ display_objects.0.id }}" class="col-sm-3 layout-object {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
                 
-            </div>
-            <div id="object-2" class="col-sm-3 layout-object {{ display_objects.1.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.1.id }}" id="{{ display_objects.1.id }}" class="col-sm-3 layout-object {{ display_objects.1.game_object.game_object.arch_game_object }}">
 
-            </div>
-            <div id="object-3" class="col-sm-3 layout-object {{ display_objects.2.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.2.id }}" id="{{ display_objects.2.id }}" class="col-sm-3 layout-object {{ display_objects.2.game_object.game_object.arch_game_object }}">
 
-            </div>
-            <div id="object-4" class="col-sm-3 layout-object {{ display_objects.3.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.3.id }}" id="{{ display_objects.3.id }}" class="col-sm-3 layout-object {{ display_objects.3.game_object.game_object.arch_game_object }}">
             
-            </div>
+            </a>
         </div>
         <div id="row2" class="row">
             <div class="col-sm-3">
                 <div class="row">
-                    <div id="object-5" class="col-sm-12 layout-object {{ display_objects.4.game_object.game_object.arch_game_object }}">
-                    </div>
+                    <a href="?game_object_id={{ display_objects.4.id }}" id="{{ display_objects.4.id }}" class="col-sm-12 layout-object {{ display_objects.4.game_object.game_object.arch_game_object }}">
+                    </a>
                 </div>
                 <div class="row">
-                    <div id="object-7" class="col-sm-12 layout-object {{ display_objects.6.game_object.game_object.arch_game_object }}">
-                    </div>
+                    <a href="?game_object_id={{ display_objects.6.id }}" id="{{ display_objects.6.id }}" class="col-sm-12 layout-object {{ display_objects.6.game_object.game_object.arch_game_object }}">
+                    </a>
                 </div>
             </div>
             <div id="logo" class="col-sm-6 text-right logo">
                 {% for el in centre_display %}
                     {{ el.0 }} <span class="badge">{{ el.1 }}</span><br />
-                {% endfor %}
-<!-- Include count of players and labour... but how, robustly, to get counts of other objects without being able to filter on template? Have to filter in view... but then ties game view to a particular game type. Could perhaps import game-specific views into generic game view, but then need game-type-specific view for each game type... much less extensible... -->
-
-<!-- Use template tags to get or filter objects in template: http://stackoverflow.com/questions/21175455/django-templates-is-there-a-way-to-query-a-specific-object-based-on-its-propert -->                
-
+                {% endfor %}              
             </div>
             <div class="col-sm-3">
                 <div class="row">
-                    <div id="object-6" class="col-sm-12 layout-object {{ display_objects.5.game_object.game_object.arch_game_object }}">
-                    </div>
+                    <a href="?game_object_id={{ display_objects.5.id }}" id="{{ display_objects.5.id }}" class="col-sm-12 layout-object {{ display_objects.5.game_object.game_object.arch_game_object }}">
+                    </a>
                 </div>
                 <div class="row">
-                    <div id="object-8" class="col-sm-12 layout-object {{ display_objects.7.game_object.game_object.arch_game_object }}">
-                    </div>
+                    <a href="?game_object_id={{ display_objects.7.id }}" id="{{ display_objects.7.id }}" class="col-sm-12 layout-object {{ display_objects.7.game_object.game_object.arch_game_object }}">
+                    </a>
                 </div>
             </div>
         </div>
         <div id="row3" class="row">
-            <div id="object-9" class="col-sm-3 layout-object {{ display_objects.8.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.8.id }}" id="{{ display_objects.8.id }}" class="col-sm-3 layout-object {{ display_objects.8.game_object.game_object.arch_game_object }}">
 
-            </div>
-            <div id="object-10" class="col-sm-3 layout-object {{ display_objects.9.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.9.id }}" id="{{ display_objects.9.id }}" class="col-sm-3 layout-object {{ display_objects.9.game_object.game_object.arch_game_object }}">
 
-            </div>
-            <div id="object-11" class="col-sm-3 layout-object {{ display_objects.10.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.10.id }}" id="{{ display_objects.10.id }}" class="col-sm-3 layout-object {{ display_objects.10.game_object.game_object.arch_game_object }}">
 
-            </div>
-            <div id="object-12" class="col-sm-3 layout-object {{ display_objects.11.game_object.game_object.arch_game_object }}">
+            </a>
+            <a href="?game_object_id={{ display_objects.11.id }}" id="{{ display_objects.11.id }}" class="col-sm-3 layout-object {{ display_objects.11.game_object.game_object.arch_game_object }}">
             
-            </div>
+            </a>
         </div>
     </div>
 
@@ -107,35 +103,33 @@
                     </div>
                 </div>
                 <div id="hud-player-stats" class="col-sm-4 text-center">
-                    <!-- {% for attribute in player_stats.attributes %}
-                    
-                    <div>{{ attribute.attribute }} <span class="badge">{{ attribute.value }}</span></div>
-
-                    {% endfor %} -->
+                    {% for attribute in player_stats %}
+                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value }}  </span>
+                    {% endfor %}
                 </div>
             </div>
             <div id="hud-object-stats" class="row">
                 <div class="col-sm-3">
                     <h5 class="text-center">Autonomous objects</h5>
                     <ul class="list-group">
-                        <li class="list-group-item"><span class="badge">P</span> Player 1</li>
-                        <li class="list-group-item"><span class="badge">P</span>Player 2</li>
-                        <li class="list-group-item"><span class="badge">L</span>Labour 1</li>
+                    {% for auto_object in autonomous_objects %}
+                        <li class="list-group-item">
+                            <a href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">{{ auto_object.game_object|capfirst }} </a>
+                        </li>
+                    {% endfor %}
                     </ul>
                 </div>
                 <div class="col-sm-2">
-                    <h5 class="text-center">Selected object</h5><br />
-                    <div class="text-center">Farm: id=7</div>
-                    <div class="text-center">
-                        <img src="{{STATIC_URL}}game/images/ic-farm-circled-2.png" alt="..." class="img-circle">
+                    <h5 class="text-center">Selected object</h5>
+                    <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}'>
                     </div>
                 </div>
                 <div class="col-sm-3">
                     <h5 class="text-center">Object attributes</h5>
                     <ul class="list-group">
-                        <li class="list-group-item">Productivity<span class="badge">2</span></li>
-                        <li class="list-group-item">Cost<span class="badge">2</span></li>
-                        <li class="list-group-item">Positions<span class="badge">2</span></li>
+                        {% for attribute in game_object.attribute_values.all %}
+                        <li class="list-group-item">{{ attribute.attribute }}<span class="badge">{{ attribute.value }}</span></li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="col-sm-4">

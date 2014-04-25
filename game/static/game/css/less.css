@@ -13,6 +13,9 @@
 #content {
   width: 450px;
 }
+#selected-object {
+  height: 100px;
+}
 .layout-object {
   height: 100px;
 }
