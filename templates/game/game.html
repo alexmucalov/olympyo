@@ -103,8 +103,9 @@
                     </div>
                 </div>
                 <div id="hud-player-stats" class="col-sm-4 text-center">
+                    <b>Player stats &nbsp;</b>
                     {% for attribute in player_stats %}
-                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value }}  </span>
+                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value }} </span> &nbsp; 
                     {% endfor %}
                 </div>
             </div>
@@ -128,7 +129,7 @@
                     <ul class="list-group text-center">   
                         {% for relationship in game_object.relationship_subjects.all %}
                         <li class="list-group-item">
-                            <a href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object|capfirst }}</a>
+                            <a href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object.game_object|capfirst }}</a>
                         </li>
                         {% empty %}
                         <li class="list-group-item">Nothing</li>
