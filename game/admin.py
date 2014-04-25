@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType, ArchDisplayRuleset
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType, ArchDisplayRuleset, ActionPermissionSet, ActionPermission
 
 
 class GameRuleAdmin(admin.ModelAdmin):
@@ -28,6 +28,10 @@ class ArchGameObjectAdmin(admin.ModelAdmin):
 
 class ArchAttributeSetAdmin(admin.ModelAdmin):
     list_display = ('attribute_set',)
+
+
+class ActionPermissionSetAdmin(admin.ModelAdmin):
+    list_display = ('action_permission_set',)
 
 
 class ArchGameObjectAttributeValueAdmin(admin.ModelAdmin):
@@ -86,6 +90,10 @@ class ActionAdmin(admin.ModelAdmin):
     list_display = ('id', 'turn', 'initiator','action','parameters','affected',)
 
 
+class ActionPermissionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'action_permission_set', 'permitted_initiator','action','permitted_affected',)
+
+
 admin.site.register(GameRule, GameRuleAdmin)
 admin.site.register(ArchLayoutType, ArchLayoutTypeAdmin)
 admin.site.register(ArchDisplayRuleset, ArchDisplayRulesetAdmin)
@@ -93,6 +101,7 @@ admin.site.register(ArchAction, ArchActionAdmin)
 admin.site.register(ArchAttribute, ArchAttributeAdmin)
 admin.site.register(ArchGameObject, ArchGameObjectAdmin)
 admin.site.register(ArchAttributeSet, ArchAttributeSetAdmin)
+admin.site.register(ActionPermissionSet, ActionPermissionSetAdmin)
 admin.site.register(ArchGameObjectAttributeValue, ArchGameObjectAttributeValueAdmin)
 admin.site.register(ArchRelationship, ArchRelationshipAdmin)
 admin.site.register(GameObjectSet, GameObjectSetAdmin)
@@ -107,3 +116,4 @@ admin.site.register(GameInstanceObject, GameInstanceObjectAdmin)
 admin.site.register(GameInstanceObjectAttributeValue, GameInstanceObjectAttributeValueAdmin)
 admin.site.register(GameInstanceObjectRelationship, GameInstanceObjectRelationshipAdmin)
 admin.site.register(Action, ActionAdmin)
+admin.site.register(ActionPermission, ActionPermissionAdmin)

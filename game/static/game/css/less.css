@@ -14,7 +14,7 @@
   width: 450px;
 }
 #static-bar {
-  border-bottom: #000 solid 1px;    
+  /*border-bottom: #000 solid 1px;*/    
 }
 #selected-object {
   height: 100px;

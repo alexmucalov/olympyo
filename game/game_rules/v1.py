@@ -39,7 +39,7 @@ NOTES
 
 def perform(instance):
     from django.db.models import Q, F
-    from game.game_rules.components import eat, reset_labour_working, work_own_farm, labour_worked, produce, enjoy_leisure
+    from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure
     from game.models import GameInstanceObject, Action
 
     instance_id = instance.id
@@ -53,25 +53,15 @@ def perform(instance):
     for labour in labourers:
         eat(labour)
 
-    #Farms reset labour_working to zero:
-    farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="farm")
-    for farm in farms:
-        reset_labour_working(farm)
-    
-    #Farm increases labour_working by one if its owner worked it
-    players_who_worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="player", initiated_actions__turn=turn, initiated_actions__action__arch_action="work")
-    for player in players_who_worked_farms:
-        work_own_farm(player)
-    
-    #Have labour take action to take wages, work, and get paid:
-    sorted_set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action="set_wage").order_by("-parameters")
+    #Have labour take action to take wages and work:
+    sorted_set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
     labour_and_wages_offered = zip(labourers, sorted_set_wage_actions)
     for (labour, wage_offered) in labour_and_wages_offered:
-        labour.act("take_wage", wage_offered.parameters, wage_offered.affected.id)
-        labour.act("work")
+        labour.act(action_name='take_wage', parameters=wage_offered.parameters, affected_id=wage_offered.affected.id)
+        labour.act(action_name='work', affected_id=wage_offered.affected.id)
     
-    #Farm increases labour_working for all labourers working it:
-    worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action="take_wage").distinct()
+    #Farm increases labour_working for everyone working it:
+    worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action='work').distinct()
     for farm in worked_farms:
         labour_worked(farm)
 
@@ -83,20 +73,20 @@ def perform(instance):
         farm_production_attr = farm.attribute_values.all().get(attribute__arch_attribute="production")
         farm_owner = farm.relationship_objects.all().get(relationship__arch_relationship="owns").subject_game_instance_object
         farm_owner_wealth_attr = farm_owner.attribute_values.all().get(attribute__arch_attribute="wealth")
-        farm_labour_actions = farm.affected_by_actions.all().filter(action__arch_action="take_wage", turn=turn)
+        farm_take_wage_actions = farm.affected_by_actions.all().filter(action__arch_action="take_wage", turn=turn)
         labour_count = len(farm_labour_actions)
         farm_wages_offered = []
-        for farm_labour_action in farm_labour_actions:
-            farm_wage_offered = [float(farm_labour_action.parameters)]
+        for farm_take_wage_action in farm_take_wage_actions:
+            farm_wage_offered = [float(farm_take_wage_action.parameters)]
             farm_wages_offered = farm_wages_offered + farm_wage_offered
         
         # If owner can pay all costs, do so, then keep the rest
         if float(farm_owner_wealth_attr.value) + float(farm_production_attr.value) >= sum(farm_wages_offered):
             farm_labour_costs = 0
-            for farm_labour_action in farm_labour_actions:
-                farm_wage_offered = float(farm_labour_action.parameters)
+            for farm_take_wage_action in farm_take_wage_actions:
+                farm_wage_offered = float(farm_take_wage_action.parameters)
                 farm_labour_costs += farm_wage_offered
-                farm_labour_wealth_attr = farm_labour_action.initiator.attribute_values.all().get(attribute__arch_attribute="wealth")
+                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth')
                 farm_labour_wealth_attr.value = F('value') + farm_wage_offered
                 farm_labour_wealth_attr.save(update_fields=['value'])
             farm_owner_wealth_attr.value = F('value') + float(farm_production_attr.value) - farm_labour_costs
@@ -105,8 +95,8 @@ def perform(instance):
         # If owner can't pay all the costs, pay as much as possible evenly among all labourers, then set owner wealth = 0
         else:
             farm_labour_costs = float(farm_owner_wealth_attr.value) + float(farm_production_attr.value)
-            for farm_labour_action in farm_labour_actions:
-                farm_labour_wealth_attr = farm_labour_action.initiator.attribute_values.all().get(attribute__arch_attribute="wealth")
+            for farm_take_wage_action in farm_take_wage_actions:
+                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth')
                 farm_labour_wealth_attr.value = F('value') + 1/labour_count*farm_labour_costs
                 farm_labour_wealth_attr.save(update_fields=['value'])
             farm_owner_wealth_attr.value = 0
@@ -115,8 +105,8 @@ def perform(instance):
     #(Check if any players or labourers have died:)
 
     #Update all players' and labourers' leisure:
-    labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="labour", initiated_actions__turn=turn).distinct()
-    players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action="work"), game_instance__id=instance_id, game_object__game_object__arch_game_object="player", initiated_actions__turn=turn).distinct()
+    labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action='work'), game_instance__id=instance_id, game_object__game_object__arch_game_object='labour', initiated_actions__turn=turn).distinct()
+    players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action='work'), game_instance__id=instance_id, game_object__game_object__arch_game_object='player', initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:
         enjoy_leisure(labour)
     for player in players_who_didnt_work:

@@ -80,6 +80,16 @@ class ArchAttributeSet(models.Model):
         return u'%s' % (self.attribute_set)
 
 
+class ActionPermissionSet(models.Model):
+    action_permission_set = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ('action_permission_set',)
+    
+    def __unicode__(self):
+        return u'%s' % self.action_permission_set
+
+
 class ArchGameObjectAttributeValue(models.Model):
     arch_game_object = models.ForeignKey(ArchGameObject)
     attribute = models.ForeignKey(ArchAttribute)
@@ -184,10 +194,11 @@ class Game(models.Model):
     game_object_relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='games')
     game_rules = models.ForeignKey(GameRule, related_name='games')
     display_ruleset = models.ForeignKey(ArchDisplayRuleset, related_name='games')
+    action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='games')
     turns = models.IntegerField()
 
     class Meta:
-        unique_together = (('game_object_set','game_object_relationship_set','game_rules',),('name',),)
+        unique_together = (('game_object_set','game_object_relationship_set','game_rules','display_ruleset','action_permission_set',),('name',),)
 
     def __unicode__(self):
         return u'%s' % (self.name)
@@ -342,3 +353,16 @@ class Action(models.Model):
 
     def __unicode__(self):
         return u'Action id: %s' % self.id
+
+
+class ActionPermission(models.Model):
+    action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='action_permissions')
+    permitted_initiator = models.ForeignKey(ArchGameObject, related_name='permitted_initiator_actions')
+    action = models.ForeignKey(ArchAction)
+    permitted_affected = models.ForeignKey(ArchGameObject, related_name='permitted_affected')
+    
+    class Meta:
+        unique_together = ('action_permission_set','permitted_initiator','action','permitted_affected',)
+    
+    def __unicode__(self):
+        return u'Permission id: %s' % self.id
