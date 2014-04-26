@@ -59,7 +59,7 @@ def perform(instance):
     labour_and_wages_offered = zip(labourers, sorted_set_wage_actions)
     for (labour, wage_offered) in labour_and_wages_offered:
         labour.act(action_name='take_wage', parameters=wage_offered.parameters, affected_id=wage_offered.affected.id)
-        labour.act(action_name='work', 'yes', affected_id=wage_offered.affected.id)
+        labour.act(action_name='work', parameters='yes', affected_id=wage_offered.affected.id)
     
     #Farm increases labour_working for everyone working it:
     worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action='work', affected_by_actions__parameters='yes').distinct()
@@ -117,7 +117,3 @@ def perform(instance):
         enjoy_leisure(labour)
     for player in players_who_didnt_work:
         enjoy_leisure(player)
-    
-    #Update turn no.
-    instance.turn = F('turn') + 1
-    instance.save(update_fields=['turn'])

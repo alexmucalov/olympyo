@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import Http404
+from django.db.models import Q, F
 
-from game.models import Action, GameInstanceObject
+from game.models import Action, GameInstanceObject, GameInstance
 from game.forms.farm_village import OwnedFarmActionForm
+
 
 
 def get_action_taken(field):
@@ -23,6 +25,7 @@ def game(request):
     user = request.user
     user_instance_object = user.game_instance_objects.latest()
     game_instance = user_instance_object.game_instance
+    turn = game_instance.turn
     game_instance_objects = game_instance.game_instance_objects.all()
     display_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='display_object')
     autonomous_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='autonomous_object')
@@ -60,6 +63,20 @@ def game(request):
                 action_taken = get_action_taken(field)
                 parameters = cd[field]
                 user_instance_object.act(action_taken, parameters, game_object_id)
+            
+            # Check DB to see if all users have committed actions
+            user_game_instance_objects = game_instance_objects.exclude(user__isnull=True)
+            i = 0
+            for gio in user_game_instance_objects:
+                if not gio.initiated_actions.all().filter(turn=turn):
+                    break
+                else:
+                    i += 1
+            if i != len(user_game_instance_objects):
+                pass
+            else:
+                game_instance.update_turn()
+
         else:
             pass
             #Populate action_form.errors
@@ -67,6 +84,6 @@ def game(request):
     else:
         action_form = OwnedFarmActionForm()    
     
-    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form})
+    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn})
     #For now, permit centre_display with at most two elements 
     #Later, include timer: http://keith-wood.name/countdown.html 

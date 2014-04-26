@@ -15,7 +15,7 @@ def eat(living_object):
 #v1 - applies to all farms
 def labour_worked(farm):
     turn = farm.game_instance.turn
-    labour_working = farm.affected_by_actions.all().filter(turn=turn, action__arch_action='work').count()
+    labour_working = farm.affected_by_actions.all().filter(turn=turn, action__arch_action='work', parameters='yes').count()
     labour_working_attr = farm.attribute_values.all().get(attribute__arch_attribute='labour_working')
     labour_working_attr.value = labour_working
     labour_working_attr.save(update_fields=['value'])

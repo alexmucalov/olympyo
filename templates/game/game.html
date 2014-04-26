@@ -93,9 +93,19 @@
     <footer id="footer">
         <div id="hud" class="container">
             <div id="static-bar" class="row">
-                <div id="hud-action-log" class="col-sm-4">
-                    <div id="notifications">
-                        <span class="label label-default">11:05:36</span> This is the latest notice.
+                <div id="hud-player-object" class="col-sm-1">
+                    <div id="player-object" class="text-center">
+                        <span class="label label-default">{{ user_instance_object.game_object|capfirst }}</span>
+                    </div>
+                </div>
+                <div id="hud-turn" class="col-sm-2">
+                    <div id="turn-number" class="text-center">
+                        <b>Turn </b><span class="badge">{{ turn }}</span>
+                    </div>
+                </div>
+                <div id="hud-action-log" class="col-sm-1">
+                    <div id="notifications" class="">
+                        <b>Actions</b>
                     </div>
                 </div>
                 <div id="hud-timer" class="col-sm-4">
@@ -106,7 +116,7 @@
                 <div id="hud-player-stats" class="col-sm-4 text-center">
                     <b>Player stats &nbsp;</b>
                     {% for attribute in player_stats %}
-                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value }} </span> &nbsp; 
+                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
                     {% endfor %}
                 </div>
             </div>
@@ -137,16 +147,16 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <h5 class="text-center">Object attributes</h5>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
-                        <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value }}</span></li>
+                        <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="col-sm-4">
-                    <h5 class="text-center">Actions available on object</h5>
+                <div class="col-sm-3">
+                    <h5 class="text-center">Object actions available</h5>
                     {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
                     <!--    {% if action_form.errors %}
                             <div>Please correct the error{{ action_form.errors|pluralize }} below: </div>
