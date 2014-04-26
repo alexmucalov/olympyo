@@ -1,13 +1,7 @@
 *.pyc
-
-olympyo/settings.py
-
 *.json
-
 TODO.txt
-
 npm-debug.log
-
 schema.xlsx
-
 amucalov.pem
+olympyo/settings_local.py
