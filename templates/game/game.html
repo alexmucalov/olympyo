@@ -146,6 +146,7 @@
                 </div>
                 <div class="col-sm-4">
                     <h5 class="text-center">Actions available on object</h5>
+                    {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
                     <form class="form-horizontal" role="form">
                         <div class="form-group">
                             <label for="inputAction1" class="col-sm-4 control-label">Set wage</label>
@@ -166,6 +167,7 @@
                             </div>
                         </div>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
