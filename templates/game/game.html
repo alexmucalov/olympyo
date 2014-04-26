@@ -34,27 +34,27 @@
 
     <div id="content" class="container">
         <div id="row1" class="row">
-            <a href="?game_object_id={{ display_objects.0.id }}" id="{{ display_objects.0.id }}" class="col-sm-3 layout-object {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
+            <a href="?game_object_id={{ display_objects.0.id }}" id="{{ display_objects.0.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
                 
             </a>
-            <a href="?game_object_id={{ display_objects.1.id }}" id="{{ display_objects.1.id }}" class="col-sm-3 layout-object {{ display_objects.1.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.1.id }}" id="{{ display_objects.1.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.1.game_object.game_object.arch_game_object }}">
 
             </a>
-            <a href="?game_object_id={{ display_objects.2.id }}" id="{{ display_objects.2.id }}" class="col-sm-3 layout-object {{ display_objects.2.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.2.id }}" id="{{ display_objects.2.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.2.game_object.game_object.arch_game_object }}">
 
             </a>
-            <a href="?game_object_id={{ display_objects.3.id }}" id="{{ display_objects.3.id }}" class="col-sm-3 layout-object {{ display_objects.3.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.3.id }}" id="{{ display_objects.3.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.3.game_object.game_object.arch_game_object }}">
             
             </a>
         </div>
         <div id="row2" class="row">
             <div class="col-sm-3">
                 <div class="row">
-                    <a href="?game_object_id={{ display_objects.4.id }}" id="{{ display_objects.4.id }}" class="col-sm-12 layout-object {{ display_objects.4.game_object.game_object.arch_game_object }}">
+                    <a href="?game_object_id={{ display_objects.4.id }}" id="{{ display_objects.4.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.4.game_object.game_object.arch_game_object }}">
                     </a>
                 </div>
                 <div class="row">
-                    <a href="?game_object_id={{ display_objects.6.id }}" id="{{ display_objects.6.id }}" class="col-sm-12 layout-object {{ display_objects.6.game_object.game_object.arch_game_object }}">
+                    <a href="?game_object_id={{ display_objects.6.id }}" id="{{ display_objects.6.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.6.game_object.game_object.arch_game_object }}">
                     </a>
                 </div>
             </div>
@@ -65,26 +65,26 @@
             </div>
             <div class="col-sm-3">
                 <div class="row">
-                    <a href="?game_object_id={{ display_objects.5.id }}" id="{{ display_objects.5.id }}" class="col-sm-12 layout-object {{ display_objects.5.game_object.game_object.arch_game_object }}">
+                    <a href="?game_object_id={{ display_objects.5.id }}" id="{{ display_objects.5.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.5.game_object.game_object.arch_game_object }}">
                     </a>
                 </div>
                 <div class="row">
-                    <a href="?game_object_id={{ display_objects.7.id }}" id="{{ display_objects.7.id }}" class="col-sm-12 layout-object {{ display_objects.7.game_object.game_object.arch_game_object }}">
+                    <a href="?game_object_id={{ display_objects.7.id }}" id="{{ display_objects.7.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.7.game_object.game_object.arch_game_object }}">
                     </a>
                 </div>
             </div>
         </div>
         <div id="row3" class="row">
-            <a href="?game_object_id={{ display_objects.8.id }}" id="{{ display_objects.8.id }}" class="col-sm-3 layout-object {{ display_objects.8.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.8.id }}" id="{{ display_objects.8.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.8.game_object.game_object.arch_game_object }}">
 
             </a>
-            <a href="?game_object_id={{ display_objects.9.id }}" id="{{ display_objects.9.id }}" class="col-sm-3 layout-object {{ display_objects.9.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.9.id }}" id="{{ display_objects.9.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.9.game_object.game_object.arch_game_object }}">
 
             </a>
-            <a href="?game_object_id={{ display_objects.10.id }}" id="{{ display_objects.10.id }}" class="col-sm-3 layout-object {{ display_objects.10.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.10.id }}" id="{{ display_objects.10.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.10.game_object.game_object.arch_game_object }}">
 
             </a>
-            <a href="?game_object_id={{ display_objects.11.id }}" id="{{ display_objects.11.id }}" class="col-sm-3 layout-object {{ display_objects.11.game_object.game_object.arch_game_object }}">
+            <a href="?game_object_id={{ display_objects.11.id }}" id="{{ display_objects.11.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.11.game_object.game_object.arch_game_object }}">
             
             </a>
         </div>
@@ -134,8 +134,14 @@
                 <div class="col-sm-2">
                     <h5 class="text-center">Selected object</h5>
                     <div class="text-center">{{ game_object.game_object|capfirst }}</div>
+                    {% if game_object %}
                     <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}'>
                     </div>
+                    {% else %}
+                    <ul class="list-group text-center">
+                        <li class="list-group-item">None</li>
+                    </ul>
+                    {% endif %}
                     <h5 class="text-center">Owns</h5>
                     <ul class="list-group text-center">   
                         {% for relationship in game_object.relationship_subjects.all %}
@@ -147,22 +153,24 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <h5 class="text-center">Object attributes</h5>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
                         <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
+                        {% empty %}
+                        <li class="list-group-item text-center">None</li>
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <h5 class="text-center">Object actions available</h5>
                     {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
                     <!--    {% if action_form.errors %}
                             <div>Please correct the error{{ action_form.errors|pluralize }} below: </div>
                         {% endif %} -->
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
-                        {{ action_form|bootstrap }}
+                        {{ action_form|bootstrap_horizontal:'col-lg-4 col-sm-4' }}
                         <button type="submit" class="btn btn-default col-sm-12">Commit</button>
                     </form>
                     
