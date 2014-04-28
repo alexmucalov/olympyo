@@ -52,9 +52,10 @@ def perform(instance):
     for player in players:
         eat(player)
     for labour in labourers:
-        eat(labour)
-
-    #Have labour take action to take wages and work:
+        eat(labour)            
+    
+    #Have labour take action to take wages and work
+    #But be careful! Deduct spots that owners work - validate with in ActionForm
     sorted_set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
     labour_and_wages_offered = zip(labourers, sorted_set_wage_actions)
     for (labour, wage_offered) in labour_and_wages_offered:
@@ -111,8 +112,9 @@ def perform(instance):
     #(Check if any players or labourers have died:)
 
     #Update all players' and labourers' leisure:
-    labourers_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action='work', initiated_actions__parameters='yes'), game_instance__id=instance_id, game_object__game_object__arch_game_object='labour', initiated_actions__turn=turn).distinct()
-    players_who_didnt_work = GameInstanceObject.objects.filter(~Q(initiated_actions__action__arch_action='work', initiated_actions__parameters='yes'), game_instance__id=instance_id, game_object__game_object__arch_game_object='player', initiated_actions__turn=turn).distinct()
+    #The Q object removal is untested - now checking for those who did NOT work
+    labourers_who_didnt_work = GameInstanceObject.objects.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', game_object__game_object__arch_game_object='labour', initiated_actions__turn=turn).distinct()
+    players_who_didnt_work = GameInstanceObject.objects.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', game_object__game_object__arch_game_object='player', initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:
         enjoy_leisure(labour)
     for player in players_who_didnt_work:

@@ -75,9 +75,11 @@ def game(request):
             user_already_played = True
             cleaned_data = action_form.cleaned_data
             for field in cleaned_data:
-                action_taken = get_action_taken(field)
-                parameters = cleaned_data[field]
-                user_instance_object.act(action_taken, parameters, game_object_id)
+                # The 'if' below is untested
+                if cleaned_data[field] is not None:
+                    action_taken = get_action_taken(field)
+                    parameters = cleaned_data[field]
+                    user_instance_object.act(action_taken, parameters, game_object_id)
             
             # Check DB to see if all users have committed actions; update turn if so
             user_game_instance_objects = game_instance_objects.exclude(user__isnull=True)
@@ -96,11 +98,10 @@ def game(request):
 
         else:
             user_already_played = False
-            #Populate action_form.errors
-            #Pass this into the context? How do errors work?
+
     else:
         user_already_played = False
-        action_form = ActionForm()  
+        action_form = ActionForm(initial={'work': 'no'})  
         user_turn_action_set = Action.objects.filter(turn=turn, initiator=user_instance_object)
         if user_turn_action_set:
             user_already_played = True  
