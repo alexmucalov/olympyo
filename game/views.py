@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.http import Http404
 from django.db.models import Q, F
@@ -91,6 +91,8 @@ def game(request):
                 pass
             else:
                 game_instance.update_turn()
+                return HttpResponseRedirect('/game/')
+                
 
         else:
             user_already_played = False
