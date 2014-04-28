@@ -1,6 +1,12 @@
+"""
+* Must be named after game_ruleset that applies
+
+"""
+
+
 from django import forms
 
-class OwnedFarmActionForm(forms.Form):
+class ActionForm(forms.Form):
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     work = forms.CharField(required=False)
