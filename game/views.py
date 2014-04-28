@@ -63,8 +63,7 @@ def game(request):
         try:
             game_object_ownership_relationships = game_object.relationship_objects.all().filter(relationship__arch_relationship='owns')
             game_object_owner_set = [relationship.subject_game_instance_object for relationship in game_object_ownership_relationships]
-            #if user has already committed an action this turn, pass True to Boolean variable in context
-            #And use template to grey out the action_form
+            
         except:
             pass
     
@@ -73,13 +72,14 @@ def game(request):
     if request.method=='POST':
         action_form = ActionForm(request.POST)
         if action_form.is_valid():
+            user_already_played = True
             cleaned_data = action_form.cleaned_data
             for field in cleaned_data:
                 action_taken = get_action_taken(field)
                 parameters = cleaned_data[field]
                 user_instance_object.act(action_taken, parameters, game_object_id)
             
-            # Check DB to see if all users have committed actions
+            # Check DB to see if all users have committed actions; update turn if so
             user_game_instance_objects = game_instance_objects.exclude(user__isnull=True)
             i = 0
             for gio in user_game_instance_objects:
@@ -93,13 +93,17 @@ def game(request):
                 game_instance.update_turn()
 
         else:
-            pass
+            user_already_played = False
             #Populate action_form.errors
             #Pass this into the context? How do errors work?
     else:
-        action_form = ActionForm()    
+        user_already_played = False
+        action_form = ActionForm()  
+        user_turn_action_set = Action.objects.filter(turn=turn, initiator=user_instance_object)
+        if user_turn_action_set:
+            user_already_played = True  
     
     
-    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn})
+    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
     #For now, permit centre_display with at most two elements 
     #Later, include timer: http://keith-wood.name/countdown.html 

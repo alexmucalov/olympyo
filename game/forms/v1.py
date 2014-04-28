@@ -1,6 +1,6 @@
 """
-* Must be named after game_ruleset that applies
-
+* File must be named after game_ruleset that applies
+* For game.views to be able to import ActionForm properly
 """
 
 
