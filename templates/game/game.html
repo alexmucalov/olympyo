@@ -11,10 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Olympyo</title>
-
-    <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{STATIC_URL}}game/css/less.css">
-    <link rel="stylesheet" href="{{STATIC_URL}}game/css/game_objects.css">
     
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
@@ -22,7 +18,11 @@
     <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
     <script src="{{STATIC_URL}}js/retina-1.1.0.min.js"></script>
     <script src="{{STATIC_URL}}js/defaults.js"></script>
-
+    
+    <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/less.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/game_objects.css">
+    
 </head>
 <body>
 
@@ -166,9 +166,6 @@
                 <div class="col-sm-4">
                     <h5 class="text-center">Object actions available</h5>
                     {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
-                    <!--    {% if action_form.errors %}
-                            <div>Please correct the error{{ action_form.errors|pluralize }} below: </div>
-                        {% endif %} -->
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if user_already_played %} disabled {% endif %}>
                         {{ action_form|bootstrap_horizontal:'col-lg-4 col-sm-4' }}
