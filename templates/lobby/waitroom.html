@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load bootstrap %}
 {% url 'lobby' as lobby_url %}
 {% url 'game' as game_url %}
 {% load selected_users %}
@@ -6,10 +7,37 @@
 
 <html>
 <head>
+    
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Olympyo</title>
+    
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}js/retina-1.1.0.min.js"></script>
+    <script src="{{STATIC_URL}}js/defaults.js"></script>
+    
+    <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}css/home.css">
+    <!-- NOTE: lobby/ css found in project_static; suspect that locating elsewhere conflicts with /lobby/ redirect in settings -->
+    
 </head>
 <body>
 	<!-- % render_waitroom_user_list % -->
-	<a href="{{ game_url }}">Game</a><br />
-	<a href="{{ lobby_url }}">Lobby</a>
+    <div class="container">
+        <div class="tmp-redirect jumbotron">
+            <h1>This is the waitroom.</h1>
+            <p>Once you've created a game, you'll wait here for other users to join your simulation. Try out the simulation, when you're ready.</p>
+            <div>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ game_url }}">Game</a></p>
+            </div><br/>
+            <div>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ lobby_url }}">Lobby</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

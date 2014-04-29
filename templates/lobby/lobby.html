@@ -1,4 +1,7 @@
+<!DOCTYPE html>
+
 {% load staticfiles %}
+{% load bootstrap %}
 {% url 'auth_logout' as logout_url %}
 {% url 'waitroom' as waitroom_url %}
 {% load selected_users %}
@@ -6,10 +9,35 @@
 
 <html>
 <head>
+    
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Olympyo</title>
+    
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}js/retina-1.1.0.min.js"></script>
+    <script src="{{STATIC_URL}}js/defaults.js"></script>
+    
+    <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}css/home.css">
+    <!-- NOTE: lobby/ css found in project_static; suspect that locating elsewhere conflicts with /lobby/ redirect in settings -->
 </head>
 <body>
-	{% render_logged_in_user_list %}
-	<a href="{{ waitroom_url }}">Waitroom</a><br />
-	<a href="{{ logout_url }}">Logout</a>
+	<div class="container">
+        <div class="tmp-redirect jumbotron">
+            <h1>You're now in the simulation lobby...</h1>
+            <p>...where you'll be able to create economic games. Head on in to the waitroom to find out more.</p>
+            <div>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ waitroom_url }}">Waitroom</a></p>
+            </div><br/>
+            <div>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ logout_url }}">Logout</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
