@@ -43,18 +43,17 @@
             {% endfor %}
         </div>
         </div>
-        <div id="hud-timer" class="col-sm-2">
-            <div id="turn-number" class="text-center">
-                <b>Turn </b><span class="badge">{{ turn }}</span>
-            </div>
-            <div class="progress">
+        <div id="hud-timer" class="panel-body col-sm-2">
+            <div class="progress text-center">
                 <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">
-                    26:42
+                    Timer
                 </div>
             </div>
         </div>
-        <div id="hud-turn" class="col-sm-5">
-            
+        <div id="hud-turn" class="panel-body col-sm-5">
+            <div id="turn-number" class="text-right">
+                <b>Turn </b><span class="badge">{{ turn }}</span>
+            </div>
         </div>
         <!--<div id="hud-action-log" class="col-sm-1">
             <b>Actions</b>
