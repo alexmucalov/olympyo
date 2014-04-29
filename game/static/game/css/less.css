@@ -7,11 +7,12 @@
   padding: 0px 0;
   text-align: center;
 }
-#header #branding {
-  line-height: 40px;
+#branding {
+  line-height: 50px;
 }
 #content {
-  width: 450px;
+  width: 450px !important;
+  height: 412px !important;
 }
 #static-bar {
   /*border-bottom: #000 solid 1px;*/    
@@ -23,19 +24,19 @@
    
 }
 .layout-object {
-  height: 100px;
+  height: 36px;
 }
 .logo {
   height: 200px;
-  background-image: url("../images/logo.png");
+  background-image: url("../images/x-small-logo.png");
   background-position: center center;
   background-repeat: no-repeat;
 }
 #footer {
   bottom: 0;
   width: 100%;
-  background-color: #eee;
-  border-top: #000 solid 2px;
+  background-color: ;
+  border-top: #000 solid 0px;
   padding: 5px 0;
 }
 #notifications {

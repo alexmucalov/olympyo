@@ -31,111 +31,57 @@
     </header>
 
     <nav id="gui"></nav>
-
-    <div id="content" class="container">
-        <div id="row1" class="row">
-            <a href="?game_object_id={{ display_objects.0.id }}" id="{{ display_objects.0.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.0.game_object.game_object.arch_game_object }}"> 
-                
+    <div class="container">
+    <div id="static-bar" class="row panel panel-default">
+        <div class="panel-body col-sm-5">
+        <div id="hud-player-object" class="">
+            <a class="" href="?game_object_id={{ user_instance_object.id }}">
+            <b>{{ user_instance_object.game_object|capfirst }} </b>
             </a>
-            <a href="?game_object_id={{ display_objects.1.id }}" id="{{ display_objects.1.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.1.game_object.game_object.arch_game_object }}">
-
-            </a>
-            <a href="?game_object_id={{ display_objects.2.id }}" id="{{ display_objects.2.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.2.game_object.game_object.arch_game_object }}">
-
-            </a>
-            <a href="?game_object_id={{ display_objects.3.id }}" id="{{ display_objects.3.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.3.game_object.game_object.arch_game_object }}">
-            
-            </a>
+            {% for attribute in player_stats %}
+            {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
+            {% endfor %}
         </div>
-        <div id="row2" class="row">
-            <div class="col-sm-3">
-                <div class="row">
-                    <a href="?game_object_id={{ display_objects.4.id }}" id="{{ display_objects.4.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.4.game_object.game_object.arch_game_object }}">
-                    </a>
-                </div>
-                <div class="row">
-                    <a href="?game_object_id={{ display_objects.6.id }}" id="{{ display_objects.6.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.6.game_object.game_object.arch_game_object }}">
-                    </a>
-                </div>
+        </div>
+        <div id="hud-timer" class="col-sm-2">
+            <div id="turn-number" class="text-center">
+                <b>Turn </b><span class="badge">{{ turn }}</span>
             </div>
-            <div id="logo" class="col-sm-6 text-right logo">
-                {% for el in centre_display %}
-                    {{ el.0 }} <span class="badge">{{ el.1 }}</span><br />
-                {% endfor %}              
-            </div>
-            <div class="col-sm-3">
-                <div class="row">
-                    <a href="?game_object_id={{ display_objects.5.id }}" id="{{ display_objects.5.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.5.game_object.game_object.arch_game_object }}">
-                    </a>
-                </div>
-                <div class="row">
-                    <a href="?game_object_id={{ display_objects.7.id }}" id="{{ display_objects.7.id }}" class="col-sm-12 layout-object img-circle {{ display_objects.7.game_object.game_object.arch_game_object }}">
-                    </a>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">
+                    26:42
                 </div>
             </div>
         </div>
-        <div id="row3" class="row">
-            <a href="?game_object_id={{ display_objects.8.id }}" id="{{ display_objects.8.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.8.game_object.game_object.arch_game_object }}">
-
-            </a>
-            <a href="?game_object_id={{ display_objects.9.id }}" id="{{ display_objects.9.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.9.game_object.game_object.arch_game_object }}">
-
-            </a>
-            <a href="?game_object_id={{ display_objects.10.id }}" id="{{ display_objects.10.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.10.game_object.game_object.arch_game_object }}">
-
-            </a>
-            <a href="?game_object_id={{ display_objects.11.id }}" id="{{ display_objects.11.id }}" class="col-sm-3 layout-object img-circle {{ display_objects.11.game_object.game_object.arch_game_object }}">
+        <div id="hud-turn" class="col-sm-5">
             
-            </a>
+        </div>
+        <!--<div id="hud-action-log" class="col-sm-1">
+            <b>Actions</b>
+        </div>-->
+        
         </div>
     </div>
-
-    <footer id="footer">
-        <div id="hud" class="container">
-            <div id="static-bar" class="row">
-                <div id="hud-player-object" class="col-sm-1">
-                    <div id="player-object" class="text-center">
-                        <span class="label label-default">{{ user_instance_object.game_object|capfirst }}</span>
-                    </div>
-                </div>
-                <div id="hud-turn" class="col-sm-2">
-                    <div id="turn-number" class="text-center">
-                        <b>Turn </b><span class="badge">{{ turn }}</span>
-                    </div>
-                </div>
-                <div id="hud-action-log" class="col-sm-1">
-                    <div id="notifications" class="">
-                        <b>Actions</b>
-                    </div>
-                </div>
-                <div id="hud-timer" class="col-sm-4">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">26:42</div>
-                    </div>
-                </div>
-                <div id="hud-player-stats" class="col-sm-4 text-center">
-                    <b>Player stats &nbsp;</b>
-                    {% for attribute in player_stats %}
-                    {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
-                    {% endfor %}
-                </div>
+    </div>
+    <div id="" class="container">
+        <div class="row">
+        <div class="col-sm-2">
+            <h5 class="text-center">Agents</h5>
+            <div class="list-group">
+                {% for auto_object in autonomous_objects %}
+                <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
+                    {{ auto_object.game_object|capfirst }} 
+                </a>
+            {% endfor %}
             </div>
+        </div>
+        <div class="col-sm-8">
             <div id="hud-object-stats" class="row">
                 <div class="col-sm-3">
-                    <h5 class="text-center">Autonomous objects</h5>
-                    <ul class="list-group">
-                    {% for auto_object in autonomous_objects %}
-                        <li class="list-group-item">
-                            <a href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">{{ auto_object.game_object|capfirst }} </a>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
-                <div class="col-sm-2">
                     <h5 class="text-center">Selected object</h5>
                     <div class="text-center">{{ game_object.game_object|capfirst }}</div>
                     {% if game_object %}
-                    <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}'>
+                    <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}-lg'>
                     </div>
                     {% else %}
                     <ul class="list-group text-center">
@@ -143,17 +89,30 @@
                     </ul>
                     {% endif %}
                     <h5 class="text-center">Owns</h5>
-                    <ul class="list-group text-center">   
+                    <div class="list-group text-center">   
                         {% for relationship in game_object.relationship_subjects.all %}
-                        <li class="list-group-item">
-                            <a href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object.game_object|capfirst }}</a>
-                        </li>
+                        <a class="list-group-item" href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object.game_object|capfirst }}</a>
                         {% empty %}
-                        <li class="list-group-item">Nothing</li>
+                        <div class="list-group-item">Nothing</div>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-5">
+                    <h5 class="text-center">Object actions available</h5>
+                    {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
+                    <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
+                        <fieldset {% if user_already_played %} disabled {% endif %}>
+                        {{ action_form|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                        <button type="submit" class="btn btn-default col-sm-12">Commit</button>
+                        </fieldset>
+                    </form>
+                    {% else %}
+                    <ul class="list-group">
+                        <li class="list-group-item text-center">None</li>
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
                     <h5 class="text-center">Object attributes</h5>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
@@ -163,30 +122,44 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="col-sm-4">
-                    <h5 class="text-center">Object actions available</h5>
-                    {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
-                    <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
-                        <fieldset {% if user_already_played %} disabled {% endif %}>
-                        {{ action_form|bootstrap_horizontal:'col-lg-4 col-sm-4' }}
-                        <button type="submit" class="btn btn-default col-sm-12">Commit</button>
-                        </fieldset>
-                    </form>
-                        {% if user_already_played %}
-                            <div class="alert alert-success text-center">You have committed actions this turn!</div>
-                        {% elif action_form.errors %}
-                            <div class="alert alert-danger text-center">Oops - you committed invalid actions...</div>
-                        {% else %}
-                            <div class="alert alert-info text-center">You can commit your actions here!</div>
-                        {% endif %}
-                    
-                    {% else %}
-                    <ul class="list-group">
-                        <li class="list-group-item text-center">None</li>
-                    </ul>
-                    {% endif %}
-                </div>
             </div>
+        </div>
+        <div class="col-sm-2">
+        <h5 class="text-center">Farms</h5>
+            {% for display_object in display_objects %}
+            <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
+            {% endfor %}
+            
+        </div>
+        </div>
+        {% if user_already_played %}
+                            <div class="alert alert-success alert-dismissable text-center">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                                    &times;
+                                </button>
+                                You have committed actions this turn!
+                            </div>
+                        {% elif action_form.errors %}
+                            <div class="alert alert-danger alert-dismissable text-center">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                                    &times;
+                                </button>
+                                Oops - you committed invalid actions...
+                            </div>
+                        {% else  %}
+                            <div class="alert alert-info alert-dismissable text-center">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                                    &times;
+                                </button>
+                                You can commit your actions on the objects you own.
+                            </div>
+                        {% endif %}
+    </div>
+    
+
+    <footer id="footer">
+        <div id="hud" class="container">
+            
         </div>
         <!-- <a href="{{ logout_url }}">Logout</a> -->
     </footer>

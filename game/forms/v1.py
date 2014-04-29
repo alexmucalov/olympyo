@@ -28,15 +28,17 @@ class ActionForm(forms.Form):
     def clean_set_wage_1(self):
         #Set_wages must be > 0
         data = self.cleaned_data['set_wage_1']
-        if data <= 0:
-            raise forms.ValidationError("You've got to offer something")
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
         return data
     
     def clean_set_wage_2(self):
         #Set_wages must be > 0
         data = self.cleaned_data['set_wage_2']
-        if data <= 0:
-            raise forms.ValidationError("You've got to offer something")
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
         return data
     
     def clean(self):

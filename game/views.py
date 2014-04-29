@@ -75,7 +75,6 @@ def game(request):
             user_already_played = True
             cleaned_data = action_form.cleaned_data
             for field in cleaned_data:
-                # The 'if' below is untested
                 if cleaned_data[field] is not None:
                     action_taken = get_action_taken(field)
                     parameters = cleaned_data[field]

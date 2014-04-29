@@ -4,18 +4,33 @@
   background-position: center center;
   background-repeat: no-repeat;
 }
-.farm {
-  background-image: url("../images/ic-field-circled-adj.png");
+.farm-lg {
+  background-image: url("../images/ic-field-circled.png");
   background-position: center center;
   background-repeat: no-repeat;
 }
-.player {
-  background-image: url("../images/profile.jpg");
+.farm-sm {
+  background-image: url("../images/ic-field-circled-adj-small.png");
   background-position: center center;
   background-repeat: no-repeat;
 }
-.labour {
-  background-image: url("../images/profile.jpg");
+.player-lg {
+  background-image: url("../images/profile.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.player-sm {
+  background-image: url("../images/profile-small.jpg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.labour-lg {
+  background-image: url("../images/profile.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.labour-sm {
+  background-image: url("../images/profile-small.jpg");
   background-position: center center;
   background-repeat: no-repeat;
 }
