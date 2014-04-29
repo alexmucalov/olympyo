@@ -29,15 +29,19 @@
     <header id="header" class="container">
         <h1 id="branding" class="row">Olympyo</h1>
     </header>
+    <div class="alert alert-success text-center">
 
+        Welcome to Olympyo! For a quick rundown on the rules of this game, click <a href="#" class="alert-link">here</a>
+    </div>
     <nav id="gui"></nav>
     <div class="container">
     <div id="static-bar" class="row panel panel-default">
         <div class="panel-body col-sm-5">
         <div id="hud-player-object" class="">
-            <a class="" href="?game_object_id={{ user_instance_object.id }}">
-            <b>{{ user_instance_object.game_object|capfirst }} </b>
+            <a class="bg-primary img-rounded" href="?game_object_id={{ user_instance_object.id }}">
+            {{ user_instance_object.game_object|capfirst }}
             </a>
+             &nbsp;
             {% for attribute in player_stats %}
             {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
             {% endfor %}
@@ -126,33 +130,27 @@
         <div class="col-sm-2">
         <h5 class="text-center">Farms</h5>
             {% for display_object in display_objects %}
-            <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
+            <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="{% if display_object.id == game_object.id %}bg-primary{% endif %} col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
             {% endfor %}
             
         </div>
         </div>
         {% if user_already_played %}
-                            <div class="alert alert-success alert-dismissable text-center">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                                    &times;
-                                </button>
-                                You have committed actions this turn!
-                            </div>
-                        {% elif action_form.errors %}
-                            <div class="alert alert-danger alert-dismissable text-center">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                                    &times;
-                                </button>
-                                Oops - you committed invalid actions...
-                            </div>
-                        {% else  %}
-                            <div class="alert alert-info alert-dismissable text-center">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                                    &times;
-                                </button>
-                                You can commit your actions on the objects you own.
-                            </div>
-                        {% endif %}
+        <div class="alert alert-success text-center">
+            You have committed actions this turn!
+        </div>
+        {% elif action_form.errors %}
+        <div class="alert alert-danger alert-dismissable text-center">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                &times;
+            </button>
+            Oops - you committed invalid actions...
+        </div>
+        {% else  %}
+        <div class="alert alert-info text-center">
+            Go ahead and explore, then commit your actions on the objects you own.
+        </div>
+        {% endif %}
     </div>
     
 
