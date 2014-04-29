@@ -38,7 +38,7 @@
     <div id="static-bar" class="row panel panel-default">
         <div class="panel-body col-sm-5">
         <div id="hud-player-object" class="">
-            <a class="bg-primary img-rounded" href="?game_object_id={{ user_instance_object.id }}">
+            <a class="btn btn-primary" href="?game_object_id={{ user_instance_object.id }}">
             {{ user_instance_object.game_object|capfirst }}
             </a>
              &nbsp;
@@ -50,14 +50,14 @@
         <div id="hud-timer" class="panel-body col-sm-2">
             <div class="progress text-center">
                 <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">
-                    Timer
+                    Turn timer
                 </div>
             </div>
         </div>
-        <div id="hud-turn" class="panel-body col-sm-5">
-            <div id="turn-number" class="text-right">
-                <b>Turn </b><span class="badge">{{ turn }}</span>
-            </div>
+        <div id="hud-turn" class="panel-body col-sm-5 text-right">
+            <a id="turn-number" class="btn btn-primary" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="This game has 20 turns.">
+                Turn <span class="badge">{{ turn }}</span>
+            </a>
         </div>
         <!--<div id="hud-action-log" class="col-sm-1">
             <b>Actions</b>
@@ -69,8 +69,10 @@
     <div id="" class="container">
         <div class="row">
         <div class="col-sm-2">
-            <h5 class="text-center">Agents</h5>
             <div class="list-group">
+                <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Agents take actions each turn. Players are human &#40;like you!&#41; and other agents are AI who respond to your actions.">
+                Agents
+                </a>
                 {% for auto_object in autonomous_objects %}
                 <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
                     {{ auto_object.game_object|capfirst }} 
@@ -81,7 +83,9 @@
         <div class="col-sm-8">
             <div id="hud-object-stats" class="row">
                 <div class="col-sm-3">
-                    <h5 class="text-center">Selected object</h5>
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="The selected object is what you just clicked. Available actions and attributes relate to the selected object.">
+                    Selected object
+                    </a>
                     <div class="text-center">{{ game_object.game_object|capfirst }}</div>
                     {% if game_object %}
                     <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}-lg'>
@@ -101,7 +105,9 @@
                     </div>
                 </div>
                 <div class="col-sm-5">
-                    <h5 class="text-center">Object actions available</h5>
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
+                    Available actions
+                    </a>
                     {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if user_already_played %} disabled {% endif %}>
@@ -116,7 +122,9 @@
                     {% endif %}
                 </div>
                 <div class="col-sm-4">
-                    <h5 class="text-center">Object attributes</h5>
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Attributes define the selected object. Some of them may change each turn, as players' actions affect the game.">
+                    Attributes
+                    </a>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
                         <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
@@ -128,7 +136,9 @@
             </div>
         </div>
         <div class="col-sm-2">
-        <h5 class="text-center">Farms</h5>
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Farms sit passively until you act on them. In this game, you can hire people to work farms that you own, and you can work one yourself.">
+                Farms
+            </a>
             {% for display_object in display_objects %}
             <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="{% if display_object.id == game_object.id %}bg-primary{% endif %} col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
             {% endfor %}
@@ -170,5 +180,17 @@
         });
     </script>
     -->
+    <script type="text/javascript">
+        $(function () {
+            $("[rel='tooltip']").tooltip();
+        });
+    </script>
+    <script>
+        $(function () {
+            $("[rel='popover']").popover();
+        });
+    </script>
+    
+    
 </body>
 </html>
