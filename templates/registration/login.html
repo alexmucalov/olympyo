@@ -39,10 +39,8 @@
         {{ form|bootstrap_horizontal:'col-lg-3 col-sm-3' }}
         <button id="reg-button" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
           <p>
-            {% blocktrans %}
-              <a href="{{ auth_pwd_reset_url }}">Forgot your password?</a>
+              <!--<a href="{{ auth_pwd_reset_url }}">Forgot your password?</a>-->
               <a href="{{ register_url }}">Need an account?</a>
-            {% endblocktrans %}
           </p>
         <input type="hidden" name="next" value="{{ next }}" />
         </form>
