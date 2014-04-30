@@ -38,32 +38,55 @@ NOTES
 # as members of new subclasses like Player? Instead of eat(labour), would have labour.eat()
 
 def perform(instance):
+    from random import *
+    from decimal import *
+    
     from django.db.models import Q, F
     from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure
     from game.models import GameInstanceObject, Action
+    
 
     instance_id = instance.id
     turn = instance.turn
+    nature = GameInstanceObject.objects.get(game_instance__id=instance_id, game_object__game_object__arch_game_object='nature')
+    
+    
+    #Record turn seed for reproducible randomness
+    #Get seed as Decimal object, because Decimal has a method that effectively
+    #Returns self (copy_abs) without taking any arguments:
+    #Necessary to reproducibly seed random.shuffle
+    seed = Decimal.from_float(round(random(),5))
+    nature.act(action_name='set_seed', parameters=seed)
+    
     
     #Players and labourers eat 1 wealth:
-    players = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="player")
-    labourers = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="labour")
-    farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object="farm")
+    players = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='player')
+    labourers = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='labour')
+    farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='farm')
     for player in players:
         eat(player)
     for labour in labourers:
         eat(labour)            
     
-    #Have labour take action to take wages and work
-    #But be careful! Deduct spots that owners work - validate with in ActionForm
-    sorted_set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
-    labour_and_wages_offered = zip(labourers, sorted_set_wage_actions)
+    #Have random labour take action to take wages and work
+    #Random work can be much more efficient - but not important yet
+    #count_set_wage_actions = len(set_wage_actions)
+    #count_labourers = len(labourers)
+    #if count_labourers > count_set_wage_actions: #WRONG! Need to sample by seed, too
+        #wage_winners = random.sample(labourers, count_set_wage_actions)
+        #random.shuffle(wage_winners, seed)
+    #else:
+        #set_wage_actions = set_wage_actions.order_by('-parameters')
+    set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage')
+    labourer_l = list(labourers)
+    shuffle(labourer_l, seed.copy_abs)
+    labour_and_wages_offered = zip(labourer_l, set_wage_actions)
     for (labour, wage_offered) in labour_and_wages_offered:
         labour.act(action_name='take_wage', parameters=wage_offered.parameters, affected_id=wage_offered.affected.id)
         labour.act(action_name='work', parameters='yes', affected_id=wage_offered.affected.id)
     
     #Farm increases labour_working for everyone working it:
-    worked_farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_instance__turn=turn, affected_by_actions__action__arch_action='work', affected_by_actions__parameters='yes').distinct()
+    worked_farms = farms.filter(game_instance__turn=turn, affected_by_actions__action__arch_action='work', affected_by_actions__parameters='yes').distinct()
     for farm in worked_farms:
         labour_worked(farm)
 
@@ -112,9 +135,8 @@ def perform(instance):
     #(Check if any players or labourers have died:)
 
     #Update all players' and labourers' leisure:
-    #The Q object removal is untested - now checking for those who did NOT work
-    labourers_who_didnt_work = GameInstanceObject.objects.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', game_object__game_object__arch_game_object='labour', initiated_actions__turn=turn).distinct()
-    players_who_didnt_work = GameInstanceObject.objects.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', game_object__game_object__arch_game_object='player', initiated_actions__turn=turn).distinct()
+    labourers_who_didnt_work = labourers.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
+    players_who_didnt_work = players.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:
         enjoy_leisure(labour)
     for player in players_who_didnt_work:
