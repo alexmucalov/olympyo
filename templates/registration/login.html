@@ -44,9 +44,6 @@
               <a href="{{ register_url }}">Need an account?</a>
             {% endblocktrans %}
           </p>
-          {% if form.errors %}
-        <p>{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}</p>
-          {% endif %}
         <input type="hidden" name="next" value="{{ next }}" />
         </form>
 

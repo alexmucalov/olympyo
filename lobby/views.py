@@ -2,8 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import Http404
 
-#from game.gamemetamethods import get_user_who_clicked, add_user_to_waitroom, remove_user_from_waitroom
-
+#from game.metamethods import get_user_who_clicked, add_user_to_waitroom, remove_user_from_waitroom
+from game.models import GameInstanceObject
 
 def lobby(request):
     #user = request.user
@@ -14,21 +14,13 @@ def lobby(request):
 def waitroom(request):
 	#user = request.user
 	#add_user_to_waitroom(user)
-	return render(request, 'lobby/waitroom.html')
+	
+	#if a gio exists for user, then render option for user to enter game
+	try:
+	    user_instance_object = request.user.game_instance_objects.latest()
+	    game_exists = True
+	except:
+	    game_exists = False
 
-
-"""
-def register_user_for_game(request):
-	game = Game.objects.get(id=request.GET.get('game_id'))
-	users = ...
-	game_user = game.game_users.create(user=request.user, game, instance=None)
-	if GameUser.objects.filter(game=game, instance=None).count() >= game.minimum_players:
-		game.create_instance(users)
-"""
-
-"""
-def lobby(request):
-	game = Game.objects.get(id=request.GET.get('game_id'))
-	user = request.user
-	game.add_user_to_waitroom(user)
-"""
+	    
+	return render(request, 'lobby/waitroom.html', {'game_exists': game_exists})
