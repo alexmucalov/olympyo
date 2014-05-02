@@ -226,8 +226,8 @@ class Game(models.Model):
         
 
 class Waitroom(models.Model):
-    game = models.ForeignKey(Game, related_name='waitroom')
-    users = models.ManyToManyField(User, related_name='waitroom')
+    game = models.ForeignKey(Game, related_name='waitrooms')
+    users = models.ManyToManyField(User, related_name='waitrooms')
 	
     def __unicode__(self):
         return u'%s: id=%s' % (self.game, self.users)

@@ -118,19 +118,20 @@ def game(request):
 def game_over(request):
     user_instance_object = request.user.game_instance_objects.latest()
     game_instance = user_instance_object.game_instance
-    players = game_instance.game_instance_objects.all().filter(game_object__game_object__arch_game_object='player')
     ordered_players_leisure_attrs = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance=game_instance, game_instance_object__game_object__game_object__arch_game_object='player', attribute__arch_attribute='leisure').order_by('-value')
     ordered_players = [attr.game_instance_object for attr in ordered_players_leisure_attrs]
+    # Placement works, but this isn't the greatest: uses == instead of is:
+    # is doesn't work, I suspect because I created new objects with the ordered_players
+    # list comprehension - should find a better way
     
     placement = ''
 
-    if user_instance_object is ordered_players[0]:
+    if user_instance_object == ordered_players[0]:
         placement = 'first_place'
-    elif user_instance_object is ordered_players[-1]:
+    elif user_instance_object == ordered_players[-1]:
         placement = 'last_place'
     #elif user_instance_object is in ordered_players[:2]:
         #placement = 'top_three'
 
 
-    
     return render(request, 'game/game_over.html', {'placement': placement})
