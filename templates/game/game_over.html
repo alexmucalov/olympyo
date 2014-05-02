@@ -3,8 +3,7 @@
 
 {% load staticfiles %}
 {% load bootstrap %}
-{% url 'registration_register' as register_url %}
-{% url 'auth_login' as login_url %}
+{% url 'auth_logout' as logout_url%}
 
 <html>
 <head>
@@ -30,13 +29,23 @@
 <body>
 	<div class="container">
         <div class="tmp-redirect jumbotron">
-            <h1>Welcome to Olympyo...</h1>
-            <p>...where you put economic theories to the test. Register or login to learn more.</p>
+            
+            {% if placement == 'first_place' %}
+            <h1>Congratulations, you won!</h1>
+            <p>Thanks for playing, and if you'd like to play another beta round, we'll be happy to set one up for you!</p>
+            {% elif placement == 'top_three' %}
+            <h1>You placed in the top three!</h1>
+            <p>Thanks for playing, and if you'd like to play another beta round, we'll be happy to set one up for you!</p>
+            {% elif placement == 'last_place' %}
+            <h1>Oops - you lost!</h1>
+            <p>But that just means you've got room to improve! Thanks for playing, and if you'd like to play another beta round, we'll be happy to set one up for you!</p>
+            {% else %}
+            <h1>Game over! Did you have fun?</h1>
+            <p>Thanks for playing, and if you'd like to play another beta round, we'll be happy to set one up for you!</p>
+            {% endif %}
+            
             <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ register_url }}">Register</a></p>
-            </div><br/>
-            <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ login_url }}">Login</a></p>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ logout_url }}">Logout</a></p>
             </div>
         </div>
     </div>

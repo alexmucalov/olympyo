@@ -1,6 +1,14 @@
 """
 * File must be named after game_ruleset that applies
 * for game.views to be able to import ActionForm properly
+* This file is game-specific! Each game's single ActionForm
+* will hold all the post logic for any action available in that game
+* For example, farm_village could have set_wage_actions and work
+* on farm objects that one owns, and it could have a buy action on objects
+* that one doesn't own - and all those actions would be in the same form:
+* The uncorresponding fields can be told to hide, from logic placed here in forms.py
+* In this way, all actions will be in one form, but only the correct actions will
+* display in the game view
 """
 
 

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.db.models import Q, F
 
-from game.models import Action, GameInstanceObject, GameInstance
+from game.models import Action, GameInstanceObject, GameInstance,GameInstanceObjectAttributeValue
 
 
 
@@ -26,11 +26,14 @@ def get_action_taken(field):
 
 
 def game(request):
-    # Variable definitions
-    user = request.user
-    user_instance_object = user.game_instance_objects.latest()
+    # Variable definitions - import from elsewhere?
+    user_instance_object = request.user.game_instance_objects.latest()
     game_instance = user_instance_object.game_instance
     turn = game_instance.turn
+    
+    if float(turn) > float(game_instance.game.turns):
+        return HttpResponseRedirect('/game/over/')
+    
     game_instance_objects = game_instance.game_instance_objects.all()
     display_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='display_object')
     autonomous_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='autonomous_object')
@@ -50,7 +53,7 @@ def game(request):
     exec 'from game.forms.%s import ActionForm' % actionform
 
 
-    # Define what's displayed by the centre Olympyo logo
+    # Define what's displayed by the centre Olympyo logo - not included right now
     centre_display = centre_displays(game_instance)
 
 
@@ -93,7 +96,7 @@ def game(request):
             else:
                 game_instance.update_turn()
                 return HttpResponseRedirect('/game/')
-                
+
 
         else:
             user_already_played = False
@@ -103,9 +106,31 @@ def game(request):
         action_form = ActionForm(initial={'work': 'no'})  
         user_turn_action_set = Action.objects.filter(turn=turn, initiator=user_instance_object)
         if user_turn_action_set:
-            user_already_played = True  
-    
-    
+            user_already_played = True
+
+
     return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
     #For now, permit centre_display with at most two elements 
-    #Later, include timer: http://keith-wood.name/countdown.html 
+    #Later, include timer: http://keith-wood.name/countdown.html
+
+
+
+def game_over(request):
+    user_instance_object = request.user.game_instance_objects.latest()
+    game_instance = user_instance_object.game_instance
+    players = game_instance.game_instance_objects.all().filter(game_object__game_object__arch_game_object='player')
+    ordered_players_leisure_attrs = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance=game_instance, game_instance_object__game_object__game_object__arch_game_object='player', attribute__arch_attribute='leisure').order_by('-value')
+    ordered_players = [attr.game_instance_object for attr in ordered_players_leisure_attrs]
+    
+    placement = ''
+
+    if user_instance_object is ordered_players[0]:
+        placement = 'first_place'
+    elif user_instance_object is ordered_players[-1]:
+        placement = 'last_place'
+    #elif user_instance_object is in ordered_players[:2]:
+        #placement = 'top_three'
+
+
+    
+    return render(request, 'game/game_over.html', {'placement': placement})

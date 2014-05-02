@@ -77,7 +77,7 @@ def perform(instance):
         #random.shuffle(wage_winners, seed)
     #else:
         #set_wage_actions = set_wage_actions.order_by('-parameters')
-    set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage')
+    set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
     labourer_l = list(labourers)
     shuffle(labourer_l, seed.copy_abs)
     labour_and_wages_offered = zip(labourer_l, set_wage_actions)

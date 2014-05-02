@@ -259,18 +259,12 @@ class GameInstance(models.Model):
     def __unicode__(self):
         return u'%s: instance id=%s' % (self.game, self.id)
     
-    def end_game(self):
-        pass
-    
     def update_turn(self):
-        if self.turn <= self.game.turns:
-            ruleset = self.game.game_rules.game_rules
-            exec "from game.game_rules.%s import perform" % ruleset
-            perform(self)
-            self.turn = F('turn') + 1
-            self.save(update_fields=['turn'])
-        else:
-            end_game(self)
+        ruleset = self.game.game_rules.game_rules
+        exec "from game.game_rules.%s import perform" % ruleset
+        perform(self)
+        self.turn = F('turn') + 1
+        self.save(update_fields=['turn'])
         
 
 
