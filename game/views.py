@@ -29,6 +29,7 @@ def game(request):
     # Variable definitions - import from elsewhere?
     user_instance_object = request.user.game_instance_objects.latest()
     game_instance = user_instance_object.game_instance
+    instance_id = game_instance.id
     turn = game_instance.turn
     
     if float(turn) > float(game_instance.game.turns):
@@ -36,7 +37,15 @@ def game(request):
     
     game_instance_objects = game_instance.game_instance_objects.all()
     display_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='display_object')
-    autonomous_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='autonomous_object')
+    
+    #Define living autonomous_objects, starving ones, and dead ones - starving not behaving properly yet...
+    wealth_attrs_of_living_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__gt=2)
+    wealth_attrs_of_starving_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__gt=0, value__lte=2)
+    wealth_attrs_of_dead_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__lte=0)
+    living_auto_objects = [attr.game_instance_object for attr in wealth_attrs_of_living_auto_objects]
+    starving_auto_objects = [attr.game_instance_object for attr in wealth_attrs_of_starving_auto_objects]
+    dead_auto_objects = [attr.game_instance_object for attr in wealth_attrs_of_dead_auto_objects]
+    
     player_actions = user_instance_object.initiated_actions.all().order_by('-turn')
     player_stats = user_instance_object.attribute_values.all()
     player_arch_game_object = user_instance_object.game_object.game_object.arch_game_object
@@ -109,7 +118,7 @@ def game(request):
             user_already_played = True
 
 
-    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'autonomous_objects': autonomous_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
+    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'living_auto_objects': living_auto_objects, 'starving_auto_objects': starving_auto_objects, 'dead_auto_objects': dead_auto_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
     #For now, permit centre_display with at most two elements 
     #Later, include timer: http://keith-wood.name/countdown.html
 

@@ -43,7 +43,7 @@ def perform(instance):
     
     from django.db.models import Q, F
     from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure
-    from game.models import GameInstanceObject, Action
+    from game.models import GameInstanceObject, GameInstanceObjectAttributeValue, Action
     
 
     instance_id = instance.id
@@ -58,17 +58,22 @@ def perform(instance):
     seed = Decimal.from_float(round(random(),5))
     nature.act(action_name='set_seed', parameters=seed)
     
-    
-    #Players and labourers eat 1 wealth:
+    #Defining players and labourers
     players = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='player')
     labourers = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='labour')
     farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='farm')
-    for player in players:
+    
+    #Living players and living labourers eat 1 wealth:
+    wealth_attrs_of_living_players = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__arch_game_object='player', attribute__arch_attribute='wealth', value__gt=0)
+    wealth_attrs_of_living_labourers = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__arch_game_object='labour', attribute__arch_attribute='wealth', value__gt=0)
+    living_players = [attr.game_instance_object for attr in wealth_attrs_of_living_players]
+    living_labourers = [attr.game_instance_object for attr in wealth_attrs_of_living_labourers]
+    for player in living_players:
         eat(player)
-    for labour in labourers:
+    for labour in living_labourers:
         eat(labour)            
     
-    #Have random labour take action to take wages and work
+    #Have random living labour take action to take wages and work
     #Random work can be much more efficient - but not important yet
     #count_set_wage_actions = len(set_wage_actions)
     #count_labourers = len(labourers)
@@ -78,7 +83,7 @@ def perform(instance):
     #else:
         #set_wage_actions = set_wage_actions.order_by('-parameters')
     set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
-    labourer_l = list(labourers)
+    labourer_l = list(living_labourers)
     shuffle(labourer_l, seed.copy_abs)
     labour_and_wages_offered = zip(labourer_l, set_wage_actions)
     for (labour, wage_offered) in labour_and_wages_offered:
@@ -132,9 +137,24 @@ def perform(instance):
             farm_owner_wealth_attr.value = 0
             farm_owner_wealth_attr.save(update_fields=['value'])
 
-    #(Check if any players or labourers have died:)
+    #If any players or labourers have died, then set their wealth = 0:
+    #Not the most efficient - ideally would be in living_players, but these
+    #are technically different objects, because I created a list out of them
+    #but they share the same attributes -- remember your deepcopy discoveries?
+    #Here they come to bear!
+    for player in players:
+        if player.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
+            player.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
+            player.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
+    
+    for labourer in labourers:
+        if labourer.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
+            labourer.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
+            labourer.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
 
     #Update all players' and labourers' leisure:
+    #players/labourers who didn't work definition here is good enough, because no other
+    #yes/no action parameters; but not robust
     labourers_who_didnt_work = labourers.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
     players_who_didnt_work = players.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
     for labour in labourers_who_didnt_work:

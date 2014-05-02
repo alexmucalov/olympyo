@@ -73,11 +73,21 @@
                 <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Agents take actions each turn. Players are human &#40;like you!&#41; and other agents are AI who respond to your actions.">
                 Agents
                 </a>
-                {% for auto_object in autonomous_objects %}
+                {% for auto_object in living_auto_objects %}
                 <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
                     {{ auto_object.game_object|capfirst }} 
                 </a>
-            {% endfor %}
+                {% endfor %}
+                {% for auto_object in starving_auto_objects %}
+                <a class="list-group-item list-group-item-warning" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
+                    {{ auto_object.game_object|capfirst }} 
+                </a>
+                {% endfor %}
+                {% for auto_object in dead_auto_objects %}
+                <a class="list-group-item list-group-item-danger" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
+                    {{ auto_object.game_object|capfirst }} 
+                </a>
+                {% endfor %}
             </div>
         </div>
         <div class="col-sm-8">
@@ -115,6 +125,14 @@
                         <button type="submit" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
                     </form>
+                        {% if user_already_played %} 
+                    <div class="alert alert-warning alert-dismissable text-center">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                            &times;
+                        </button>
+                        Note: please don't refresh your browser now, as it'll cause strange behaviour...
+                    </div>
+                        {% endif %}
                     {% else %}
                     <ul class="list-group">
                         <li class="list-group-item text-center">None</li>
