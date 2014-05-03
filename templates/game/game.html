@@ -120,7 +120,7 @@
                     </a>
                     {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
-                        <fieldset {% if user_already_played %} disabled {% endif %}>
+                        <fieldset {% if user_already_played or not alive %} disabled {% endif %}>
                         {{ action_form|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
                         <button type="submit" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
@@ -176,7 +176,7 @@
         </div>
         {% elif not alive %}
         <div class="alert alert-danger text-center">
-            You're dead! We'll let it go this time - but work to revive yourself!
+            You're dead! Eat more next time.
         </div>
         {% else  %}
         <div class="alert alert-info text-center">

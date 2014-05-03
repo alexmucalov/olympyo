@@ -105,7 +105,12 @@ def game(request):
                     break
                 else:
                     i += 1
-            if i != len(user_game_instance_objects):
+            j = 0
+            for auto_object in dead_auto_objects:
+                if auto_object.game_object.game_object.arch_game_object=='player':
+                    j += 1
+            active_player_counter = len(user_game_instance_objects) - j
+            if i != active_player_counter:
                 pass
             else:
                 game_instance.update_turn()
