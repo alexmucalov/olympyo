@@ -28,6 +28,7 @@ def get_action_taken(field):
 def game(request):
     # Variable definitions - import from elsewhere?
     user_instance_object = request.user.game_instance_objects.latest()
+    alive = True
     game_instance = user_instance_object.game_instance
     instance_id = game_instance.id
     turn = game_instance.turn
@@ -35,10 +36,14 @@ def game(request):
     if float(turn) > float(game_instance.game.turns):
         return HttpResponseRedirect('/game/over/')
     
+    user_wealth_attr = user_instance_object.attribute_values.all().get(attribute__arch_attribute='wealth')
+    if float(user_wealth_attr.value) <= 0:
+        alive = False
+    
     game_instance_objects = game_instance.game_instance_objects.all()
     display_objects = game_instance_objects.filter(game_object__game_object__layout_type__arch_layout='display_object')
     
-    #Define living autonomous_objects, starving ones, and dead ones - starving not behaving properly yet...
+    #Define living autonomous_objects, starving ones, and dead ones - starving not behaving properly yet... I think because values are strings!!
     wealth_attrs_of_living_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__gt=2)
     wealth_attrs_of_starving_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__gt=0, value__lte=2)
     wealth_attrs_of_dead_auto_objects = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__layout_type__arch_layout='autonomous_object', attribute__arch_attribute='wealth', value__lte=0)
@@ -92,7 +97,7 @@ def game(request):
                     parameters = cleaned_data[field]
                     user_instance_object.act(action_taken, parameters, game_object_id)
             
-            # Check DB to see if all users have committed actions; update turn if so
+            # Check DB to see if all living and starving users have committed actions; update turn if so
             user_game_instance_objects = game_instance_objects.exclude(user__isnull=True)
             i = 0
             for gio in user_game_instance_objects:
@@ -118,7 +123,7 @@ def game(request):
             user_already_played = True
 
 
-    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'living_auto_objects': living_auto_objects, 'starving_auto_objects': starving_auto_objects, 'dead_auto_objects': dead_auto_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
+    return render(request, 'game/game.html', {'user_instance_object': user_instance_object, 'alive': alive, 'centre_display': centre_display, 'display_objects': display_objects, 'player_stats': player_stats, 'living_auto_objects': living_auto_objects, 'starving_auto_objects': starving_auto_objects, 'dead_auto_objects': dead_auto_objects, 'game_object': game_object, 'player_permitted_action_objects': player_permitted_action_objects, 'game_object_owner_set': game_object_owner_set, 'action_form': action_form, 'turn': turn, 'user_already_played': user_already_played})
     #For now, permit centre_display with at most two elements 
     #Later, include timer: http://keith-wood.name/countdown.html
 
