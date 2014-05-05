@@ -31,7 +31,10 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = ('olympyo.com',)
+ALLOWED_HOSTS = (
+    'olympyo.com',
+    'www.olympyo.com',
+)
 
 
 # Application definition
