@@ -80,6 +80,7 @@ def game(request):
             set(player_permitted_action_objects_nondistinct)
     )
     
+    
     # CONDITIONS: If game over, game/over/; if player dead, dead
     if float(turn) > float(game_instance.game.turns):
         return HttpResponseRedirect('/game/over/')
@@ -89,7 +90,6 @@ def game(request):
     )
     if float(user_wealth_attr.value) <= 0:
         alive = False
-    
 
 
     # SELECTED OBJECT DEFINITION
@@ -99,15 +99,10 @@ def game(request):
         game_object_id = request.GET['game_object_id']
         game_object = GameInstanceObject.objects.get(id=game_object_id)
         try:
-            game_object_ownership_relationships = game_object.relationship_objects.all().filter(
-                    relationship__arch_relationship='owns'
-            )
-            game_object_owner_set = [
-                    relationship.subject_game_instance_object for 
-                    relationship in 
-                    game_object_ownership_relationships
-            ]
-            
+            game_object_owner_set = game_instance_objects.filter(
+                    relationship_subjects__relationship__arch_relationship='owns',
+                    relationship_subjects__object_game_instance_object__id=game_object_id
+            )   
         except:
             pass
     

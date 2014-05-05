@@ -1,0 +1,36 @@
+.plot {
+  /*display: block;*/
+  background-image: url("../images/ic-field-circled-adj.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.farm-lg {
+  background-image: url("../images/ic-field-circled.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.farm-sm {
+  background-image: url("../images/ic-field-circled-adj-small.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.player-lg {
+  background-image: url("../images/profile.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.player-sm {
+  background-image: url("../images/profile-small.jpg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.labour-lg {
+  background-image: url("../images/profile.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.labour-sm {
+  background-image: url("../images/profile-small.jpg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
