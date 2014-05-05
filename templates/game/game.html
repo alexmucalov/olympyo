@@ -73,7 +73,7 @@
                 <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Agents take actions each turn. Players are human &#40;like you!&#41; and other agents are AI who respond to your actions.">
                 Agents
                 </a>
-                {% for auto_object in living_auto_objects %}
+                {% for auto_object in thriving_auto_objects %}
                 <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
                     {{ auto_object.game_object|capfirst }} 
                 </a>

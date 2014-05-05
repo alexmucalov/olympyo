@@ -43,36 +43,55 @@ def perform(instance):
     
     from django.db.models import Q, F
     from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure
-    from game.models import GameInstanceObject, GameInstanceObjectAttributeValue, Action
+    from game.models import GameInstanceObject, Action
     
 
     instance_id = instance.id
     turn = instance.turn
-    nature = GameInstanceObject.objects.get(game_instance__id=instance_id, game_object__game_object__arch_game_object='nature')
+    nature = GameInstanceObject.objects.get(
+            game_instance__id=instance_id, 
+            game_object__game_object__arch_game_object='nature'
+    )
     
     
-    #Record turn seed for reproducible randomness
+    # Record turn seed for reproducible randomness
     #Get seed as Decimal object, because Decimal has a method that effectively
     #Returns self (copy_abs) without taking any arguments:
     #Necessary to reproducibly seed random.shuffle
     seed = Decimal.from_float(round(random(),5))
     nature.act(action_name='set_seed', parameters=seed)
-    
-    #Defining players and labourers
-    players = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='player')
-    labourers = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='labour')
-    farms = GameInstanceObject.objects.filter(game_instance__id=instance_id, game_object__game_object__arch_game_object='farm')
-    
-    #Living players and living labourers eat 1 wealth:
-    wealth_attrs_of_living_players = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__arch_game_object='player', attribute__arch_attribute='wealth', value__gt=0)
-    wealth_attrs_of_living_labourers = GameInstanceObjectAttributeValue.objects.filter(game_instance_object__game_instance__id=instance_id, game_instance_object__game_object__game_object__arch_game_object='labour', attribute__arch_attribute='wealth', value__gt=0)
-    living_players = [attr.game_instance_object for attr in wealth_attrs_of_living_players]
-    living_labourers = [attr.game_instance_object for attr in wealth_attrs_of_living_labourers]
+
+
+    # Define players and labourers
+    players = GameInstanceObject.objects.filter(
+            game_instance__id=instance_id, 
+            game_object__game_object__arch_game_object='player'
+    )
+    labourers = GameInstanceObject.objects.filter(
+            game_instance__id=instance_id, 
+            game_object__game_object__arch_game_object='labour'
+    )
+    farms = GameInstanceObject.objects.filter(
+            game_instance__id=instance_id, 
+            game_object__game_object__arch_game_object='farm'
+    )
+    living_players = players.filter(
+            attribute_values__attribute__arch_attribute='wealth', 
+            attribute_values__value__gt=0
+    )
+    living_labourers = labourers.filter(
+            attribute_values__attribute__arch_attribute='wealth', 
+            attribute_values__value__gt=0
+    )
+
+
+    # Living players and living labourers eat 1 wealth:
     for player in living_players:
         eat(player)
     for labour in living_labourers:
         eat(labour)            
-    
+
+ 
     #Have random living labour take action to take wages and work
     #Random work can be much more efficient - but not important yet
     #count_set_wage_actions = len(set_wage_actions)
@@ -82,33 +101,60 @@ def perform(instance):
         #random.shuffle(wage_winners, seed)
     #else:
         #set_wage_actions = set_wage_actions.order_by('-parameters')
-    set_wage_actions = Action.objects.filter(initiator__game_instance__id=instance_id, turn=turn, action__arch_action='set_wage').order_by('-parameters')
+    set_wage_actions = Action.objects.filter(
+            initiator__game_instance__id=instance_id, 
+            turn=turn, action__arch_action='set_wage'
+    ).order_by('-parameters')
     labourer_l = list(living_labourers)
     shuffle(labourer_l, seed.copy_abs)
     labour_and_wages_offered = zip(labourer_l, set_wage_actions)
+    
     for (labour, wage_offered) in labour_and_wages_offered:
-        labour.act(action_name='take_wage', parameters=wage_offered.parameters, affected_id=wage_offered.affected.id)
-        labour.act(action_name='work', parameters='yes', affected_id=wage_offered.affected.id)
+        labour.act(
+                action_name='take_wage', 
+                parameters=wage_offered.parameters, 
+                affected_id=wage_offered.affected.id
+        )
+        labour.act(
+                action_name='work', 
+                parameters='yes', 
+                affected_id=wage_offered.affected.id
+        )
     
     #Farm increases labour_working for everyone working it:
-    worked_farms = farms.filter(game_instance__turn=turn, affected_by_actions__action__arch_action='work', affected_by_actions__parameters='yes').distinct()
+    worked_farms = farms.filter(
+            game_instance__turn=turn, 
+            affected_by_actions__action__arch_action='work', 
+            affected_by_actions__parameters='yes'
+    ).distinct()
+
     for farm in worked_farms:
         labour_worked(farm)
 
-    #Farms produce based on total labour_working, then split production between wages and profits:
+    # Farms produce based on total labour_working, 
+    # then split production between wages and profits:
     for farm in farms:
         produce(farm)
         
         # Split production only if farm is owned
         try:
-            farm_owner = farm.relationship_objects.all().get(relationship__arch_relationship='owns').subject_game_instance_object
+            farm_owner = farm.relationship_objects.all().get(
+                    relationship__arch_relationship='owns'
+            ).subject_game_instance_object
         except:
             continue
         
         # Common source values
-        farm_production_attr = farm.attribute_values.all().get(attribute__arch_attribute='production')
-        farm_owner_wealth_attr = farm_owner.attribute_values.all().get(attribute__arch_attribute='wealth')
-        farm_take_wage_actions = farm.affected_by_actions.all().filter(action__arch_action='take_wage', turn=turn)
+        farm_production_attr = farm.attribute_values.all().get(
+                attribute__arch_attribute='production'
+        )
+        farm_owner_wealth_attr = farm_owner.attribute_values.all().get(
+                attribute__arch_attribute='wealth'
+        )
+        farm_take_wage_actions = farm.affected_by_actions.all().filter(
+                action__arch_action='take_wage', 
+                turn=turn
+        )
         labour_count = len(farm_take_wage_actions)
         farm_wages_offered = []
         for farm_take_wage_action in farm_take_wage_actions:
@@ -116,23 +162,39 @@ def perform(instance):
             farm_wages_offered = farm_wages_offered + farm_wage_offered
         
         # If owner can pay all costs, do so, then keep the rest
-        if float(farm_owner_wealth_attr.value) + float(farm_production_attr.value) >= sum(farm_wages_offered):
+        if (float(farm_owner_wealth_attr.value) + float(farm_production_attr.value) >= 
+                    sum(farm_wages_offered)):
             farm_labour_costs = 0
             for farm_take_wage_action in farm_take_wage_actions:
                 farm_wage_offered = float(farm_take_wage_action.parameters)
                 farm_labour_costs += farm_wage_offered
-                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth')
+                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(
+                        attribute__arch_attribute='wealth'
+                )
                 farm_labour_wealth_attr.value = F('value') + farm_wage_offered
                 farm_labour_wealth_attr.save(update_fields=['value'])
-            farm_owner_wealth_attr.value = F('value') + float(farm_production_attr.value) - farm_labour_costs
+            farm_owner_wealth_attr.value = (
+                    F('value') + 
+                    float(farm_production_attr.value) - 
+                    farm_labour_costs
+            )
             farm_owner_wealth_attr.save(update_fields=['value'])
         
-        # If owner can't pay all the costs, pay as much as possible evenly among all labourers, then set owner wealth = 0
+        # If owner can't pay all the costs, pay as much as possible evenly 
+        # among all labourers, then set owner wealth = 0
         else:
-            farm_labour_costs = float(farm_owner_wealth_attr.value) + float(farm_production_attr.value)
+            farm_labour_costs = (
+                    float(farm_owner_wealth_attr.value) + 
+                    float(farm_production_attr.value)
+            )
             for farm_take_wage_action in farm_take_wage_actions:
-                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth')
-                farm_labour_wealth_attr.value = F('value') + 1/labour_count*farm_labour_costs
+                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(
+                        attribute__arch_attribute='wealth'
+                )
+                farm_labour_wealth_attr.value = (
+                        F('value') + 
+                        1/labour_count*farm_labour_costs
+                )
                 farm_labour_wealth_attr.save(update_fields=['value'])
             farm_owner_wealth_attr.value = 0
             farm_owner_wealth_attr.save(update_fields=['value'])
@@ -142,21 +204,27 @@ def perform(instance):
     #are technically different objects, because I created a list out of them
     #but they share the same attributes -- remember your deepcopy discoveries?
     #Here they come to bear!
-    for player in players:
+    for player in living_players:
         if player.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
             player.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
             player.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
     
-    for labourer in labourers:
+    for labourer in living_labourers:
         if labourer.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
             labourer.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
             labourer.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
 
     #Update all players' and labourers' leisure:
-    #players/labourers who didn't work definition here is good enough, because no other
-    #yes/no action parameters; but not robust
-    labourers_who_didnt_work = labourers.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
-    players_who_didnt_work = players.filter(initiated_actions__action__arch_action='work', initiated_actions__parameters='no', initiated_actions__turn=turn).distinct()
+    labourers_who_didnt_work = living_labourers.filter(
+            initiated_actions__action__arch_action='work', 
+            initiated_actions__parameters='no', 
+            initiated_actions__turn=turn
+    ).distinct()
+    players_who_didnt_work = living_players.filter(
+            initiated_actions__action__arch_action='work', 
+            initiated_actions__parameters='no', 
+            initiated_actions__turn=turn
+    ).distinct()
     for labour in labourers_who_didnt_work:
         enjoy_leisure(labour)
     for player in players_who_didnt_work:
