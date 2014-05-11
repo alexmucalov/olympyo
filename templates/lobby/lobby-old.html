@@ -1,7 +1,9 @@
+<!DOCTYPE html>
+
 {% load staticfiles %}
 {% load bootstrap %}
-{% url 'lobby' as lobby_url %}
-{% url 'game' as game_url %}
+{% url 'auth_logout' as logout_url %}
+{% url 'waitroom' as waitroom_url %}
 {% load selected_users %}
 
 
@@ -23,25 +25,17 @@
     <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
     <link rel="stylesheet" href="{{STATIC_URL}}css/home.css">
     <!-- NOTE: lobby/ css found in project_static; suspect that locating elsewhere conflicts with /lobby/ redirect in settings -->
-    
 </head>
 <body>
-	<!-- % render_waitroom_user_list % -->
-    <div class="container">
+	<div class="container">
         <div class="tmp-redirect jumbotron">
-            <h1>You're in a waitroom.</h1>
-            <p>Refresh periodically. When all players are here, you'll enter your game!</p>
-            <!--
-            {% if game_exists %}
+            <h1>You're now in the simulation lobby...</h1>
+            <p>...where you'll be able to create economic games. Head on in to the waitroom to find out more.</p>
             <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ game_url }}">Game</a></p>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ waitroom_url }}">Waitroom</a></p>
             </div><br/>
-            {% else %}
-            <p>(It looks like you're not assigned to a beta game yet - we'll get right on it!)</p>
-            {% endif %}
-            -->
             <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ lobby_url }}">Leave waitroom</a></p>
+                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ logout_url }}">Logout</a></p>
             </div>
         </div>
     </div>

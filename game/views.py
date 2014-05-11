@@ -160,7 +160,7 @@ def game(request):
             'game_object_owner_set': game_object_owner_set, 
             'action_form': action_form, 
             'turn': turn, 
-            'user_already_played': user_already_played
+            'user_already_played': user_already_played,
     })
     #For now, permit centre_display with at most two elements 
     #Later, include timer: http://keith-wood.name/countdown.html

@@ -4,9 +4,17 @@ from django.db.models import Q, F
 
 
 # Game Rules Models
+class GameRuleManager(models.Manager):
+    def create_game_rule(self, game_rules):
+        game_rules = self.create(game_rules=game_rules)
+        return game_rules
+
+
 class GameRule(models.Model):
     game_rules = models.CharField(max_length=30)
     #Should be called a ruleset, not rules; then, later, rulesets can be composed of rules
+
+    objects = GameRuleManager()
 
     class Meta:
         unique_together = ('game_rules',)
@@ -27,8 +35,16 @@ class ArchLayoutType(models.Model):
         return u'%s' % (self.arch_layout)
 
 
+class ArchDisplayRulesetManager(models.Manager):
+    def create_arch_display_ruleset(self, arch_display_ruleset):
+        arch_display_ruleset = self.create(arch_display_ruleset=arch_display_ruleset)
+        return arch_display_ruleset
+
+
 class ArchDisplayRuleset(models.Model):
     arch_display_ruleset = models.CharField(max_length=255)
+    
+    objects = ArchDisplayRulesetManager()
     
     class Meta:
         unique_together = ('arch_display_ruleset',)
@@ -81,8 +97,16 @@ class ArchAttributeSet(models.Model):
         return u'%s' % (self.attribute_set)
 
 
+class ActionPermissionSetManager(models.Manager):
+    def action_permission_set(self, action_permission_set):
+        action_permission_set = self.create(action_permission_set=action_permission_set)
+        return action_permission_set
+
+
 class ActionPermissionSet(models.Model):
     action_permission_set = models.CharField(max_length=255)
+    
+    objects = ActionPermissionSetManager()
     
     class Meta:
         unique_together = ('action_permission_set',)
@@ -114,8 +138,15 @@ class ArchRelationship(models.Model):
 
 
 # Game Template Models
+class GameObjectSetManager(models.Manager):
+    def create_game_object_set(self, game_object_set):
+        game_object_set = self.create(game_object_set=game_object_set)
+        return game_object_set
+
 class GameObjectSet(models.Model):
     game_object_set = models.CharField(max_length=255)
+    
+    objects = GameObjectSetManager()
     
     class Meta:
         unique_together = ('game_object_set',)
@@ -124,14 +155,28 @@ class GameObjectSet(models.Model):
         return u'%s' % self.game_object_set
 
 
+class GameObjectRelationshipSetManager(models.Manager):
+    def create_game_object_relationship_set(self, game_object_relationship_set):
+        game_object_relationship_set = self.create(game_object_relationship_set=game_object_relationship_set)
+        return game_object_relationship_set
+
+
 class GameObjectRelationshipSet(models.Model):
     game_object_relationship_set = models.CharField(max_length=255)
     #game_object_set = models.ForeignKey(GameObjectSet)
     # Might need game_object_set to add extra validation - when adding game_object_relationship_set
     # to Game, check that game_object_set fields in both models match
+    
+    objects = GameObjectRelationshipSetManager()
         
     def __unicode__(self):
         return u'%s' % self.game_object_relationship_set
+
+
+class GameObjectManager(models.Manager):
+    def create_game_object(self, game_object_set, game_object, attribute_set):
+        game_object = self.create(game_object_set=game_object_set, game_object=game_object, attribute_set=attribute_set)
+        return game_object
 
 
 class GameObject(models.Model):
@@ -139,6 +184,8 @@ class GameObject(models.Model):
     game_object = models.ForeignKey(ArchGameObject, related_name='game_objects')
     attribute_set = models.ForeignKey(ArchAttributeSet, related_name='game_objects', blank=True, null=True)
     # Ideally, game_object would determine attribute_sets available...
+    
+    objects = GameObjectManager()
 
     def __unicode__(self):
         return u'%s: id=%s' % (self.game_object, self.id)
@@ -149,11 +196,19 @@ class GameObject(models.Model):
         return instance_object
 
 
+class GameObjectRelationshipManager(models.Manager):
+    def create_game_object_relationship(self, relationship_set, subject_game_object, relationship, object_game_object):
+        game_object_relationship = self.create(relationship_set=relationship_set, subject_game_object=subject_game_object, relationship=relationship, object_game_object=object_game_object)
+        return game_object_relationship
+
+
 class GameObjectRelationship(models.Model):
     relationship_set = models.ForeignKey(GameObjectRelationshipSet, related_name='relationships')
     subject_game_object = models.ForeignKey(GameObject, related_name='relationship_subjects')
     relationship = models.ForeignKey(ArchRelationship, related_name='relationships')
     object_game_object = models.ForeignKey(GameObject, related_name='relationship_objects')
+
+    objects = GameObjectRelationshipManager()
 
     class Meta:
         unique_together = ('relationship_set','subject_game_object','relationship','object_game_object',)
@@ -189,6 +244,14 @@ class GameObjectAttributeValue(models.Model):
         return instance_attribute_value
 
 
+class GameManager(models.Manager):
+# Use ModelForm to give users the option to create games out of pre-specified objects!
+# http://stackoverflow.com/questions/13285032/using-django-form-subclass-to-create-a-dropdown-list
+    def create_game(self, name, game_object_set, game_object_relationship_set, game_rules, display_ruleset, action_permission_set, turns):
+        game = self.create(name=name, game_object_set=game_object_set, game_rules=game_rules, display_ruleset=display_ruleset, action_permission_set=action_permission_set, turns=turns)
+        return game
+
+
 class Game(models.Model):
     name = models.CharField(max_length=255)
     game_object_set = models.ForeignKey(GameObjectSet, related_name='games')
@@ -197,6 +260,8 @@ class Game(models.Model):
     display_ruleset = models.ForeignKey(ArchDisplayRuleset, related_name='games')
     action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='games')
     turns = models.IntegerField()
+    
+    objects = GameManager()
 
     class Meta:
         unique_together = (('game_object_set','game_object_relationship_set','game_rules','display_ruleset','action_permission_set',),('name',),)
@@ -223,23 +288,41 @@ class Game(models.Model):
                     game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
         for game_object_relationship in self.game_object_relationship_set.relationships.all():
             game_object_relationship.create_instance_object_relationship(game_instance)
-        
+
+
+class WaitroomManager(models.Manager):
+    def create_waitroom(self, game, users=None):
+        waitroom = Waitroom(game=game)
+        waitroom.save()
+        waitroom.users.add(users)
+        return waitroom
+   
 
 class Waitroom(models.Model):
     game = models.ForeignKey(Game, related_name='waitrooms')
     users = models.ManyToManyField(User, related_name='waitrooms')
+    
+    objects = WaitroomManager()
 	
     def __unicode__(self):
-        return u'%s: id=%s' % (self.game, self.users)
+        return u'%s' % (self.id)
 
     def add_user(self, user):
         self.users.add(user)
         users = self.users.all()
-        user_count = self.users.all().count()
-        game_player_count = self.game.game_object_set.game_objects.all().filter(game_object__arch_game_object='player').count()
+        user_count = users.count()
+        game_player_count = self.game.game_object_set.game_objects.all().filter(
+                game_object__arch_game_object='player'
+        ).count()
         if user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
             self.game.create_all_instance_objects(users)
+            self.delete()
+    
+    def remove_user(self, user):
+        self.users.remove(user)
+        user_count = self.users.all().count()
+        if user_count == 0:
             self.delete()
 
 
@@ -346,6 +429,12 @@ class ActionManager(models.Manager):
         return action
 
 
+class ActionManager(models.Manager):
+    def create_action(self, turn, initiator, action, parameters, affected):
+        action = self.create(turn=turn, initiator=initiator, action=action, parameters=parameters, affected=affected)
+        return action
+
+
 class Action(models.Model):
     turn = models.IntegerField()
     initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
@@ -359,11 +448,19 @@ class Action(models.Model):
         return u'Action id: %s' % self.id
 
 
+class ActionPermissionManager(models.Manager):
+    def create_action_permission(self, action_permission_set, permitted_initiator, action, permitted_affected):
+        action_permission = self.create(action_permission_set=action_permission_set, permitted_initiator=permitted_initiator, action=action, permitted_affected=permitted_affected)
+        return action_permission
+
+
 class ActionPermission(models.Model):
     action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='action_permissions')
     permitted_initiator = models.ForeignKey(ArchGameObject, related_name='permitted_initiator_actions')
     action = models.ForeignKey(ArchAction)
     permitted_affected = models.ForeignKey(ArchGameObject, related_name='permitted_affected')
+    
+    objects = ActionPermissionManager()
     
     class Meta:
         unique_together = ('action_permission_set','permitted_initiator','action','permitted_affected',)

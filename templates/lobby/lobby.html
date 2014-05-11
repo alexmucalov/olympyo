@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 
 {% load staticfiles %}
-{% load bootstrap %}
-{% url 'auth_logout' as logout_url %}
+{% url 'auth_logout' as logout_url%}
 {% url 'waitroom' as waitroom_url %}
-{% load selected_users %}
+{% url 'lobby' as lobby_url %}
+{% load bootstrap %}
 
 
-<html>
+<html lang="en">
 <head>
-    
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -23,21 +22,147 @@
     <script src="{{STATIC_URL}}js/defaults.js"></script>
     
     <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{STATIC_URL}}css/home.css">
-    <!-- NOTE: lobby/ css found in project_static; suspect that locating elsewhere conflicts with /lobby/ redirect in settings -->
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/less.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}game/css/game_objects.css">
+    
 </head>
 <body>
-	<div class="container">
-        <div class="tmp-redirect jumbotron">
-            <h1>You're now in the simulation lobby...</h1>
-            <p>...where you'll be able to create economic games. Head on in to the waitroom to find out more.</p>
-            <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ waitroom_url }}">Waitroom</a></p>
-            </div><br/>
-            <div>
-                <p><a class="col-sm-4 btn btn-primary btn-large" href="{{ logout_url }}">Logout</a></p>
+
+    <header id="header" class="container">
+        <h1 id="branding" class="row">Olympyo</h1>
+    </header>
+    <div class="alert alert-success text-center">
+
+        Welcome to the lobby! Learn how to navigate this page by clicking <a class="alert-link" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Test content">here!</a>
+    </div>
+    <nav id="gui"></nav>
+    <div class="container">
+    <div id="join-wr-nav" class="row panel panel-default">
+        <div id="game-list" class="panel-body col-sm-4">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can play any of the games listed below, or create your own by clicking the link in the bottom of this panel">
+            Games
+            </a>
+            {% for game in games %}
+            <a class="list-group-item" href="?game_id={{ game.id }}" id="{{ game.id }}">
+                {{ game|capfirst }}
+            </a>
+            {% endfor %}
+            <div class="text-right">
+            <a>
+                Create
+            </a>
+            </div>
+        </div>
+        <div id="wr-list" class="panel-body col-sm-4">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can join any of the waitrooms listed below, or create your own by clicking the link in the bottom of this panel">
+            Waitrooms
+            </a>
+            {% for waitroom in game.waitrooms.all %}
+            <a class="list-group-item" href="?game_id={{ waitroom.game.id }}&waitroom_id={{ waitroom.id }}" id="{{ waitroom.id }}">
+                Waitroom {{ waitroom|capfirst }}  - users in room: {{ waitroom.users.count }}
+            </a>
+            {% endfor %}
+            <a class="list-group-item btn btn-default" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
+                {% if waitroom %}
+                    Join selected waitroom
+                {% else %}
+                    Join most previously played game
+                {% endif %}
+            </a>
+            <div class="text-right">
+                {% if game %}
+                <a href="?game_id={{ game.id }}&create_waitroom=True">
+                    Create waitroom for selected game
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div id="user-list" class="panel-body col-sm-4">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can join any of the waitrooms listed below, or create your own by clicking the link in the bottom of this panel">
+            Users
+            </a>
+            {% for user in waitroom.users.all %}
+            <p class="list-group-item">
+                {{ user|capfirst }} 
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+    <!-- Create game panels
+    <div class="container">
+        <div id="create-game-panel" class="row panel panel-default text-center">
+            <div class="col-sm-3 panel-body">
+            Name
+            </div>
+            <div class="col-sm-2 panel-body">
+            Objects
+            </div>
+            <div class="col-sm-2 panel-body">
+            Relationships
+            </div>
+            <div class="col-sm-2 panel-body">
+            Rules
+            </div>
+            <div class="col-sm-2 panel-body">
+            Permissions
+            </div>
+            <div class="col-sm-1 panel-body">
+            Turns
+            </div>
+        </div>
+        <div id="create-objects-panel" class="row panel panel-default text-center">
+            <div class="col-sm-4 panel-body">
+            Objects
+            </div>
+            <div class="col-sm-4 panel-body">
+            Object
+            </div>
+            <div class="col-sm-4 panel-body">
+            Attributes
+            </div>
+        </div>
+        <div id="create-attrs-panel" class="row panel panel-default text-center">
+            <div class="col-sm-4 panel-body">
+            Attributes
+            </div>
+            <div class="col-sm-4 panel-body">
+            Attribute
+            </div>
+            <div class="col-sm-4 panel-body">
+            Values
             </div>
         </div>
     </div>
+    -->
+    
+
+    <footer id="footer" class="text-right">
+        <div id="hud" class="container text-right">
+        <a class="btn btn-default" href="{{ logout_url }}">Logout</a>
+        </div>
+    </footer>
+    
+    <!--
+    <script type="text/javascript">
+        $(function(){
+            $('#content').slimScroll({
+                height: '250px'
+            });
+        });
+    </script>
+    -->
+    <script type="text/javascript">
+        $(function () {
+            $("[rel='tooltip']").tooltip();
+        });
+    </script>
+    <script>
+        $(function () {
+            $("[rel='popover']").popover();
+        });
+    </script>
+    
+    
 </body>
 </html>

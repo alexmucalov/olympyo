@@ -1,26 +1,48 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.http import Http404
 
-#from game.metamethods import get_user_who_clicked, add_user_to_waitroom, remove_user_from_waitroom
-from game.models import GameInstanceObject
+from game.models import GameInstanceObject, Game, Waitroom
 
-def lobby(request):
-    #user = request.user
-    #remove_user_from_waitroom(user)
-    return render(request, 'lobby/lobby.html')
+def lobby(request):    
+    waitrooms = request.user.waitrooms.all()
+    try:
+        for waitroom in waitrooms:
+            waitroom.remove_user(request.user)
+    except:
+        pass
 
+    games = Game.objects.all()
+    game = None
+    if 'game_id' in request.GET:
+        game_id = request.GET['game_id']
+        game = Game.objects.get(id=game_id)
+    
+    if 'create_waitroom' in request.GET:
+        new_waitroom = Waitroom.objects.create_waitroom(game=game, users=request.user)
+        return HttpResponseRedirect('/waitroom/?waitroom_id=' + str(new_waitroom.id))
+    
+    waitroom = None
+    if 'waitroom_id' in request.GET:
+        waitroom_id = request.GET['waitroom_id']
+        waitroom = Waitroom.objects.get(id=waitroom_id)
+
+    return render(request, 'lobby/lobby.html', {
+            'games': games,
+            'game': game,
+            'waitroom': waitroom,
+    })
 
 def waitroom(request):
-	#user = request.user
-	#add_user_to_waitroom(user)
-	
-	#if a gio exists for user, then render option for user to enter game
+	waitroom_id = request.GET['waitroom_id']
 	try:
-	    user_instance_object = request.user.game_instance_objects.latest()
-	    game_exists = True
+	    waitroom = Waitroom.objects.get(id=waitroom_id)
 	except:
-	    game_exists = False
-
+	    return HttpResponseRedirect('/game/')
+	waitroom.add_user(request.user)
+	try:
+	    waitroom = Waitroom.objects.get(id=waitroom_id)
+	except:
+	    return HttpResponseRedirect('/game/')
 	    
-	return render(request, 'lobby/waitroom.html', {'game_exists': game_exists})
+	return render(request, 'lobby/waitroom.html')

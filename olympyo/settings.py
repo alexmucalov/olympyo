@@ -6,6 +6,11 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
+
+To commit changes:
+1) Turn off debug and template_debug
+2) Uncomment static_root
+3) Commit as usual
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
