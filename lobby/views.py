@@ -14,9 +14,13 @@ def lobby(request):
 
     games = Game.objects.all()
     game = None
+    game_player_count = None
     if 'game_id' in request.GET:
         game_id = request.GET['game_id']
         game = Game.objects.get(id=game_id)
+        game_player_count = game.game_object_set.game_objects.all().filter(
+                game_object__arch_game_object='player'
+                ).count()
     
     if 'create_waitroom' in request.GET:
         new_waitroom = Waitroom.objects.create_waitroom(game=game, users=request.user)
@@ -30,8 +34,9 @@ def lobby(request):
     return render(request, 'lobby/lobby.html', {
             'games': games,
             'game': game,
+            'game_player_count': game_player_count,
             'waitroom': waitroom,
-    })
+            })
 
 def waitroom(request):
 	waitroom_id = request.GET['waitroom_id']

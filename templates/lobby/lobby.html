@@ -33,28 +33,30 @@
     </header>
     <div class="alert alert-success text-center">
 
-        Welcome to the lobby! Learn how to navigate this page by clicking <a class="alert-link" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Test content">here!</a>
+        Welcome to the lobby! Learn how to navigate this page by clicking <a class="alert-link" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true" data-content="If you're returning to play an unfinished game, just click the 'Join most previously played game' button. <br /><br />If you're starting a new game, click on a game to play, then click on a waitroom to join, then join the waitroom! Or, if there's no waitroom for the game you want to play, create one, and you'll be the first in it.">here</a> - and please avoid using the back button in this beta.
     </div>
     <nav id="gui"></nav>
     <div class="container">
     <div id="join-wr-nav" class="row panel panel-default">
         <div id="game-list" class="panel-body col-sm-4">
-            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can play any of the games listed below, or create your own by clicking the link in the bottom of this panel">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can play any of the games listed below. The number in brackets for a selected game shows how many players are needed to start.">
             Games
             </a>
-            {% for game in games %}
-            <a class="list-group-item" href="?game_id={{ game.id }}" id="{{ game.id }}">
-                {{ game|capfirst }}
+            {% for g in games %}
+            <a class="list-group-item" href="?game_id={{ g.id }}" id="{{ g.id }}">
+                {{ g|capfirst }} {% if g == game %} ({{ game_player_count }}) {% endif %}
             </a>
             {% endfor %}
             <div class="text-right">
-            <a>
+            <!--
+                <a>
                 Create
             </a>
+            -->
             </div>
         </div>
         <div id="wr-list" class="panel-body col-sm-4">
-            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can join any of the waitrooms listed below, or create your own by clicking the link in the bottom of this panel">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Waitrooms relate to the game you just clicked. You can join any of the waitrooms listed below, or create your own by clicking the link in the bottom of this panel.">
             Waitrooms
             </a>
             {% for waitroom in game.waitrooms.all %}
@@ -62,7 +64,7 @@
                 Waitroom {{ waitroom|capfirst }}  - users in room: {{ waitroom.users.count }}
             </a>
             {% endfor %}
-            <a class="list-group-item btn btn-default" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
+            <a class="list-group-item" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
                 {% if waitroom %}
                     Join selected waitroom
                 {% else %}
@@ -72,13 +74,13 @@
             <div class="text-right">
                 {% if game %}
                 <a href="?game_id={{ game.id }}&create_waitroom=True">
-                    Create waitroom for selected game
+                    Create
                 </a>
                 {% endif %}
             </div>
         </div>
         <div id="user-list" class="panel-body col-sm-4">
-            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="You can join any of the waitrooms listed below, or create your own by clicking the link in the bottom of this panel">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Users relate to the waitroom you just clicked. If you don't like the people in a waitroom, just don't join it!">
             Users
             </a>
             {% for user in waitroom.users.all %}

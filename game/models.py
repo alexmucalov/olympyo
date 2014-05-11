@@ -267,7 +267,7 @@ class Game(models.Model):
         unique_together = (('game_object_set','game_object_relationship_set','game_rules','display_ruleset','action_permission_set',),('name',),)
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s' % (self.name.replace('_',' '))
 
     def create_instance(self):
         instance = GameInstance.objects.create_game_instance(game=self, turn=1)
