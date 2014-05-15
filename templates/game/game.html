@@ -164,7 +164,7 @@
         </div>
         </div>
         <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
-            <fieldset {% if turn_finished %} disabled {% endif %}>
+            <fieldset {% if turn_finished or not alive %} disabled {% endif %}>
                 <button type="submit" action="" name="finish_turn_form" class="btn btn-default col-sm-12">Finish turn</button>
             </fieldset>
         </form>

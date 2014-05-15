@@ -50,7 +50,7 @@ class OwnObjectActionForm(forms.Form):
         return data
     
     def clean(self):
-        cleaned_data = super(ActionForm, self).clean()
+        cleaned_data = super(OwnObjectActionForm, self).clean()
         work = cleaned_data.get('work')
         set_wage_1 = cleaned_data.get('set_wage_1')
         set_wage_2 = cleaned_data.get('set_wage_2')
