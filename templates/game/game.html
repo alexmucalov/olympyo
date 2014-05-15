@@ -118,25 +118,25 @@
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
                     Available actions
                     </a>
-                    {% if game_object.game_object.game_object in player_permitted_action_objects and user_instance_object in game_object_owner_set %}
+                    {% if action_form %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
-                        <fieldset {% if user_already_played or not alive %} disabled {% endif %}>
-                        {{ action_form|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
-                        <button type="submit" class="btn btn-default col-sm-12">Commit</button>
+                        <fieldset {% if turn_finished or form_already_used or not alive %} disabled {% endif %}>
+                            {{ action_form|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                            <button type="submit" name="action_form" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
                     </form>
-                        {% if user_already_played %} 
+                    {% else %}
+                    <ul class="list-group">
+                        <li class="list-group-item text-center">None</li>
+                    </ul>
+                    {% endif %}
+                    {% if form_already_used %} 
                     <div class="alert alert-warning alert-dismissable text-center">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
                             &times;
                         </button>
                         Note: please don't refresh your browser now, as it'll cause strange behaviour...
                     </div>
-                        {% endif %}
-                    {% else %}
-                    <ul class="list-group">
-                        <li class="list-group-item text-center">None</li>
-                    </ul>
                     {% endif %}
                 </div>
                 <div class="col-sm-4">
@@ -163,6 +163,11 @@
             
         </div>
         </div>
+        <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
+            <fieldset {% if turn_finished %} disabled {% endif %}>
+                <button type="submit" action="" name="finish_turn_form" class="btn btn-default col-sm-12">Finish turn</button>
+            </fieldset>
+        </form>
         {% if user_already_played %}
         <div class="alert alert-success text-center">
             You have committed actions this turn!

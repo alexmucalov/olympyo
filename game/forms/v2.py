@@ -15,7 +15,6 @@
 from django import forms
 
 class OwnObjectActionForm(forms.Form):
-    work = forms.CharField() # This is a required field
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     
@@ -23,7 +22,8 @@ class OwnObjectActionForm(forms.Form):
     #available on that farm, based on labour_spots!
   
     #FORM LEVEL
-    #A player may only work one farm each turn... (later)
+    #If a player is able to work farms, then a
+    #player may only work one farm each turn... (later)
     
     def clean_work(self):
         data = self.cleaned_data['work']
@@ -74,5 +74,14 @@ class OwnObjectActionForm(forms.Form):
 
         return cleaned_data
 
+
 class OtherObjectActionForm(forms.Form):
-    pass
+    buy = forms.CharField() # This is a required field
+    
+    def clean_buy(self):
+        data = self.cleaned_data['buy']
+        if data.lower() == 'yes':
+            data = data.lower()
+        else:
+            raise forms.ValidationError("If you're going to buy, buy must be 'yes'!")
+        return data

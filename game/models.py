@@ -379,6 +379,15 @@ class GameInstanceObject(models.Model):
         else:
             affected = GameInstanceObject.objects.get(id=affected_id)
         Action.objects.create_action(turn=turn, initiator=self, action=action, parameters=parameters, affected=affected)
+    
+    def create_relationship(self, relationship_name, object_game_instance_object):
+        relationship = ArchRelationship.objects.get(arch_relationship=relationship_name)
+        GameInstanceObjectRelationship.objects.create_game_instance_object_relationship(
+                game_instance=self.game_instance,
+                subject_game_instance_object=self,
+                relationship=relationship,
+                object_game_instance_object=object_game_instance_object,
+                )
 
 
 class GameInstanceObjectAttributeValueManager(models.Manager):
