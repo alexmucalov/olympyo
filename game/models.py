@@ -299,8 +299,9 @@ class Game(models.Model):
                     game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
         for relationship in self.game_object_relationship_set.relationships.all():
             relationship.create_instance_object_relationship(game_instance)
-        for action in self.exo_action_set.exo_actions.all():
-            action.create_instance_exo_action(game_instance)
+        if self.exo_action_set:
+            for action in self.exo_action_set.exo_actions.all():
+                action.create_instance_exo_action(game_instance)
 
 
 class WaitroomManager(models.Manager):
