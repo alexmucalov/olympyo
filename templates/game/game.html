@@ -86,11 +86,6 @@
                     {{ auto_object.game_object|capfirst }} 
                 </a>
                 {% endfor %}
-                {% for auto_object in dead_auto_objects %}
-                <a class="list-group-item list-group-item-danger" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
-                    {{ auto_object.game_object|capfirst }} 
-                </a>
-                {% endfor %}
             </div>
         </div>
         <div class="col-sm-8">

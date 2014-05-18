@@ -229,3 +229,16 @@ def perform(instance):
         enjoy_leisure(labour)
     for player in players_who_didnt_work:
         enjoy_leisure(player)
+    
+    #Animate unborn labourers
+    animate_actions = nature.initiated_actions.all().filter(
+            action__arch_action='animate',
+            turn=turn)
+    if animate_actions.exists():
+        for action in animate_actions:
+            newborn_labour = action.affected
+            newborn_labour_wealth_attr = newborn_labour.attribute_values.all().get(
+                    attribute__arch_attribute='wealth'
+                    )
+            newborn_labour_wealth_attr.value = action.parameters
+            newborn_labour_wealth_attr.save(update_fields=['value'])

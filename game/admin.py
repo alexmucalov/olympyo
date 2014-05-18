@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType, ArchDisplayRuleset, ActionPermissionSet, ActionPermission
+from game.models import GameRule, ArchAction, ArchAttribute, ArchGameObject, ArchAttributeSet, ArchGameObjectAttributeValue, ArchRelationship, GameObjectSet, GameObjectRelationshipSet, GameObject, GameObjectRelationship, GameObjectAttributeValue, Game, Waitroom, GameInstance, GameInstanceObject, GameInstanceObjectAttributeValue, GameInstanceObjectRelationship, Action, ArchLayoutType, ArchDisplayRuleset, ActionPermissionSet, ActionPermission, ExoActionSet, ExoAction
 
 
 class GameRuleAdmin(admin.ModelAdmin):
@@ -63,7 +63,7 @@ class GameObjectAttributeValueAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('name','game_object_set','game_object_relationship_set','game_rules','display_ruleset','turns',)
+    list_display = ('name','game_object_set','game_object_relationship_set','game_rules','display_ruleset','exo_action_set','turns',)
 
 
 class WaitroomAdmin(admin.ModelAdmin):
@@ -94,6 +94,14 @@ class ActionPermissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'action_permission_set', 'permitted_initiator','action','permitted_affected',)
 
 
+class ExoActionSetAdmin(admin.ModelAdmin):
+    list_display = ('exo_action_set',)
+
+
+class ExoActionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'exo_action_set','exo_action','affected','parameters','turn',)
+
+
 admin.site.register(GameRule, GameRuleAdmin)
 admin.site.register(ArchLayoutType, ArchLayoutTypeAdmin)
 admin.site.register(ArchDisplayRuleset, ArchDisplayRulesetAdmin)
@@ -117,3 +125,5 @@ admin.site.register(GameInstanceObjectAttributeValue, GameInstanceObjectAttribut
 admin.site.register(GameInstanceObjectRelationship, GameInstanceObjectRelationshipAdmin)
 admin.site.register(Action, ActionAdmin)
 admin.site.register(ActionPermission, ActionPermissionAdmin)
+admin.site.register(ExoActionSet, ExoActionSetAdmin)
+admin.site.register(ExoAction, ExoActionAdmin)

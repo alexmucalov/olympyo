@@ -115,6 +115,16 @@ class ActionPermissionSet(models.Model):
         return u'%s' % self.action_permission_set
 
 
+class ExoActionSet(models.Model):
+    exo_action_set = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ('exo_action_set',)
+    
+    def __unicode__(self):
+        return u'%s' % self.exo_action_set
+
+
 class ArchGameObjectAttributeValue(models.Model):
     arch_game_object = models.ForeignKey(ArchGameObject)
     attribute = models.ForeignKey(ArchAttribute)
@@ -259,12 +269,13 @@ class Game(models.Model):
     game_rules = models.ForeignKey(GameRule, related_name='games')
     display_ruleset = models.ForeignKey(ArchDisplayRuleset, related_name='games')
     action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='games')
+    exo_action_set = models.ForeignKey(ExoActionSet, related_name='games', blank=True, null=True)
     turns = models.IntegerField()
     
     objects = GameManager()
 
     class Meta:
-        unique_together = (('game_object_set','game_object_relationship_set','game_rules','display_ruleset','action_permission_set',),('name',),)
+        unique_together = (('game_object_set','game_object_relationship_set','game_rules','display_ruleset','action_permission_set','exo_action_set',),('name',),)
 
     def __unicode__(self):
         return u'%s' % (self.name.replace('_',' '))
@@ -286,8 +297,10 @@ class Game(models.Model):
             if game_object.attribute_set:
                 for attribute_value in game_object.attribute_set.attribute_values.all():
                     game_instance_object_attribute_value = attribute_value.create_instance_attribute_value(game_instance_object)
-        for game_object_relationship in self.game_object_relationship_set.relationships.all():
-            game_object_relationship.create_instance_object_relationship(game_instance)
+        for relationship in self.game_object_relationship_set.relationships.all():
+            relationship.create_instance_object_relationship(game_instance)
+        for action in self.exo_action_set.exo_actions.all():
+            action.create_instance_exo_action(game_instance)
 
 
 class WaitroomManager(models.Manager):
@@ -438,12 +451,6 @@ class ActionManager(models.Manager):
         return action
 
 
-class ActionManager(models.Manager):
-    def create_action(self, turn, initiator, action, parameters, affected):
-        action = self.create(turn=turn, initiator=initiator, action=action, parameters=parameters, affected=affected)
-        return action
-
-
 class Action(models.Model):
     turn = models.IntegerField()
     initiator = models.ForeignKey(GameInstanceObject, related_name='initiated_actions')
@@ -461,7 +468,7 @@ class ActionPermissionManager(models.Manager):
     def create_action_permission(self, action_permission_set, permitted_initiator, action, permitted_affected):
         action_permission = self.create(action_permission_set=action_permission_set, permitted_initiator=permitted_initiator, action=action, permitted_affected=permitted_affected)
         return action_permission
-
+    
 
 class ActionPermission(models.Model):
     action_permission_set = models.ForeignKey(ActionPermissionSet, related_name='action_permissions')
@@ -476,3 +483,31 @@ class ActionPermission(models.Model):
     
     def __unicode__(self):
         return u'Permission id: %s' % self.id
+
+
+class ExoAction(models.Model):
+    exo_action_set = models.ForeignKey(ExoActionSet, related_name='exo_actions')
+    exo_action = models.ForeignKey(ArchAction, related_name='exo_actions')
+    parameters = models.CharField(max_length=255, blank=True, null=True)
+    affected = models.ForeignKey(GameObject, related_name='exo_actions', blank=True, null=True)
+    turn = models.IntegerField()
+    
+    class Meta:
+        unique_together = ('exo_action_set','exo_action','parameters','affected','turn',)
+    
+    def __unicode__(self):
+        return u'Exogenous action id: %s' % self.id
+    
+    def create_instance_exo_action(self, game_instance):
+        initiator = game_instance.game_instance_objects.all().get(
+                game_object__game_object__arch_game_object='nature',
+                )
+        affected = None
+        try:
+            affected = game_instance.game_instance_objects.all().get(
+                    game_object=self.affected
+                    )
+        except:
+            pass
+        instance_exo_action = Action.objects.create_action(turn=self.turn, initiator=initiator, action=self.exo_action, parameters=self.parameters, affected=affected)
+        return instance_exo_action
