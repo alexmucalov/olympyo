@@ -22,7 +22,7 @@ class OwnObjectActionForm(forms.Form):
     #on dynamic init, create set_wage_i, where i is created for as many set_wage actions
     #available on that farm, based on labour_spots!
   
-  """
+"""
     #But requires changes in the view!! So not going to work...
     
     def __init__(self, *args, **kwargs):
@@ -31,7 +31,7 @@ class OwnObjectActionForm(forms.Form):
 
         for i, wage in enumerate(set_wage):
             self.fields['set_wage_%s' % i] = forms.DecimalField(label=question)
-  """
+"""
   
     #FORM LEVEL
     #A player may only work one farm each turn... (later)
