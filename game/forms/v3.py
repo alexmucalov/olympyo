@@ -15,24 +15,15 @@
 from django import forms
 
 class OwnObjectActionForm(forms.Form):
-    work = forms.CharField() # This is a required field
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     
     #on dynamic init, create set_wage_i, where i is created for as many set_wage actions
     #available on that farm, based on labour_spots!
   
-    #But requires changes in the view!! So not going to work...
-    
-    #def __init__(self, *args, **kwargs):
-        #set_wage = kwargs.pop('set_wage')
-        #super(OwnObjectActionForm, self).__init__(*args, **kwargs)
-
-        #for i, wage in enumerate(set_wage):
-            #self.fields['set_wage_%s' % i] = forms.DecimalField(label=question)
-  
     #FORM LEVEL
-    #A player may only work one farm each turn... (later)
+    #If a player is able to work farms, then a
+    #player may only work one farm each turn... (later)
     
     def clean_work(self):
         data = self.cleaned_data['work']
@@ -59,12 +50,12 @@ class OwnObjectActionForm(forms.Form):
         return data
     
     def clean(self):
-        cleaned_data = super(ActionForm, self).clean()
+        cleaned_data = super(OwnObjectActionForm, self).clean()
         work = cleaned_data.get('work')
         set_wage_1 = cleaned_data.get('set_wage_1')
         set_wage_2 = cleaned_data.get('set_wage_2')
 
-        if work.lower() == 'yes':
+        if work == 'yes':
             # If a player works a farm, then must set one 
             # fewer wage than player has labour_spots
             if set_wage_1 and set_wage_2:
@@ -74,7 +65,7 @@ class OwnObjectActionForm(forms.Form):
                 raise forms.ValidationError("You've got room to hire "
                         "one more labourer.")
 
-        if work.lower() == 'no':
+        if work == 'no':
             # If a player does not work a farm, then 
             # a player must set as many as labour_spots
             if not set_wage_1 or not set_wage_2:
@@ -83,6 +74,26 @@ class OwnObjectActionForm(forms.Form):
 
         return cleaned_data
 
+
 class OtherObjectActionForm(forms.Form):
-    pass
-    #Make 'None'
+    buy = forms.CharField() # This is a required field
+    
+    def clean_buy(self):
+        data = self.cleaned_data['buy']
+        if data.lower() == 'yes':
+            data = data.lower()
+        else:
+            raise forms.ValidationError("If you're going to buy, buy must be 'yes'!")
+        return data
+
+
+class SelfObjectActionForm(forms.Form):
+    work = forms.CharField() # This is a required field
+    
+    def clean_work(self):
+        data = self.cleaned_data['work']
+        if data.lower() == 'yes':
+            data = data.lower()
+        else:
+            raise forms.ValidationError("If you're going to work, work must be 'yes'!")
+        return data

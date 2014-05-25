@@ -2,9 +2,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.http import Http404
 
+from django.forms import ModelForm
 from game.models import GameInstanceObject, Game, Waitroom
+from lobby.forms import GameForm
 
 def lobby(request):    
+    game_form = GameForm()
     waitrooms = request.user.waitrooms.all()
     try:
         for waitroom in waitrooms:
@@ -12,6 +15,9 @@ def lobby(request):
     except:
         pass
 
+    repeat_user = False
+    if request.user.game_instance_objects.exists():
+        repeat_user = True
     games = Game.objects.all()
     game = None
     game_player_count = None
@@ -31,7 +37,21 @@ def lobby(request):
         waitroom_id = request.GET['waitroom_id']
         waitroom = Waitroom.objects.get(id=waitroom_id)
 
+    # CORE VIEW LOGIC
+    if request.method=='POST':
+        game_form = None
+        
+        # Bind form if name posted
+        if 'game_form' in request.POST:
+            game_form = GameForm(request.POST)
+        
+        # Create game if game_form posted
+        if game_form:
+            game_form.save()
+            
     return render(request, 'lobby/lobby.html', {
+            'repeat_user': repeat_user,
+            'game_form': game_form,
             'games': games,
             'game': game,
             'game_player_count': game_player_count,

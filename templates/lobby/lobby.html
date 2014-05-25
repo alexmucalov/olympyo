@@ -64,13 +64,19 @@
                 Waitroom {{ waitroom|capfirst }}  - users in room: {{ waitroom.users.count }}
             </a>
             {% endfor %}
-            <a class="list-group-item" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
-                {% if waitroom %}
-                    Join selected waitroom
-                {% else %}
-                    Join most previously played game
-                {% endif %}
+            {% if waitroom %}
+            <a class="list-group-item text-center" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
+                Join selected waitroom 
             </a>
+            {% elif repeat_user %}
+            <a class="list-group-item text-center" href="{{ waitroom_url }}?waitroom_id={{ waitroom.id }}">
+                Join most previously played game
+            </a>
+            {% else %}
+            <div class="list-group-item text-center">
+                None
+            </div>
+            {% endif %}
             <div class="text-right">
                 {% if game %}
                 <a href="?game_id={{ game.id }}&create_waitroom=True">
@@ -91,28 +97,21 @@
         </div>
     </div>
     </div>
-    <!-- Create game panels
+    <!--
     <div class="container">
-        <div id="create-game-panel" class="row panel panel-default text-center">
-            <div class="col-sm-3 panel-body">
-            Name
-            </div>
-            <div class="col-sm-2 panel-body">
-            Objects
-            </div>
-            <div class="col-sm-2 panel-body">
-            Relationships
-            </div>
-            <div class="col-sm-2 panel-body">
-            Rules
-            </div>
-            <div class="col-sm-2 panel-body">
-            Permissions
-            </div>
-            <div class="col-sm-1 panel-body">
-            Turns
-            </div>
-        </div>
+        <form id="create-game-panel" role="form" class="row text-center" method="post" action="">{% csrf_token %}
+            Break into separate fields per div; and include separate a hrefs in buttons for each
+            <div class="col-sm-4">
+                {{ game_form.name|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                {{ game_form.game_object_set|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                {{ game_form.game_object_relationship_set|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                {{ game_form.exo_action_set|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                {{ game_form.game_rules|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                {{ game_form.turns|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                <button type="submit" name="game_form" class="btn btn-default col-sm-12">Create game</button>
+            </div> 
+        </form>
+    Create game panels
         <div id="create-objects-panel" class="row panel panel-default text-center">
             <div class="col-sm-4 panel-body">
             Objects

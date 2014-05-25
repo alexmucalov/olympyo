@@ -38,7 +38,7 @@ def game(request):
             )
     turn_finished = False
     actionform = game_instance.game.game_rules.game_rules
-    exec 'from game.forms.%s import OwnObjectActionForm, OtherObjectActionForm' % actionform
+    exec 'from game.forms.%s import OwnObjectActionForm, OtherObjectActionForm, SelfObjectActionForm' % actionform
     
     # DEFINE LIVING AUTONOMOUS OBJECTS, STARVING ONES, AND DEAD ONES
     thriving_auto_objects = GameInstanceObject.objects.filter(
@@ -144,6 +144,8 @@ def game(request):
         # Determine which kind of non-finish-turn-form was submitted
         elif 'action_form' in request.POST:
             turn_finished = False
+            if game_object == user_instance_object:
+                action_form = SelfObjectActionForm(request.POST)
             if game_object.game_object.game_object in player_permitted_action_objects:
                 if user_instance_object in game_object_owner_set:
                     action_form = OwnObjectActionForm(request.POST)
@@ -171,6 +173,8 @@ def game(request):
         action_form = None
         turn_finished = False
         if game_object:
+            if game_object == user_instance_object:
+                action_form = SelfObjectActionForm()
             if game_object.game_object.game_object in player_permitted_action_objects and game_object not in owned_objects.exclude(relationship_objects__subject_game_instance_object=user_instance_object):
                 if user_instance_object in game_object_owner_set:
                     action_form = OwnObjectActionForm()

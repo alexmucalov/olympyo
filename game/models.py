@@ -70,7 +70,7 @@ class ArchAttribute(models.Model):
         unique_together = ('arch_attribute',)
 
     def __unicode__(self):
-        return u'%s' % (self.arch_attribute)
+        return u'%s' % (self.arch_attribute.replace('_',' '))
 
 
 class ArchGameObject(models.Model):

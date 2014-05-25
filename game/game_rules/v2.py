@@ -249,9 +249,9 @@ def perform(instance):
             turn=turn)
     if animate_actions.exists():
         for action in animate_actions:
-            newborn_labour = action.affected
-            newborn_labour_wealth_attr = newborn_labour.attribute_values.all().get(
+            newborn = action.affected
+            newborn_wealth_attr = newborn_labour.attribute_values.all().get(
                     attribute__arch_attribute='wealth'
                     )
-            newborn_labour_wealth_attr.value = action.parameters
-            newborn_labour_wealth_attr.save(update_fields=['value'])
+            newborn_wealth_attr.value = action.parameters
+            newborn_wealth_attr.save(update_fields=['value'])
