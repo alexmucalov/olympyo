@@ -85,3 +85,6 @@ class OtherObjectActionForm(forms.Form):
         else:
             raise forms.ValidationError("If you're going to buy, buy must be 'yes'!")
         return data
+
+class SelfObjectActionForm(forms.Form):
+    pass

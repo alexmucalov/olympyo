@@ -86,3 +86,6 @@ class OwnObjectActionForm(forms.Form):
 class OtherObjectActionForm(forms.Form):
     pass
     #Make 'None'
+
+class SelfObjectActionForm(forms.Form):
+    pass

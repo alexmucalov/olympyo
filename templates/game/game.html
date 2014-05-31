@@ -76,16 +76,18 @@
                 <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Agents take actions each turn. Players are human &#40;like you!&#41; and other agents are AI who respond to your actions.">
                 Agents
                 </a>
-                {% for auto_object in thriving_auto_objects %}
+                {% for auto_object in living_auto_objects %}
                 <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
                     {{ auto_object.game_object|capfirst }} 
                 </a>
                 {% endfor %}
+                <!--
                 {% for auto_object in starving_auto_objects %}
                 <a class="list-group-item list-group-item-warning" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
                     {{ auto_object.game_object|capfirst }} 
                 </a>
                 {% endfor %}
+                -->
             </div>
         </div>
         <div class="col-sm-8">
@@ -116,10 +118,10 @@
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
                     Available actions
                     </a>
-                    {% if action_form %}
+                    {% if action_form.fields.values %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if turn_finished or form_already_used or not alive %} disabled {% endif %}>
-                            {{ action_form|bootstrap_horizontal:'col-lg-4 col-sm-4' }}
+                            {{ action_form|bootstrap_horizontal:'col-lg-5 col-sm-5' }}
                             <button type="submit" name="action_form" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
                     </form>
@@ -129,11 +131,11 @@
                     </ul>
                     {% endif %}
                     {% if form_already_used %} 
-                    <div class="alert alert-warning alert-dismissable text-center">
+                    <div class="alert alert-success alert-dismissable text-center">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
                             &times;
                         </button>
-                        Note: please don't refresh your browser now, as it'll cause strange behaviour...
+                        You've committed actions on this object this turn.
                     </div>
                     {% endif %}
                 </div>
@@ -168,7 +170,7 @@
         </form>
         {% if turn_finished %}
         <div class="alert alert-success text-center">
-            You have committed actions this turn!
+            You have finished your turn.
         </div>
         {% elif action_form.errors %}
         <div class="alert alert-danger alert-dismissable text-center">

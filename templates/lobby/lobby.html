@@ -43,7 +43,7 @@
             Games
             </a>
             {% for g in games %}
-            <a class="list-group-item" href="?game_id={{ g.id }}" id="{{ g.id }}">
+            <a class="list-group-item text-center" href="?game_id={{ g.id }}" id="{{ g.id }}">
                 {{ g|capfirst }} {% if g == game %} ({{ game_player_count }}) {% endif %}
             </a>
             {% endfor %}
@@ -60,7 +60,7 @@
             Waitrooms
             </a>
             {% for waitroom in game.waitrooms.all %}
-            <a class="list-group-item" href="?game_id={{ waitroom.game.id }}&waitroom_id={{ waitroom.id }}" id="{{ waitroom.id }}">
+            <a class="list-group-item text-center" href="?game_id={{ waitroom.game.id }}&waitroom_id={{ waitroom.id }}" id="{{ waitroom.id }}">
                 Waitroom {{ waitroom|capfirst }}  - users in room: {{ waitroom.users.count }}
             </a>
             {% endfor %}
@@ -90,7 +90,7 @@
             Users
             </a>
             {% for user in waitroom.users.all %}
-            <p class="list-group-item">
+            <p class="list-group-item text-center">
                 {{ user|capfirst }} 
             </p>
             {% endfor %}

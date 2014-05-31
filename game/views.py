@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.http import Http404
 from django.db.models import Q, F
+from django.core.urlresolvers import reverse
 
 from game.models import Action, GameInstanceObject, GameInstance,GameInstanceObjectAttributeValue
 
@@ -41,6 +42,7 @@ def game(request):
     exec 'from game.forms.%s import OwnObjectActionForm, OtherObjectActionForm, SelfObjectActionForm' % actionform
     
     # DEFINE LIVING AUTONOMOUS OBJECTS, STARVING ONES, AND DEAD ONES
+    """
     thriving_auto_objects = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
             game_object__game_object__layout_type__arch_layout='autonomous_object', 
@@ -54,6 +56,7 @@ def game(request):
             attribute_values__value__gt=0,
             attribute_values__value__lte=2
             )
+    """
     dead_auto_objects = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
             game_object__game_object__layout_type__arch_layout='autonomous_object', 
@@ -164,6 +167,9 @@ def game(request):
                         action_taken = get_action_taken(field)
                         parameters = cleaned_data[field]
                         user_instance_object.act(action_taken, parameters, game_object_id)
+                
+                # Redirect to same page to avoid form resubmission
+                return HttpResponseRedirect(reverse('game.views.game'))
             
             else:
                 form_already_used = False
@@ -200,9 +206,10 @@ def game(request):
             'user_instance_object': user_instance_object, 
             'alive': alive,
             'display_objects': display_objects, 
-            'player_stats': player_stats, 
-            'thriving_auto_objects': thriving_auto_objects, 
-            'starving_auto_objects': starving_auto_objects, 
+            'player_stats': player_stats,
+            'living_auto_objects': living_auto_objects,
+            #'thriving_auto_objects': thriving_auto_objects, 
+            #'starving_auto_objects': starving_auto_objects, 
             'dead_auto_objects': dead_auto_objects, 
             'game_object': game_object, 
             'player_permitted_action_objects': player_permitted_action_objects, 

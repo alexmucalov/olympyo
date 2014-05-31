@@ -322,12 +322,13 @@ class Waitroom(models.Model):
         return u'%s' % (self.id)
 
     def add_user(self, user):
-        self.users.add(user)
+        if user not in self.users.all():
+            self.users.add(user)
         users = self.users.all()
         user_count = users.count()
         game_player_count = self.game.game_object_set.game_objects.all().filter(
                 game_object__arch_game_object='player'
-        ).count()
+                ).count()
         if user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
             self.game.create_all_instance_objects(users)
