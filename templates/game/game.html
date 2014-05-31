@@ -119,7 +119,7 @@
                     {% if action_form %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if turn_finished or form_already_used or not alive %} disabled {% endif %}>
-                            {{ action_form|bootstrap_horizontal:'col-lg-6 col-sm-6' }}
+                            {{ action_form|bootstrap_horizontal:'col-lg-4 col-sm-4' }}
                             <button type="submit" name="action_form" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
                     </form>
@@ -166,7 +166,7 @@
                 <button type="submit" action="" name="finish_turn_form" class="btn btn-default col-sm-12">Finish turn</button>
             </fieldset>
         </form>
-        {% if user_already_played %}
+        {% if turn_finished %}
         <div class="alert alert-success text-center">
             You have committed actions this turn!
         </div>

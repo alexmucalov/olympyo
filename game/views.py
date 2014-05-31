@@ -164,6 +164,9 @@ def game(request):
                         action_taken = get_action_taken(field)
                         parameters = cleaned_data[field]
                         user_instance_object.act(action_taken, parameters, game_object_id)
+            
+            else:
+                form_already_used = False
 
         else:
             form_already_used = False

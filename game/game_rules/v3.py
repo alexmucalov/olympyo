@@ -97,7 +97,8 @@ def perform(instance):
         #set_wage_actions = set_wage_actions.order_by('-parameters')
     set_wage_actions = Action.objects.filter(
             initiator__game_instance__id=instance_id, 
-            turn=turn, action__arch_action='set_wage'
+            turn=turn, 
+            action__arch_action='set_wage'
             ).order_by('-parameters')
     working_player_l = list(working_players)
     shuffle(working_player_l, seed.copy_abs)
@@ -111,11 +112,10 @@ def perform(instance):
                 )
 
     
-    # Farm increases labour_working for everyone working it:
+    # Farm increases labour_working for everyone taking a wage on it:
     worked_farms = farms.filter(
             game_instance__turn=turn, 
-            affected_by_actions__action__arch_action='work', 
-            affected_by_actions__parameters='yes'
+            affected_by_actions__action__arch_action='take_wage'
             ).distinct()
 
     for farm in worked_farms:
