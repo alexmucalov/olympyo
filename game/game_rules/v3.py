@@ -77,7 +77,8 @@ def perform(instance):
             )
     working_players = living_players.filter(
             initiated_actions__action__arch_action='work',
-            initiated_actions__parameters='yes'
+            initiated_actions__parameters='yes',
+            initiated_actions__turn=turn
             ).distinct()
 
 
