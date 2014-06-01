@@ -331,6 +331,7 @@ class Waitroom(models.Model):
                 ).count()
         if user_count >= game_player_count:
         #    Send users to /game/, using nodejs or Python Twisted
+            shuffle(list(users))
             self.game.create_all_instance_objects(users)
             self.delete()
     

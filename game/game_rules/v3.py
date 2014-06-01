@@ -86,8 +86,31 @@ def perform(instance):
     for player in living_players:
         eat(player)           
             
- 
-    # Have random working_players take action to take wages and work
+    # Have players who work AND own their own farms take the highest wage that they set
+    landed_working_players = working_players.filter(
+            relationship_subjects__subject_game_instance_object__isnull=False
+            ).distinct()
+    wage_offerors = living_players.filter(
+            initiated_actions__turn=turn,
+            initiated_actions__action__arch_action='set_wage'
+            ).distinct()
+    own_set_wage_actions = []
+    own_wage_working_players = []
+    for player in landed_working_players:
+        if player in wage_offerors:
+            own_wage_action = player.initiated_actions.all().filter(
+                    turn=turn,
+                    action__arch_action='set_wage',
+                    ).order_by('-parameters')[:1]
+            player.act(
+                    action_name='take_wage',
+                    parameters=own_wage_action.parameters,
+                    affected_id=own_wage_action.affected.id
+                    )
+            own_set_wage_actions = own_set_wage_actions + [own_wage_action]
+            own_wage_working_players = own_wage_working_players + [player]
+    
+    # Have remaining working_players randomly take action to take remaining wages and work
     #Random work can be much more efficient - but not important yet
     #count_set_wage_actions = len(set_wage_actions)
     #count_labourers = len(labourers)
@@ -96,14 +119,15 @@ def perform(instance):
         #random.shuffle(wage_winners, seed)
     #else:
         #set_wage_actions = set_wage_actions.order_by('-parameters')
-    set_wage_actions = Action.objects.filter(
+    all_set_wage_actions = Action.objects.filter(
             initiator__game_instance__id=instance_id, 
             turn=turn, 
             action__arch_action='set_wage'
             ).order_by('-parameters')
-    working_player_l = list(working_players)
-    shuffle(working_player_l, seed.copy_abs)
-    labour_and_wages_offered = zip(working_player_l, set_wage_actions)
+    remaining_set_wage_actions = [action for action in all_set_wage_actions if action not in own_set_wage_actions]
+    remaining_working_players = [player for player in working_players if player not in own_wage_working_players]
+    shuffle(remaining_working_players, seed.copy_abs)
+    labour_and_wages_offered = zip(remaining_working_players, remaining_set_wage_actions)
     
     for (working_player, wage_offered) in labour_and_wages_offered:
         working_player.act(
@@ -131,7 +155,7 @@ def perform(instance):
         try:
             farm_owner = farm.relationship_objects.all().get(
                     relationship__arch_relationship='owns'
-            ).subject_game_instance_object
+                    ).subject_game_instance_object
         except:
             continue
         
@@ -212,8 +236,8 @@ def perform(instance):
                     player_wealth.save(update_fields=['value'])
                     player.create_relationship('owns', purchase.affected)
 
-    #If any players have died, then set their wealth = 0:
-    for player in living_players:
+    #If any players have died, set their wealth = 0:
+    for player in players:
         if player.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
             player.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
             player.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])

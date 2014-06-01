@@ -25,14 +25,6 @@ class OwnObjectActionForm(forms.Form):
     #If a player is able to work farms, then a
     #player may only work one farm each turn... (later)
     
-    def clean_work(self):
-        data = self.cleaned_data['work']
-        if data.lower() == 'yes' or data.lower() == 'no':
-            data = data.lower()
-        else:
-            raise forms.ValidationError("Work must be yes or no.")
-        return data
-    
     def clean_set_wage_1(self):
         #Set_wages must be > 0
         data = self.cleaned_data['set_wage_1']
@@ -76,24 +68,25 @@ class OwnObjectActionForm(forms.Form):
 
 
 class OtherObjectActionForm(forms.Form):
-    buy = forms.CharField() # This is a required field
+    buy = forms.BooleanField() # This is a required field
     
     def clean_buy(self):
         data = self.cleaned_data['buy']
-        if data.lower() == 'yes':
-            data = data.lower()
-        else:
-            raise forms.ValidationError("If you're going to buy, buy must be 'yes'!")
+        if data == True:
+            data = 'yes'
+        elif data == False:
+            data = 'no'
         return data
 
 
 class SelfObjectActionForm(forms.Form):
-    work = forms.CharField() # This is a required field
+    work = forms.BooleanField() # This is a required field
+    
     
     def clean_work(self):
         data = self.cleaned_data['work']
-        if data.lower() == 'yes':
-            data = data.lower()
-        else:
-            raise forms.ValidationError("If you're going to work, work must be 'yes'!")
+        if data == True:
+            data = 'yes'
+        elif data == False:
+            data = 'no'
         return data
