@@ -94,7 +94,7 @@ class ArchAttributeSet(models.Model):
         unique_together = ('attribute_set',)
 
     def __unicode__(self):
-        return u'%s' % (self.attribute_set)
+        return u'%s' % (self.attribute_set.replace('_',' '))
 
 
 class ActionPermissionSetManager(models.Manager):
@@ -202,7 +202,7 @@ class GameObject(models.Model):
 
     def create_instance_object(self, game_instance, user=None):
         game_object = self
-        instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object, user=user)
+        instance_object = GameInstanceObject.objects.create_game_instance_object(game_instance=game_instance, game_object=game_object, type=game_object.game_object, user=user)
         return instance_object
 
 
@@ -376,6 +376,7 @@ class GameInstanceObjectManager(models.Manager):
 class GameInstanceObject(models.Model):
     game_instance = models.ForeignKey(GameInstance, related_name='game_instance_objects')
     game_object = models.ForeignKey(GameObject, related_name='game_instance_objects')
+    type = models.ForeignKey(ArchGameObject, related_name='game_instance_objects')
     user = models.ForeignKey(User, related_name='game_instance_objects', blank=True, null=True)
     
     objects = GameInstanceObjectManager()

@@ -14,7 +14,7 @@
 
 from django import forms
 
-class OwnObjectActionForm(forms.Form):
+class OperatedObjectActionForm(forms.Form):
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     
@@ -40,42 +40,16 @@ class OwnObjectActionForm(forms.Form):
             if data <= 0:
                 raise forms.ValidationError("You've got to offer something")
         return data
-    
-    def clean(self):
-        cleaned_data = super(OwnObjectActionForm, self).clean()
-        work = cleaned_data.get('work')
-        set_wage_1 = cleaned_data.get('set_wage_1')
-        set_wage_2 = cleaned_data.get('set_wage_2')
-
-        if work == 'yes':
-            # If a player works a farm, then must set one 
-            # fewer wage than player has labour_spots
-            if set_wage_1 and set_wage_2:
-                raise forms.ValidationError("You can't hire for more "
-                        "spots than you have available.")
-            elif not set_wage_1 and not set_wage_2:
-                raise forms.ValidationError("You've got room to hire "
-                        "one more labourer.")
-
-        if work == 'no':
-            # If a player does not work a farm, then 
-            # a player must set as many as labour_spots
-            if not set_wage_1 or not set_wage_2:
-                raise forms.ValidationError("You've got room to hire "
-                        "two labourers.")
-
-        return cleaned_data
 
 
 class OtherObjectActionForm(forms.Form):
-    buy = forms.BooleanField() # This is a required field
+    buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
     
     def clean_buy(self):
         data = self.cleaned_data['buy']
-        if data == True:
-            data = 'yes'
-        elif data == False:
-            data = 'no'
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to bid something")
         return data
 
 
@@ -90,3 +64,50 @@ class SelfObjectActionForm(forms.Form):
         elif data == False:
             data = 'no'
         return data
+
+
+class DevelopingObjectActionForm(forms.Form):
+    set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    set_wage_3 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    set_wage_4 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+
+    def clean_set_wage_1(self):
+        #Set_wages must be > 0
+        data = self.cleaned_data['set_wage_1']
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
+        return data
+    
+    def clean_set_wage_2(self):
+        #Set_wages must be > 0
+        data = self.cleaned_data['set_wage_2']
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
+        return data
+
+    def clean_set_wage_3(self):
+        #Set_wages must be > 0
+        data = self.cleaned_data['set_wage_3']
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
+        return data
+    
+    def clean_set_wage_4(self):
+        #Set_wages must be > 0
+        data = self.cleaned_data['set_wage_4']
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to offer something")
+        return data
+
+
+class SellObjectActionForm(forms.Form):
+    pass
+
+
+class BuyObjectActionForm(forms.Form):
+    pass

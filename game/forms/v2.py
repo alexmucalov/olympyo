@@ -14,7 +14,7 @@
 
 from django import forms
 
-class OwnObjectActionForm(forms.Form):
+class OperatedObjectActionForm(forms.Form):
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     
@@ -86,5 +86,18 @@ class OtherObjectActionForm(forms.Form):
             raise forms.ValidationError("If you're going to buy, buy must be 'yes'!")
         return data
 
+
 class SelfObjectActionForm(forms.Form):
+    pass
+
+
+class DevelopingObjectActionForm(forms.Form):
+    pass
+
+
+class SellObjectActionForm(forms.Form):
+    pass
+
+
+class BuyObjectActionForm(forms.Form):
     pass

@@ -1,6 +1,10 @@
-.plot {
-  /*display: block;*/
+.plot-lg {
   background-image: url("../images/ic-field-circled-adj.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.plot-sm {
+  background-image: url("../images/ic-field-circled-adj-small.png");
   background-position: center center;
   background-repeat: no-repeat;
 }

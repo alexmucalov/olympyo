@@ -30,6 +30,13 @@ def produce(farm):
     production_attr.save(update_fields=['value'])
 
 
+def develop(plot):
+    dev_cost_attr = plot.attribute_values.all().get(attribute__arch_attribute='development_cost')
+    labour_working_attr = plot.attribute_values.all().get(attribute__arch_attribute='labour_working')
+    dev_cost_attr.value = F('value') - float(labour_working_attr.value)
+    dev_cost_attr.save(update_fields=['value'])
+
+
 #v1 - applies to players and labourers who didn't work
 def enjoy_leisure(living_object):    
     leisure_attr = living_object.attribute_values.all().get(attribute__arch_attribute='leisure')

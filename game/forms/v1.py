@@ -14,7 +14,7 @@
 
 from django import forms
 
-class OwnObjectActionForm(forms.Form):
+class OperatedObjectActionForm(forms.Form):
     work = forms.CharField() # This is a required field
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
@@ -22,7 +22,7 @@ class OwnObjectActionForm(forms.Form):
     #on dynamic init, create set_wage_i, where i is created for as many set_wage actions
     #available on that farm, based on labour_spots!
   
-    #But requires changes in the view!! So not going to work...
+    #But requires changes in the view!! So not going to work... WRONG - pass instance through to all forms!
     
     #def __init__(self, *args, **kwargs):
         #set_wage = kwargs.pop('set_wage')
@@ -85,7 +85,19 @@ class OwnObjectActionForm(forms.Form):
 
 class OtherObjectActionForm(forms.Form):
     pass
-    #Make 'None'
+
 
 class SelfObjectActionForm(forms.Form):
+    pass
+
+
+class DevelopingObjectActionForm(forms.Form):
+    pass
+
+
+class SellObjectActionForm(forms.Form):
+    pass
+
+
+class BuyObjectActionForm(forms.Form):
     pass

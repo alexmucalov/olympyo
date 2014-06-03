@@ -42,15 +42,15 @@ def perform(instance):
     from decimal import *
     
     from django.db.models import Q, F
-    from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure
+    from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure, develop
     from game.models import GameInstanceObject, Action
     
 
     instance_id = instance.id
     turn = instance.turn
-    nature = GameInstanceObject.objects.get(
+    nature = instance.game_instance_objects.all().get(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='nature'
+            type__arch_game_object='nature'
             )
     
     
@@ -63,13 +63,9 @@ def perform(instance):
 
 
     # Define players and labourers
-    players = GameInstanceObject.objects.filter(
+    players = instance.game_instance_objects.all().filter(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='player'
-            )
-    farms = GameInstanceObject.objects.filter(
-            game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='farm'
+            type__arch_game_object='player'
             )
     living_players = players.filter(
             attribute_values__attribute__arch_attribute='wealth', 
@@ -80,13 +76,22 @@ def perform(instance):
             initiated_actions__parameters='yes',
             initiated_actions__turn=turn
             ).distinct()
+    farms = instance.game_instance_objects.all().filter(
+            game_instance__id=instance_id, 
+            type__arch_game_object='farm'
+            )
+    plots = instance.game_instance_objects.all().filter(
+            game_instance__id=instance_id, 
+            type__arch_game_object='plot'
+            )
 
 
     # Living players eat 1 wealth:
     for player in living_players:
         eat(player)           
-            
-    # Have players who work AND own their own farms take the highest wage that they set
+
+
+    # Have players who work AND own their own properties take the highest wage that they set
     landed_working_players = working_players.filter(
             relationship_subjects__subject_game_instance_object__isnull=False
             ).distinct()
@@ -109,7 +114,8 @@ def perform(instance):
                     )
             own_set_wage_actions = own_set_wage_actions + [own_wage_action]
             own_wage_working_players = own_wage_working_players + [player]
-    
+
+
     # Have remaining working_players randomly take action to take remaining wages and work
     #Random work can be much more efficient - but not important yet
     #count_set_wage_actions = len(set_wage_actions)
@@ -120,7 +126,7 @@ def perform(instance):
     #else:
         #set_wage_actions = set_wage_actions.order_by('-parameters')
     all_set_wage_actions = Action.objects.filter(
-            initiator__game_instance__id=instance_id, 
+            initiator__game_instance=instance, 
             turn=turn, 
             action__arch_action='set_wage'
             ).order_by('-parameters')
@@ -138,103 +144,106 @@ def perform(instance):
 
     
     # Farm increases labour_working for everyone taking a wage on it:
-    worked_farms = farms.filter(
-            game_instance__turn=turn, 
-            affected_by_actions__action__arch_action='take_wage'
-            ).distinct()
-
-    for farm in worked_farms:
+    owned_farms = farms.filter(relationship_objects__relationship__arch_relationship='owns').distinct()
+    for farm in owned_farms:
         labour_worked(farm)
 
-    # Farms produce based on total labour_working, 
-    # then split production between wages and profits:
-    for farm in farms:
+        # Farms produce based on total labour_working, and return product to farm owners
         produce(farm)
-        
-        # Split production only if farm is owned
-        try:
-            farm_owner = farm.relationship_objects.all().get(
-                    relationship__arch_relationship='owns'
-                    ).subject_game_instance_object
-        except:
-            continue
-        
-        # Common source values
         farm_production_attr = farm.attribute_values.all().get(
                 attribute__arch_attribute='production'
                 )
+        farm_owner = farm.relationship_objects.all().get(
+                relationship__arch_relationship='owns'
+                ).subject_game_instance_object
         farm_owner_wealth_attr = farm_owner.attribute_values.all().get(
                 attribute__arch_attribute='wealth'
                 )
-        farm_take_wage_actions = farm.affected_by_actions.all().filter(
-                action__arch_action='take_wage', 
-                turn=turn
+        farm_owner_wealth_attr.value = F('value') + float(farm_production_attr.value)
+        farm_owner_wealth_attr.save(update_fields=['value'])
+    
+    
+    # Owners pay people working farms that turn, if affordable
+    take_wage_actions = Action.objects.filter(
+            initiator__game_instance=instance,
+            action__arch_action='take_wage', 
+            turn=turn
+            )
+    for take_wage_action in take_wage_actions:
+        farm_labourer = take_wage_action.initiator
+        farm_labourer_wealth_attr = farm_labourer.attribute_values.all().get(
+                attribute__arch_attribute='wealth'
                 )
-        labour_count = len(farm_take_wage_actions)
-        farm_wages_offered = []
-        for farm_take_wage_action in farm_take_wage_actions:
-            farm_wage_offered = [float(farm_take_wage_action.parameters)]
-            farm_wages_offered = farm_wages_offered + farm_wage_offered
-        
-        # If owner can pay all costs, do so, then keep the rest
-        if (float(farm_owner_wealth_attr.value) + float(farm_production_attr.value) >= 
-                    sum(farm_wages_offered)):
-            farm_labour_costs = 0
-            for farm_take_wage_action in farm_take_wage_actions:
-                farm_wage_offered = float(farm_take_wage_action.parameters)
-                farm_labour_costs += farm_wage_offered
-                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(
-                        attribute__arch_attribute='wealth'
-                        )
-                farm_labour_wealth_attr.value = F('value') + farm_wage_offered
-                farm_labour_wealth_attr.save(update_fields=['value'])
-            farm_owner_wealth_attr.value = (
-                    F('value') + 
-                    float(farm_production_attr.value) - 
-                    farm_labour_costs
-                    )
+        farm_owner = take_wage_action.affected.relationship_objects.all().get(
+                relationship__arch_relationship='owns'
+                ).subject_game_instance_object
+        farm_owner_wealth_attr = farm_owner.attribute_values.all().get(
+                attribute__arch_attribute='wealth'
+                )
+        if (float(farm_owner_wealth_attr.value) >= float(take_wage_action.parameters):
+            farm_labourer_wealth_attr.value = F('value') + float(take_wage_action.parameters)
+            farm_labourer_wealth_attr.save(update_fields=['value'])
+            farm_owner_wealth_attr.value = F('value') - float(take_wage_action.parameters)
             farm_owner_wealth_attr.save(update_fields=['value'])
-        
-        # If owner can't pay all the costs, pay as much as possible evenly 
-        # among all labourers, then set owner wealth = 0
         else:
-            farm_labour_costs = (
-                    float(farm_owner_wealth_attr.value) + 
-                    float(farm_production_attr.value)
-                    )
-            for farm_take_wage_action in farm_take_wage_actions:
-                farm_labour_wealth_attr = farm_take_wage_action.initiator.attribute_values.all().get(
-                        attribute__arch_attribute='wealth'
-                        )
-                farm_labour_wealth_attr.value = (
-                        F('value') + 
-                        1/labour_count*farm_labour_costs
-                        )
-                farm_labour_wealth_attr.save(update_fields=['value'])
+            farm_labourer_wealth_attr.value = F('value') + float(farm_owner_wealth_attr.value)
+            farm_labourer_wealth_attr.save(update_fields=['value'])
             farm_owner_wealth_attr.value = 0
             farm_owner_wealth_attr.save(update_fields=['value'])
+            
+
+    # Develop plots; then turn plots into farms once developed
+    owned_plots = plots.filter(
+            relationship_objects__relationship__arch_relationship='owns'
+            ).distinct()
+    for plot in owned_plots:
+        labour_worked(plot)
+        develop(plot)
+        if plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='development_cost').value <= 0:
+            plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='development_cost').delete()
+            plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='min_bid').delete()
+            plot.relationship_objects.all().get(relationship__arch_relationship='develops').delete()
+            labour_spots_arch_attr = ArchAttribute.objects.get(arch_attribute='labour_spots')
+            production_arch_attr = ArchAttribute.objects.get(arch_attribute='production')
+            GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(game_instance_object=plot, attribute=labour_spots_arch_attr, value=2)
+            GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(game_instance_object=plot, attribute=production_arch_attr, value=0)
+            farm_type_object = ArchGameObject.objects.get(arch_game_object='farm')
+            plot.type = farm_type_object
+            plot.save(update_fields=['type'])
+
+
+    # If players bought unowned plots, assign based on who can set aside the most, at least the min_bid up to their bid value
+    bid_plots = plots.filter(
+            affected_by_actions__action__arch_action='bid',
+            turn=turn
+            ).distinct()
+    for plot in bid_plots:
+        # Get set of bids whose values are less than the owner's wealth attr value
+        ordered_bid_actions = plot.affected_by_actions.all().filter(
+                affected_by_actions__action__arch_action='bid',
+                turn=turn
+                ).order_by('-parameters')
+        for bid_action in ordered_bid_actions:
+            if float(bid_action.parameters) >= float(bid_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth').value):
+                bid_action.delete()
+            # Should move the next clause to form validation!! BUT only once instance passed through...
+            if float(bid_action.parameters) < float(plot.attribute_values.all().get(attribute__arch_attribute='min_bid').value):
+                bid_action.delete()
         
-    # If players bought unowned farms, deduct costs 
-    # and assign farms on first-come, first-served basis
-    for player in living_players:
-        player_purchases = player.initiated_actions.all().filter(
-                turn=turn,
-                action__arch_action='buy',
-                )
-        owned_objects = instance.game_instance_objects.all().filter(
-                relationship_objects__relationship__arch_relationship='owns',
-                relationship_objects__object_game_instance_object__isnull=False,
-                )
-        if player_purchases:
-            for purchase in player_purchases:
-                if purchase.affected in owned_objects:
-                    continue
-                else:
-                    farm_cost = purchase.affected.attribute_values.all().get(attribute__arch_attribute='cost').value
-                    player_wealth = player.attribute_values.all().get(attribute__arch_attribute='wealth')
-                    player_wealth.value = F('value') - farm_cost
-                    player_wealth.save(update_fields=['value'])
-                    player.create_relationship('owns', purchase.affected)
+        highest_feasible_bid_action = ordered_bid_actions[0]
+        highest_feasible_bidder = highest_feasible_bid_action.initiatior
+        plot_cost = highest_feasible_bid_action.parameters
+        
+        bidder_wealth = highest_feasible_bidder.attribute_values.all().get(attribute__arch_attribute='wealth')
+        bidder_wealth.value = F('value') - plot_cost
+        bidder_wealth.save(update_fields=['value'])
+        
+        plot_dev_fund = plot.attribute_values.all().get(attribute__arch_attribute='development_fund')
+        plot_dev_fund.value = plot_cost
+        plot_dev_fund.save(update_fields=['value'])
+        
+        highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
+
 
     #If any players have died, set their wealth = 0:
     for player in players:
@@ -243,10 +252,11 @@ def perform(instance):
             player.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
     
 
-    #Update all players' leisure:
+    #Update all living players' leisure:
     for player in living_players:
         if player not in working_players:
             enjoy_leisure(player)
+    
     
     #Animate unborn
     animate_actions = nature.initiated_actions.all().filter(

@@ -75,7 +75,7 @@ class GameInstanceAdmin(admin.ModelAdmin):
 
 
 class GameInstanceObjectAdmin(admin.ModelAdmin):
-    list_display = ('id','game_instance', 'game_object','user',)
+    list_display = ('id','game_instance','game_object','type','user',)
 
 
 class GameInstanceObjectAttributeValueAdmin(admin.ModelAdmin):

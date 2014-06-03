@@ -35,11 +35,11 @@ def game(request):
     turn = game_instance.turn    
     game_instance_objects = game_instance.game_instance_objects.all()
     display_objects = game_instance_objects.filter(
-            game_object__game_object__layout_type__arch_layout='display_object'
+            type__layout_type__arch_layout='display_object'
             )
     turn_finished = False
     actionform = game_instance.game.game_rules.game_rules
-    exec 'from game.forms.%s import OwnObjectActionForm, OtherObjectActionForm, SelfObjectActionForm' % actionform
+    exec 'from game.forms.%s import OperatedObjectActionForm, OtherObjectActionForm, SelfObjectActionForm, DevelopingObjectActionForm, SellObjectActionForm, BuyObjectActionForm' % actionform
     
     # DEFINE LIVING AUTONOMOUS OBJECTS, STARVING ONES, AND DEAD ONES
     """
@@ -59,19 +59,19 @@ def game(request):
     """
     dead_auto_objects = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
-            game_object__game_object__layout_type__arch_layout='autonomous_object', 
+            type__layout_type__arch_layout='autonomous_object', 
             attribute_values__attribute__arch_attribute='wealth', 
             attribute_values__value__lte=0
             )
     living_auto_objects = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
-            game_object__game_object__layout_type__arch_layout='autonomous_object', 
+            type__layout_type__arch_layout='autonomous_object', 
             attribute_values__attribute__arch_attribute='wealth', 
             attribute_values__value__gt=0
             )
     player_actions = user_instance_object.initiated_actions.all().order_by('-turn')
     player_stats = user_instance_object.attribute_values.all()
-    player_arch_game_object = user_instance_object.game_object.game_object.arch_game_object
+    player_arch_game_object = user_instance_object.type.arch_game_object
     player_permitted_initiator_actions = user_instance_object.game_instance.game.action_permission_set.action_permissions.all().filter(
             permitted_initiator__arch_game_object=player_arch_game_object
             )
@@ -128,7 +128,7 @@ def game(request):
 
             # Check DB to see if all living users have committed actions; update turn if so
             living_players = living_auto_objects.filter(
-                    game_object__game_object__arch_game_object='player'
+                    type__arch_game_object='player'
                     )
             i = 0
             for gio in living_players:
@@ -149,9 +149,16 @@ def game(request):
             turn_finished = False
             if game_object == user_instance_object:
                 action_form = SelfObjectActionForm(request.POST)
-            if game_object.game_object.game_object in player_permitted_action_objects:
+            if game_object.type in player_permitted_action_objects:
                 if user_instance_object in game_object_owner_set:
-                    action_form = OwnObjectActionForm(request.POST)
+                    if game_object.relationship_objects.all().filter(relationship__arch_relationship='develops').exists():
+                        action_form = DevelopingObjectActionForm(request.POST)
+                    elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                        action_form = SellObjectActionForm(request.POST)
+                    else:
+                        action_form = OperatedObjectActionForm(request.POST)
+                elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                    action_form = BuyObjectActionForm(request.POST)
                 else:
                     action_form = OtherObjectActionForm(request.POST)
         
@@ -184,9 +191,16 @@ def game(request):
         if game_object:
             if game_object == user_instance_object:
                 action_form = SelfObjectActionForm()
-            if game_object.game_object.game_object in player_permitted_action_objects and game_object not in owned_objects.exclude(relationship_objects__subject_game_instance_object=user_instance_object):
+            if game_object.type in player_permitted_action_objects and game_object not in owned_objects.exclude(relationship_objects__subject_game_instance_object=user_instance_object):
                 if user_instance_object in game_object_owner_set:
-                    action_form = OwnObjectActionForm()
+                    if game_object.relationship_objects.all().filter(relationship__arch_relationship='develops').exists():
+                        action_form = DevelopingObjectActionForm()
+                    elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                        action_form = SellObjectActionForm()
+                    else:
+                        action_form = OperatedObjectActionForm()
+                elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                    action_form = BuyObjectActionForm()
                 else:
                     action_form = OtherObjectActionForm()
         user_game_object_action_set = user_instance_object.initiated_actions.all().filter(
@@ -229,7 +243,7 @@ def game_over(request):
     game_instance = user_instance_object.game_instance
     ordered_players_leisure_attrs = GameInstanceObjectAttributeValue.objects.filter(
             game_instance_object__game_instance=game_instance, 
-            game_instance_object__game_object__game_object__arch_game_object='player', 
+            game_instance_object__type__arch_game_object='player', 
             attribute__arch_attribute='leisure'
             ).order_by('-value')
     ordered_players = [attr.game_instance_object for attr in ordered_players_leisure_attrs]

@@ -50,7 +50,7 @@ def perform(instance):
     turn = instance.turn
     nature = GameInstanceObject.objects.get(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='nature'
+            type__arch_game_object='nature'
             )
     
     
@@ -65,15 +65,15 @@ def perform(instance):
     # Define players and labourers
     players = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='player'
+            type__arch_game_object='player'
             )
     labourers = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='labour'
+            type__arch_game_object='labour'
             )
     farms = GameInstanceObject.objects.filter(
             game_instance__id=instance_id, 
-            game_object__game_object__arch_game_object='farm'
+            type__arch_game_object='farm'
             )
     living_players = players.filter(
             attribute_values__attribute__arch_attribute='wealth', 
