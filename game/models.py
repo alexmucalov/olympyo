@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q, F
 
+from random import *
+
 
 # Game Rules Models
 class GameRuleManager(models.Manager):
@@ -368,8 +370,8 @@ class GameInstance(models.Model):
 
 
 class GameInstanceObjectManager(models.Manager):
-    def create_game_instance_object(self, game_instance, game_object, user=None):
-        game_instance_object = self.create(game_instance=game_instance, game_object=game_object, user=user)
+    def create_game_instance_object(self, game_instance, game_object, type, user=None):
+        game_instance_object = self.create(game_instance=game_instance, game_object=game_object, type=type, user=user)
         return game_instance_object
 
 

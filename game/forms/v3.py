@@ -43,10 +43,10 @@ class OperatedObjectActionForm(forms.Form):
 
 
 class OtherObjectActionForm(forms.Form):
-    buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
+    bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
     
-    def clean_buy(self):
-        data = self.cleaned_data['buy']
+    def clean_bid_to_buy(self):
+        data = self.cleaned_data['bid_to_buy']
         if data:
             if data <= 0:
                 raise forms.ValidationError("You've got to bid something")

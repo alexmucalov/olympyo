@@ -32,9 +32,9 @@ TEMPLATE_DIRS = (
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = (
     'olympyo.com',
@@ -110,7 +110,7 @@ STATICFILES_DIRS = (
     '{BASE_DIR}/project_static/'.format(BASE_DIR=BASE_DIR),
 )
 
-#STATIC_ROOT = '{BASE_DIR}/deployment_static/'.format(BASE_DIR=BASE_DIR)
+STATIC_ROOT = '{BASE_DIR}/deployment_static/'.format(BASE_DIR=BASE_DIR)
 
 
 # Log a user out when the browser is completely closed

@@ -43,7 +43,7 @@ def perform(instance):
     
     from django.db.models import Q, F
     from game.game_rules.components import eat, labour_worked, produce, enjoy_leisure, develop
-    from game.models import GameInstanceObject, Action
+    from game.models import GameInstanceObject, Action, ArchAttribute, GameInstanceObjectAttributeValue, ArchGameObject
     
 
     instance_id = instance.id
@@ -52,7 +52,10 @@ def perform(instance):
             game_instance__id=instance_id, 
             type__arch_game_object='nature'
             )
-    
+    governor = instance.game_instance_objects.all().get(
+            game_instance__id=instance_id, 
+            type__arch_game_object='governor'
+            )
     
     # Record turn seed for reproducible randomness
     #Get seed as Decimal object, because Decimal has a method that effectively
@@ -103,10 +106,12 @@ def perform(instance):
     own_wage_working_players = []
     for player in landed_working_players:
         if player in wage_offerors:
-            own_wage_action = player.initiated_actions.all().filter(
-                    turn=turn,
-                    action__arch_action='set_wage',
-                    ).order_by('-parameters')[:1]
+            own_wage_action = list(
+                    player.initiated_actions.all().filter(
+                        turn=turn,
+                        action__arch_action='set_wage',
+                        ).order_by('-parameters')[:1]
+                    )[0]
             player.act(
                     action_name='take_wage',
                     parameters=own_wage_action.parameters,
@@ -180,7 +185,7 @@ def perform(instance):
         farm_owner_wealth_attr = farm_owner.attribute_values.all().get(
                 attribute__arch_attribute='wealth'
                 )
-        if (float(farm_owner_wealth_attr.value) >= float(take_wage_action.parameters):
+        if float(farm_owner_wealth_attr.value) >= float(take_wage_action.parameters):
             farm_labourer_wealth_attr.value = F('value') + float(take_wage_action.parameters)
             farm_labourer_wealth_attr.save(update_fields=['value'])
             farm_owner_wealth_attr.value = F('value') - float(take_wage_action.parameters)
@@ -199,9 +204,9 @@ def perform(instance):
     for plot in owned_plots:
         labour_worked(plot)
         develop(plot)
-        if plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='development_cost').value <= 0:
-            plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='development_cost').delete()
-            plot.attribute_values.all().get(attribute_values__attribute__arch_attribute='min_bid').delete()
+        if int(plot.attribute_values.all().get(attribute__arch_attribute='development_cost').value) <= 0:
+            plot.attribute_values.all().get(attribute__arch_attribute='development_cost').delete()
+            plot.attribute_values.all().get(attribute__arch_attribute='minimum_bid').delete()
             plot.relationship_objects.all().get(relationship__arch_relationship='develops').delete()
             labour_spots_arch_attr = ArchAttribute.objects.get(arch_attribute='labour_spots')
             production_arch_attr = ArchAttribute.objects.get(arch_attribute='production')
@@ -214,36 +219,39 @@ def perform(instance):
 
     # If players bought unowned plots, assign based on who can set aside the most, at least the min_bid up to their bid value
     bid_plots = plots.filter(
-            affected_by_actions__action__arch_action='bid',
-            turn=turn
+            affected_by_actions__action__arch_action='bid_to_buy',
+            affected_by_actions__turn=turn
             ).distinct()
     for plot in bid_plots:
         # Get set of bids whose values are less than the owner's wealth attr value
         ordered_bid_actions = plot.affected_by_actions.all().filter(
-                affected_by_actions__action__arch_action='bid',
+                action__arch_action='bid_to_buy',
                 turn=turn
                 ).order_by('-parameters')
+        excluded_bids = []
         for bid_action in ordered_bid_actions:
             if float(bid_action.parameters) >= float(bid_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth').value):
-                bid_action.delete()
+                excluded_bids = excluded_bids + [bid_action]
             # Should move the next clause to form validation!! BUT only once instance passed through...
-            if float(bid_action.parameters) < float(plot.attribute_values.all().get(attribute__arch_attribute='min_bid').value):
-                bid_action.delete()
+            elif float(bid_action.parameters) < float(plot.attribute_values.all().get(attribute__arch_attribute='minimum_bid').value):
+                excluded_bids = excluded_bids + [bid_action]
+        ordered_feasible_bid_actions = ordered_bid_actions.exclude(id__in=[bid.id for bid in excluded_bids])
         
-        highest_feasible_bid_action = ordered_bid_actions[0]
-        highest_feasible_bidder = highest_feasible_bid_action.initiatior
-        plot_cost = highest_feasible_bid_action.parameters
+        if ordered_feasible_bid_actions:
+            highest_feasible_bid_action = ordered_feasible_bid_actions[0]
+            highest_feasible_bidder = highest_feasible_bid_action.initiator
+            plot_cost = float(highest_feasible_bid_action.parameters)
         
-        bidder_wealth = highest_feasible_bidder.attribute_values.all().get(attribute__arch_attribute='wealth')
-        bidder_wealth.value = F('value') - plot_cost
-        bidder_wealth.save(update_fields=['value'])
+            bidder_wealth = highest_feasible_bidder.attribute_values.all().get(attribute__arch_attribute='wealth')
+            bidder_wealth.value = F('value') - plot_cost
+            bidder_wealth.save(update_fields=['value'])
         
-        plot_dev_fund = plot.attribute_values.all().get(attribute__arch_attribute='development_fund')
-        plot_dev_fund.value = plot_cost
-        plot_dev_fund.save(update_fields=['value'])
+            governor_wealth_attr = governor.attribute_values.all().get(attribute__arch_attribute='wealth')
+            governor_wealth_attr.value = F('value') + plot_cost
+            governor_wealth_attr.save(update_fields=['value'])
         
-        highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
-
+            highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
+            highest_feasible_bidder.create_relationship('develops', highest_feasible_bid_action.affected)
 
     #If any players have died, set their wealth = 0:
     for player in players:

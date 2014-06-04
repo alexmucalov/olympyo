@@ -33,7 +33,7 @@ def produce(farm):
 def develop(plot):
     dev_cost_attr = plot.attribute_values.all().get(attribute__arch_attribute='development_cost')
     labour_working_attr = plot.attribute_values.all().get(attribute__arch_attribute='labour_working')
-    dev_cost_attr.value = F('value') - float(labour_working_attr.value)
+    dev_cost_attr.value = F('value') - int(labour_working_attr.value)
     dev_cost_attr.save(update_fields=['value'])
 
 

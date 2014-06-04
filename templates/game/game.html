@@ -96,7 +96,7 @@
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the selected object.">
                     Selected object
                     </a>
-                    <div class="text-center">{{ game_object.game_object|capfirst }}</div>
+                    <div class="text-center">{{ game_object.type|capfirst }}: {{ game_object.game_object.id|capfirst }}</div>
                     {% if game_object %}
                     <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}-lg'>
                     </div>
@@ -106,9 +106,10 @@
                     </ul>
                     {% endif %}
                     <h5 class="text-center">Owns</h5>
+                    {% regroup game_object.relationship_subjects.all by object_game_instance_object as game_object_transitives %}
                     <div class="list-group text-center">   
-                        {% for relationship in game_object.relationship_subjects.all %}
-                        <a class="list-group-item" href="?game_object_id={{ relationship.object_game_instance_object.id }}">{{ relationship.object_game_instance_object.game_object|capfirst }}</a>
+                        {% for relationship in game_object_transitives %}
+                        <a class="list-group-item" href="?game_object_id={{ relationship.grouper.id }}">{{ relationship.grouper.game_object|capfirst }}</a>
                         {% empty %}
                         <div class="list-group-item">Nothing</div>
                         {% endfor %}
@@ -116,7 +117,7 @@
                 </div>
                 <div class="col-sm-5">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
-                    Available actions
+                    Actions available on selected object
                     </a>
                     {% if action_form.fields.values %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
@@ -141,7 +142,7 @@
                 </div>
                 <div class="col-sm-4">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Attributes define the selected object. Some of them may change each turn, as players' actions affect the game.">
-                    Attributes
+                    Selected object attributes
                     </a>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
@@ -155,7 +156,7 @@
         </div>
         <div class="col-sm-2">
             <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Farms sit passively until you act on them. In this game, you can hire people to work farms that you own, and you can work one yourself.">
-                Farms
+                Properties
             </a>
             {% for display_object in display_objects %}
             <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="{% if display_object.id == game_object.id %}bg-primary{% endif %} col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
