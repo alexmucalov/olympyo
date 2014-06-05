@@ -453,7 +453,8 @@ class GameInstanceObjectRelationship(models.Model):
     
     class Meta:
         unique_together = ('game_instance','subject_game_instance_object','relationship','object_game_instance_object',)
-
+        ordering = ['object_game_instance_object']
+        
     def __unicode__(self):
         return u'%s' % self.id
 
