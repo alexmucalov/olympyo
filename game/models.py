@@ -407,6 +407,14 @@ class GameInstanceObject(models.Model):
                 relationship=relationship,
                 object_game_instance_object=object_game_instance_object,
                 )
+    
+    def create_attribute(self, attribute_name, value):
+        attribute = ArchAttribute.objects.get(arch_attribute=attribute_name)
+        GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(
+                game_instance_object=self, 
+                attribute=attribute, 
+                value=value
+                )
 
 
 class GameInstanceObjectAttributeValueManager(models.Manager):

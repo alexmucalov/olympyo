@@ -17,6 +17,8 @@ from django import forms
 class OperatedObjectActionForm(forms.Form):
     set_wage_1 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    sell = forms.BooleanField(required=False)
+    set_min_bid = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     
     #on dynamic init, create set_wage_i, where i is created for as many set_wage actions
     #available on that farm, based on labour_spots!
@@ -41,6 +43,11 @@ class OperatedObjectActionForm(forms.Form):
                 raise forms.ValidationError("You've got to offer something")
         return data
 
+    def clean_sell(self):
+        data = self.cleaned_data['sell']
+        if data == True:
+            data = 'yes'
+        return data
 
 class OtherObjectActionForm(forms.Form):
     bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
@@ -106,8 +113,22 @@ class DevelopingObjectActionForm(forms.Form):
 
 
 class SellObjectActionForm(forms.Form):
-    pass
+    set_min_bid = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    take_off_market = forms.BooleanField(required=False)
+    
+    def clean_take_off_market(self):
+        data = self.cleaned_data['take_off_market']
+        if data == True:
+            data = 'yes'
+        return data
 
 
 class BuyObjectActionForm(forms.Form):
-    pass
+    bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
+    
+    def clean_bid_to_buy(self):
+        data = self.cleaned_data['bid_to_buy']
+        if data:
+            if data <= 0:
+                raise forms.ValidationError("You've got to bid something")
+        return data

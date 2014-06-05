@@ -96,7 +96,7 @@
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the selected object.">
                     Selected object
                     </a>
-                    <div class="text-center">{{ game_object.type|capfirst }}: {{ game_object.game_object.id|capfirst }}</div>
+                    <div class="text-center">{{ game_object.type|capfirst }} {{ game_object.game_object.id }}</div>
                     {% if game_object %}
                     <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}-lg'>
                     </div>
@@ -109,7 +109,7 @@
                     {% regroup game_object.relationship_subjects.all by object_game_instance_object as game_object_transitives %}
                     <div class="list-group text-center">   
                         {% for relationship in game_object_transitives %}
-                        <a class="list-group-item" href="?game_object_id={{ relationship.grouper.id }}">{{ relationship.grouper.game_object|capfirst }}</a>
+                        <a class="list-group-item" href="?game_object_id={{ relationship.grouper.id }}">{{ relationship.grouper.type|capfirst }} {{ relationship.grouper.game_object.id }}</a>
                         {% empty %}
                         <div class="list-group-item">Nothing</div>
                         {% endfor %}

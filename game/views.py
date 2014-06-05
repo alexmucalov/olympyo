@@ -142,10 +142,11 @@ def game(request):
                         action_form = SellObjectActionForm(request.POST)
                     else:
                         action_form = OperatedObjectActionForm(request.POST)
-                elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
-                    action_form = BuyObjectActionForm(request.POST)
                 else:
                     action_form = OtherObjectActionForm(request.POST)
+            elif game_object.type in player_permitted_action_objects and game_object in owned_objects.exclude(relationship_objects__subject_game_instance_object=user_instance_object):
+                if game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                    action_form = BuyObjectActionForm(request.POST)
         
         # Do something with form if it exists and is clean
         if action_form:
@@ -184,10 +185,11 @@ def game(request):
                         action_form = SellObjectActionForm()
                     else:
                         action_form = OperatedObjectActionForm()
-                elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
-                    action_form = BuyObjectActionForm()
                 else:
                     action_form = OtherObjectActionForm()
+            elif game_object.type in player_permitted_action_objects and game_object in owned_objects.exclude(relationship_objects__subject_game_instance_object=user_instance_object):
+                if game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                    action_form = BuyObjectActionForm()
 
         user_game_object_action_set = user_instance_object.initiated_actions.all().filter(
                 turn=turn,

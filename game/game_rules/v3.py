@@ -87,6 +87,13 @@ def perform(instance):
             game_instance__id=instance_id, 
             type__arch_game_object='plot'
             )
+    properties = instance.game_instance_objects.all().exclude(
+            type__arch_game_object='player'
+            ).exclude(
+            type__arch_game_object='nature'
+            ).exclude(
+            type__arch_game_object='governor'
+            )
 
 
     # Living players eat 1 wealth:
@@ -208,10 +215,8 @@ def perform(instance):
             plot.attribute_values.all().get(attribute__arch_attribute='development_cost').delete()
             plot.attribute_values.all().get(attribute__arch_attribute='minimum_bid').delete()
             plot.relationship_objects.all().get(relationship__arch_relationship='develops').delete()
-            labour_spots_arch_attr = ArchAttribute.objects.get(arch_attribute='labour_spots')
-            production_arch_attr = ArchAttribute.objects.get(arch_attribute='production')
-            GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(game_instance_object=plot, attribute=labour_spots_arch_attr, value=2)
-            GameInstanceObjectAttributeValue.objects.create_game_instance_object_attribute_value(game_instance_object=plot, attribute=production_arch_attr, value=0)
+            plot.create_attribute('labour_spots', 2)
+            plot.create_attribute('production', 0)
             farm_type_object = ArchGameObject.objects.get(arch_game_object='farm')
             plot.type = farm_type_object
             plot.save(update_fields=['type'])
@@ -253,20 +258,104 @@ def perform(instance):
             highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
             highest_feasible_bidder.create_relationship('develops', highest_feasible_bid_action.affected)
 
-    #If any players have died, set their wealth = 0:
+
+    # If any players have bid on selling properties, assign like above
+    bid_properties = properties.filter(
+            affected_by_actions__action__arch_action='bid_to_buy',
+            affected_by_actions__turn=turn
+            ).distinct()
+    for property in bid_properties:
+        # Get set of bids whose values are less than the owner's wealth attr value
+        ordered_bid_actions = property.affected_by_actions.all().filter(
+                action__arch_action='bid_to_buy',
+                turn=turn
+                ).order_by('-parameters')
+        excluded_bids = []
+        for bid_action in ordered_bid_actions:
+            if float(bid_action.parameters) >= float(bid_action.initiator.attribute_values.all().get(attribute__arch_attribute='wealth').value):
+                excluded_bids = excluded_bids + [bid_action]
+            # Should move the next clause to form validation!! BUT only once instance passed through...
+            elif float(bid_action.parameters) < float(property.attribute_values.all().get(attribute__arch_attribute='minimum_bid').value):
+                excluded_bids = excluded_bids + [bid_action]
+        ordered_feasible_bid_actions = ordered_bid_actions.exclude(id__in=[bid.id for bid in excluded_bids])
+        
+        if ordered_feasible_bid_actions:
+            highest_feasible_bid_action = ordered_feasible_bid_actions[0]
+            highest_feasible_bidder = highest_feasible_bid_action.initiator
+            property_cost = float(highest_feasible_bid_action.parameters)
+            seller = property.relationship_objects.all().get(relationship__arch_relationship='owns').subject_game_instance_object
+        
+            bidder_wealth = highest_feasible_bidder.attribute_values.all().get(attribute__arch_attribute='wealth')
+            bidder_wealth.value = F('value') - property_cost
+            bidder_wealth.save(update_fields=['value'])
+        
+            seller_wealth_attr = seller.attribute_values.all().get(attribute__arch_attribute='wealth')
+            seller_wealth_attr.value = F('value') + property_cost
+            seller_wealth_attr.save(update_fields=['value'])
+        
+            property.relationship_objects.all().get(relationship__arch_relationship='owns').delete()
+            property.relationship_objects.all().get(relationship__arch_relationship='sells').delete()
+            property.attribute_values.all().get(attribute__arch_attribute='minimum_bid').delete()
+            highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
+    
+
+    # If any players have sold any properties, create that relationship
+    new_properties_on_market = properties.filter(
+            affected_by_actions__turn=turn,
+            affected_by_actions__action__arch_action='sell'
+            )
+    if new_properties_on_market:
+        for property in new_properties_on_market:
+            owner = property.affected_by_actions.all().get(
+                    turn=turn,
+                    action__arch_action='sell'
+                    ).initiator
+            owner.create_relationship('sells', property)
+            property.create_attribute('minimum_bid',0)
+    
+    
+    # If any players have reset their minimum bids, reset those bids!
+    properties_with_reset_bids = properties.filter(
+            affected_by_actions__turn=turn,
+            affected_by_actions__action__arch_action='set_min_bid'
+            )
+    if properties_with_reset_bids:
+        for property in properties_with_reset_bids:
+            new_min_bid_action = property.affected_by_actions.all().get(
+                    turn=turn,
+                    action__arch_action='set_min_bid'
+                    )
+            min_bid_attr = property.attribute_values.all().get(attribute__arch_attribute='minimum_bid')
+            min_bid_attr.value = float(new_min_bid_action.parameters)
+            min_bid_attr.save(update_fields=['value'])  
+
+
+    # If any players have taken their properties off the market, remove the sell relationship
+    properties_taken_off_market = properties.filter(
+            affected_by_actions__turn=turn,
+            affected_by_actions__action__arch_action='take_off_market',
+            affected_by_actions__parameters='yes'
+            )
+    if properties_taken_off_market:
+        for property in properties_taken_off_market:
+            property.attribute_values.all().get(attribute__arch_attribute='minimum_bid').delete()
+            property.relationship_objects.all().get(relationship__arch_relationship='sells').delete()
+
+
+    # If any players have died, set their wealth = 0:
     for player in players:
         if player.attribute_values.all().get(attribute__arch_attribute='wealth').value < 0:
             player.attribute_values.all().get(attribute__arch_attribute='wealth').value = 0
             player.attribute_values.all().get(attribute__arch_attribute='wealth').save(update_fields=['value'])
     
 
-    #Update all living players' leisure:
+    # Update all living players' leisure:
     for player in living_players:
         if player not in working_players:
             enjoy_leisure(player)
     
     
-    #Animate unborn
+    # Animate unborn
     animate_actions = nature.initiated_actions.all().filter(
             action__arch_action='animate',
             turn=turn)
