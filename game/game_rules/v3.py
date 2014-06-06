@@ -223,11 +223,13 @@ def perform(instance):
 
 
     # If players bought unowned plots, assign based on who can set aside the most, at least the min_bid up to their bid value
-    bid_plots = plots.filter(
+    bid_unowned_plots = plots.filter(
             affected_by_actions__action__arch_action='bid_to_buy',
-            affected_by_actions__turn=turn
+            affected_by_actions__turn=turn,
+            ).exclude(
+            relationship_objects__relationship__arch_relationship='owns'
             ).distinct()
-    for plot in bid_plots:
+    for plot in bid_unowned_plots:
         # Get set of bids whose values are less than the owner's wealth attr value
         ordered_bid_actions = plot.affected_by_actions.all().filter(
                 action__arch_action='bid_to_buy',
@@ -293,10 +295,14 @@ def perform(instance):
             seller_wealth_attr.value = F('value') + property_cost
             seller_wealth_attr.save(update_fields=['value'])
         
-            property.relationship_objects.all().get(relationship__arch_relationship='owns').delete()
+            #Transfer all interests (relationships) in the property from the seller to the buyer
+            for relationship in property.relationship_objects.all().filter(subject_game_instance_object=seller):
+                relationship.subject_game_instance_object = highest_feasible_bidder
+                relationship.save(update_fields=['subject_game_instance_object'])
+            
+            #Delete sale-specific attributes and relationships
             property.relationship_objects.all().get(relationship__arch_relationship='sells').delete()
             property.attribute_values.all().get(attribute__arch_attribute='minimum_bid').delete()
-            highest_feasible_bidder.create_relationship('owns', highest_feasible_bid_action.affected)
     
 
     # If any players have sold any properties, create that relationship

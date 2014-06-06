@@ -78,6 +78,8 @@ class DevelopingObjectActionForm(forms.Form):
     set_wage_2 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_3 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
     set_wage_4 = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
+    sell = forms.BooleanField(required=False)
+    set_min_bid = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
 
     def clean_set_wage_1(self):
         #Set_wages must be > 0
@@ -109,6 +111,12 @@ class DevelopingObjectActionForm(forms.Form):
         if data:
             if data <= 0:
                 raise forms.ValidationError("You've got to offer something")
+        return data
+
+    def clean_sell(self):
+        data = self.cleaned_data['sell']
+        if data == True:
+            data = 'yes'
         return data
 
 

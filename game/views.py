@@ -138,6 +138,8 @@ def game(request):
                 if user_instance_object in game_object_owner_set:
                     if game_object.relationship_objects.all().filter(relationship__arch_relationship='develops').exists():
                         action_form = DevelopingObjectActionForm(request.POST)
+                        if game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                            action_form = SellObjectActionForm(request.POST)
                     elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
                         action_form = SellObjectActionForm(request.POST)
                     else:
@@ -181,6 +183,8 @@ def game(request):
                 if user_instance_object in game_object_owner_set:
                     if game_object.relationship_objects.all().filter(relationship__arch_relationship='develops').exists():
                         action_form = DevelopingObjectActionForm()
+                        if game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
+                            action_form = SellObjectActionForm()
                     elif game_object.relationship_objects.all().filter(relationship__arch_relationship='sells').exists():
                         action_form = SellObjectActionForm()
                     else:
