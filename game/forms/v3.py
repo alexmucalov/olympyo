@@ -47,7 +47,27 @@ class OperatedObjectActionForm(forms.Form):
         data = self.cleaned_data['sell']
         if data == True:
             data = 'yes'
+        elif data == False:
+            data = 'no'
         return data
+
+    def clean(self):
+        cleaned_data = super(OperatedObjectActionForm, self).clean()
+        set_wage_1 = cleaned_data.get('set_wage_1')
+        set_wage_2 = cleaned_data.get('set_wage_2')
+        sell = cleaned_data.get('sell')
+        set_min_bid = cleaned_data.get('set_min_bid')
+
+        if sell == 'yes':
+            if set_wage_1 or set_wage_2:
+                raise forms.ValidationError("You can't work your farm and "
+                        "sell it at the same time")
+
+        if sell == 'no':
+            if set_min_bid:
+                raise forms.ValidationError("You've got to sell your plot "
+                        "to set a min bid on it.")
+
 
 class OtherObjectActionForm(forms.Form):
     bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
@@ -62,7 +82,6 @@ class OtherObjectActionForm(forms.Form):
 
 class SelfObjectActionForm(forms.Form):
     work = forms.BooleanField() # This is a required field
-    
     
     def clean_work(self):
         data = self.cleaned_data['work']
@@ -117,7 +136,28 @@ class DevelopingObjectActionForm(forms.Form):
         data = self.cleaned_data['sell']
         if data == True:
             data = 'yes'
+        elif data == False:
+            data = 'no'
         return data
+    
+    def clean(self):
+        cleaned_data = super(DevelopingObjectActionForm, self).clean()
+        set_wage_1 = cleaned_data.get('set_wage_1')
+        set_wage_2 = cleaned_data.get('set_wage_2')
+        set_wage_3 = cleaned_data.get('set_wage_3')
+        set_wage_4 = cleaned_data.get('set_wage_4')
+        sell = cleaned_data.get('sell')
+        set_min_bid = cleaned_data.get('set_min_bid')
+
+        if sell == 'yes':
+            if set_wage_1 or set_wage_2 or set_wage_3 or set_wage_4:
+                raise forms.ValidationError("You can't develop your plot and "
+                        "sell it at the same time")
+
+        if sell == 'no':
+            if set_min_bid:
+                raise forms.ValidationError("You've got to sell your plot "
+                        "to set a min bid on it.")
 
 
 class SellObjectActionForm(forms.Form):
@@ -130,6 +170,15 @@ class SellObjectActionForm(forms.Form):
             data = 'yes'
         return data
 
+    def clean(self):
+        cleaned_data = super(SellObjectActionForm, self).clean()
+        set_min_bid = cleaned_data.get('set_min_bid')
+        take_off_market = cleaned_data.get('take_off_market')
+
+        if take_off_market == 'yes':
+            if set_min_bid:
+                raise forms.ValidationError("You can't reset your min bid and "
+                        "take it off the market at the same time")
 
 class BuyObjectActionForm(forms.Form):
     bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field

@@ -92,7 +92,7 @@
         </div>
         <div class="col-sm-8">
             <div id="hud-object-stats" class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the selected object.">
                     Selected object
                     </a>
@@ -115,14 +115,14 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
-                    Actions available on selected object
+                    Selected object actions
                     </a>
                     {% if action_form.fields.values %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if turn_finished or form_already_used or not alive %} disabled {% endif %}>
-                            {{ action_form|bootstrap_horizontal:'col-lg-5 col-sm-5' }}
+                            {{ action_form|bootstrap_horizontal:'col-lg-7 col-sm-7' }}
                             <button type="submit" name="action_form" class="btn btn-default col-sm-12">Commit</button>
                         </fieldset>
                     </form>
