@@ -39,25 +39,19 @@
     <nav id="gui"></nav>
     <div class="container">
     <div id="static-bar" class="row panel panel-default">
-        <div class="panel-body col-sm-5">
+        <div class="panel-body col-sm-2">
         <div id="hud-player-object" class="">
             <a class="btn btn-primary" href="?game_object_id={{ user_instance_object.id }}">
             {{ user_instance_object.game_object|capfirst }}
             </a>
-             &nbsp;
+        </div>
+        </div>
+        <div id="hud-timer" class="panel-body col-sm-8 text-center">
             {% for attribute in player_stats %}
             {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
             {% endfor %}
         </div>
-        </div>
-        <div id="hud-timer" class="panel-body col-sm-2">
-            <div class="progress text-center">
-                <div class="progress-bar" role="progressbar" aria-valuenow="1603" aria-valuemin="0" aria-valuemax="3600" style="width: 60%;">
-                    Turn timer
-                </div>
-            </div>
-        </div>
-        <div id="hud-turn" class="panel-body col-sm-5 text-right">
+        <div id="hud-turn" class="panel-body col-sm-2 text-right">
             <a id="turn-number" class="btn btn-primary" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="This game has 20 turns.">
                 Turn <span class="badge">{{ turn }}</span>
             </a>
@@ -81,13 +75,6 @@
                     {{ auto_object.game_object|capfirst }} 
                 </a>
                 {% endfor %}
-                <!--
-                {% for auto_object in starving_auto_objects %}
-                <a class="list-group-item list-group-item-warning" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
-                    {{ auto_object.game_object|capfirst }} 
-                </a>
-                {% endfor %}
-                -->
             </div>
         </div>
         <div class="col-sm-8">
@@ -146,7 +133,9 @@
                     </a>
                     <ul class="list-group">
                         {% for attribute in game_object.attribute_values.all %}
+                        {% if attribute.attribute.arch_attribute != 'score_seed' %}
                         <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
+                        {% endif %}
                         {% empty %}
                         <li class="list-group-item text-center">None</li>
                         {% endfor %}

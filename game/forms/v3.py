@@ -48,7 +48,7 @@ class OperatedObjectActionForm(forms.Form):
         if data == True:
             data = 'yes'
         elif data == False:
-            data = 'no'
+            data = None
         return data
 
     def clean(self):
@@ -63,11 +63,12 @@ class OperatedObjectActionForm(forms.Form):
                 raise forms.ValidationError("You can't work your farm and "
                         "sell it at the same time")
 
-        if sell == 'no':
+        if sell == None:
             if set_min_bid:
                 raise forms.ValidationError("You've got to sell your plot "
                         "to set a min bid on it.")
 
+        return cleaned_data
 
 class OtherObjectActionForm(forms.Form):
     bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field
@@ -137,7 +138,7 @@ class DevelopingObjectActionForm(forms.Form):
         if data == True:
             data = 'yes'
         elif data == False:
-            data = 'no'
+            data = None
         return data
     
     def clean(self):
@@ -154,11 +155,12 @@ class DevelopingObjectActionForm(forms.Form):
                 raise forms.ValidationError("You can't develop your plot and "
                         "sell it at the same time")
 
-        if sell == 'no':
+        elif sell == None:
             if set_min_bid:
                 raise forms.ValidationError("You've got to sell your plot "
                         "to set a min bid on it.")
 
+        return cleaned_data
 
 class SellObjectActionForm(forms.Form):
     set_min_bid = forms.DecimalField(max_digits=5, decimal_places=2, required=False)
@@ -179,6 +181,8 @@ class SellObjectActionForm(forms.Form):
             if set_min_bid:
                 raise forms.ValidationError("You can't reset your min bid and "
                         "take it off the market at the same time")
+
+        return cleaned_data
 
 class BuyObjectActionForm(forms.Form):
     bid_to_buy = forms.DecimalField(max_digits=5, decimal_places=2) # This is a required field

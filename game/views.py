@@ -55,7 +55,7 @@ def game(request):
             attribute_values__value__gt=0
             )
     player_actions = user_instance_object.initiated_actions.all().order_by('-turn')
-    player_stats = user_instance_object.attribute_values.all()
+    player_stats = user_instance_object.attribute_values.all().exclude(attribute__arch_attribute='score_seed')
     player_arch_game_object = user_instance_object.type.arch_game_object
     player_permitted_initiator_actions = user_instance_object.game_instance.game.action_permission_set.action_permissions.all().filter(
             permitted_initiator__arch_game_object=player_arch_game_object

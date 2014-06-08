@@ -308,13 +308,15 @@ def perform(instance):
     # If any players have sold any properties, create that relationship
     new_properties_on_market = properties.filter(
             affected_by_actions__turn=turn,
-            affected_by_actions__action__arch_action='sell'
+            affected_by_actions__action__arch_action='sell',
+            affected_by_actions__parameters='yes'
             )
     if new_properties_on_market:
         for property in new_properties_on_market:
             owner = property.affected_by_actions.all().get(
                     turn=turn,
-                    action__arch_action='sell'
+                    action__arch_action='sell',
+                    parameters='yes'
                     ).initiator
             owner.create_relationship('sells', property)
             property.create_attribute('minimum_bid',0)
@@ -373,3 +375,16 @@ def perform(instance):
                     )
             newborn_wealth_attr.value = action.parameters
             newborn_wealth_attr.save(update_fields=['value'])
+    
+    for player in living_players:
+        score_attr = player.attribute_values.all().get(attribute__arch_attribute='score')
+        score_seed_attr = player.attribute_values.all().get(attribute__arch_attribute='score_seed')
+        leisure_attr = player.attribute_values.all().get(attribute__arch_attribute='leisure')
+        wealth_attr = player.attribute_values.all().get(attribute__arch_attribute='wealth')
+        score_attr.value = (
+                50 * 
+                (float(wealth_attr.value) ** float(score_seed_attr.value)) *
+                ((float(leisure_attr.value) + 0.5) ** (1 - float(score_seed_attr.value)))
+                )
+        score_attr.save(update_fields=['value'])
+    
