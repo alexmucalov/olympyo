@@ -23,7 +23,7 @@ class ArchAttributeAdmin(admin.ModelAdmin):
 
 
 class ArchGameObjectAdmin(admin.ModelAdmin):
-    list_display = ('arch_game_object',)
+    list_display = ('arch_game_object','layout_type',)
 
 
 class ArchAttributeSetAdmin(admin.ModelAdmin):

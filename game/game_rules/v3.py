@@ -1,4 +1,9 @@
 """
+
+*** ENABLE LABOUR TO TAKE PART TOO; COME UP WITH WAY FOR LABOUR TO RANDOMLY REST - 
+*** GREATER CHANCE OF REST WHEN MORE FOOD STOCKED UP
+
+
 *** Intended initial DB definition ***
 
 *Arch_layout_type: display_object, autonomous_object, nature_object
@@ -61,8 +66,8 @@ def perform(instance):
     #Get seed as Decimal object, because Decimal has a method that effectively
     #Returns self (copy_abs) without taking any arguments:
     #Necessary to reproducibly seed random.shuffle
-    seed = Decimal.from_float(round(random(),5))
-    nature.act(action_name='set_seed', parameters=seed)
+    seed_no = Decimal.from_float(round(random(),5))
+    nature.act(action_name='set_seed', parameters=seed_no)
 
 
     # Define players and labourers
@@ -79,6 +84,14 @@ def perform(instance):
             initiated_actions__parameters='yes',
             initiated_actions__turn=turn
             ).distinct()
+    labourers = GameInstanceObject.objects.filter(
+            game_instance__id=instance_id, 
+            type__arch_game_object='labour'
+            )
+    living_labourers = labourers.filter(
+            attribute_values__attribute__arch_attribute='wealth', 
+            attribute_values__value__gt=0
+            )
     farms = instance.game_instance_objects.all().filter(
             game_instance__id=instance_id, 
             type__arch_game_object='farm'
@@ -128,15 +141,16 @@ def perform(instance):
             own_wage_working_players = own_wage_working_players + [player]
 
 
-    # Have remaining working_players randomly take action to take remaining wages and work
-    #Random work can be much more efficient - but not important yet
-    #count_set_wage_actions = len(set_wage_actions)
-    #count_labourers = len(labourers)
-    #if count_labourers > count_set_wage_actions: #WRONG! Need to sample by seed, too
-        #wage_winners = random.sample(labourers, count_set_wage_actions)
-        #random.shuffle(wage_winners, seed)
-    #else:
-        #set_wage_actions = set_wage_actions.order_by('-parameters')
+    # Have working labourers and remaining working_players 
+    # randomly take action to take remaining wages and work
+    working_labourers = []
+    for labourer in living_labourers:
+        wealth_attr = labourer.attribute_values.all().get(attribute__arch_attribute='wealth')
+        chance_of_work = 1/(1+(1/3)*(float(wealth_attr.value)**0.5))
+        random_unit = seed(float(wealth_attr.value))                                        # Randomly seeded with own wealth
+        if random_unit < chance_of_work:
+            working_labourers = working_labourers + [labourer]
+    
     all_set_wage_actions = Action.objects.filter(
             initiator__game_instance=instance, 
             turn=turn, 
@@ -144,11 +158,12 @@ def perform(instance):
             ).order_by('-parameters')
     remaining_set_wage_actions = [action for action in all_set_wage_actions if action not in own_set_wage_actions]
     remaining_working_players = [player for player in working_players if player not in own_wage_working_players]
-    shuffle(remaining_working_players, seed.copy_abs)
-    labour_and_wages_offered = zip(remaining_working_players, remaining_set_wage_actions)
+    all_wage_seekers = remaining_working_players + working_labourers
+    shuffle(all_wage_seekers, seed_no.copy_abs)
+    labour_and_wages_offered = zip(all_wage_seekers, remaining_set_wage_actions)
     
-    for (working_player, wage_offered) in labour_and_wages_offered:
-        working_player.act(
+    for (worker, wage_offered) in labour_and_wages_offered:
+        worker.act(
                 action_name='take_wage', 
                 parameters=wage_offered.parameters, 
                 affected_id=wage_offered.affected.id
@@ -381,9 +396,11 @@ def perform(instance):
         score_seed_attr = player.attribute_values.all().get(attribute__arch_attribute='score_seed')
         leisure_attr = player.attribute_values.all().get(attribute__arch_attribute='leisure')
         wealth_attr = player.attribute_values.all().get(attribute__arch_attribute='wealth')
+        farms_owned = player.relationship_subjects.all().filter(object_game_instance_object__type__arch_game_object='farm').distinct().count()
+        plots_owned = player.relationship_subjects.all().filter(object_game_instance_object__type__arch_game_object='plot').distinct().count()
         score_attr.value = (
                 50 * 
-                (float(wealth_attr.value) ** float(score_seed_attr.value)) *
+                ((float(wealth_attr.value) + 10*farms_owned + 4*plots_owned) ** float(score_seed_attr.value)) *
                 ((float(leisure_attr.value) + 0.5) ** (1 - float(score_seed_attr.value)))
                 )
         score_attr.save(update_fields=['value'])

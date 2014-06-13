@@ -65,19 +65,19 @@
     </div>
     <div id="" class="container">
         <div class="row">
-        <div class="col-sm-2">
-            <div class="list-group">
-                <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Agents take actions each turn. Players are human &#40;like you!&#41; and other agents are AI who respond to your actions.">
-                Agents
-                </a>
-                {% for auto_object in living_auto_objects %}
-                <a class="list-group-item" href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}">
-                    {{ auto_object.game_object|capfirst }} 
-                </a>
-                {% endfor %}
-            </div>
+        <div class="col-sm-3">
+            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Farms sit passively until you act on them. In this game, you can hire people to work farms that you own, and you can work one yourself.">
+                Players and properties
+            </a>
+            {% for auto_object in living_auto_objects %}
+            <a href="?game_object_id={{ auto_object.id }}" id="{{ auto_object.id }}" class="{% if auto_object.id == game_object.id %}bg-primary{% endif %} col-sm-2 layout-object img-circle {{ auto_object.type }}-sm" >
+            </a>
+            {% endfor %}
+            {% for display_object in display_objects %}
+            <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="{% if display_object.id == game_object.id %}bg-primary{% endif %} col-sm-2 layout-object img-circle {{ display_object.type }}-sm"></a>
+            {% endfor %}
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-9">
             <div id="hud-object-stats" class="row">
                 <div class="col-sm-4">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the selected object.">
@@ -85,7 +85,7 @@
                     </a>
                     <div class="text-center">{{ game_object.type|capfirst }} {{ game_object.game_object.id }}</div>
                     {% if game_object %}
-                    <div id='selected-object' class='text-center img-circle {{ game_object.game_object.game_object.arch_game_object }}-lg'>
+                    <div id='selected-object' class='text-center img-circle {{ game_object.type }}-lg'>
                     </div>
                     {% else %}
                     <ul class="list-group text-center">
@@ -142,15 +142,6 @@
                     </ul>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-2">
-            <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Farms sit passively until you act on them. In this game, you can hire people to work farms that you own, and you can work one yourself.">
-                Properties
-            </a>
-            {% for display_object in display_objects %}
-            <a href="?game_object_id={{ display_object.id }}" id="{{ display_object.id }}" class="{% if display_object.id == game_object.id %}bg-primary{% endif %} col-sm-3 layout-object img-circle {{ display_object.game_object.game_object.arch_game_object }}-sm"></a>
-            {% endfor %}
-            
         </div>
         </div>
         <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
