@@ -110,7 +110,7 @@ STATICFILES_DIRS = (
     '{BASE_DIR}/project_static/'.format(BASE_DIR=BASE_DIR),
 )
 
-#STATIC_ROOT = '{BASE_DIR}/deployment_static/'.format(BASE_DIR=BASE_DIR)
+STATIC_ROOT = '{BASE_DIR}/deployment_static/'.format(BASE_DIR=BASE_DIR)
 
 
 # Log a user out when the browser is completely closed

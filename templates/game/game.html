@@ -81,10 +81,16 @@
         <div class="col-sm-9">
             <div id="hud-object-stats" class="row">
                 <div class="col-sm-4">
-                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the selected object.">
-                    Selected object
+                    
+                    {% if game_object %}
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to {{ game_object.type|capfirst }} {{ game_object.game_object.id }}.">
+                    {{ game_object.type|capfirst }} {{ game_object.game_object.id }}
                     </a>
-                    <div class="text-center">{{ game_object.type|capfirst }} {{ game_object.game_object.id }}</div>
+                    {% else %}
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions and attributes relate to the object you just clicked.">
+                    Nothing selected
+                    </a>
+                    {% endif %}
                     {% if game_object %}
                     <div id='selected-object' class='text-center img-circle {{ game_object.type }}-lg'>
                     </div>
@@ -104,8 +110,30 @@
                     </div>
                 </div>
                 <div class="col-sm-4">
+                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Attributes relate to the object you've selected. Some attributes may change each turn, as players' actions affect the game.">
+                    {% if game_object %}
+                        {{ game_object.type|capfirst }} {{ game_object.game_object.id }} attributes
+                    {% else %}
+                        No object selected
+                    {% endif %}
+                    </a>
+                    <ul class="list-group">
+                        {% for attribute in game_object.attribute_values.all %}
+                        {% if attribute.attribute.arch_attribute != 'score_seed' %}
+                        <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
+                        {% endif %}
+                        {% empty %}
+                        <li class="list-group-item text-center">None</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-sm-4">
                     <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Available actions define what you can do with the selected object.">
-                    Selected object actions
+                    {% if game_object %}
+                        {{ game_object.type|capfirst }} {{ game_object.game_object.id }} actions
+                    {% else %}
+                        No object selected
+                    {% endif %}
                     </a>
                     {% if action_form.fields.values %}
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
@@ -127,20 +155,6 @@
                         You've committed actions on this object this turn.
                     </div>
                     {% endif %}
-                </div>
-                <div class="col-sm-4">
-                    <a class="list-group-item active btn btn-default" rel="popover" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Attributes define the selected object. Some of them may change each turn, as players' actions affect the game.">
-                    Selected object attributes
-                    </a>
-                    <ul class="list-group">
-                        {% for attribute in game_object.attribute_values.all %}
-                        {% if attribute.attribute.arch_attribute != 'score_seed' %}
-                        <li class="list-group-item">{{ attribute.attribute|capfirst }}<span class="badge">{{ attribute.value|floatformat:2 }}</span></li>
-                        {% endif %}
-                        {% empty %}
-                        <li class="list-group-item text-center">None</li>
-                        {% endfor %}
-                    </ul>
                 </div>
             </div>
         </div>
