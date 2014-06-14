@@ -47,6 +47,7 @@
         </div>
         </div>
         <div id="hud-timer" class="panel-body col-sm-8 text-center">
+            <b>Your stats: </b> &nbsp;
             {% for attribute in player_stats %}
             {{ attribute.attribute|capfirst }} <span class="badge">{{ attribute.value|floatformat:2 }} </span> &nbsp; 
             {% endfor %}
@@ -110,7 +111,7 @@
                     <form class='form-horizontal' role='form' method='post' action=''>{% csrf_token %}
                         <fieldset {% if turn_finished or form_already_used or not alive %} disabled {% endif %}>
                             {{ action_form|bootstrap_horizontal:'col-lg-7 col-sm-7' }}
-                            <button type="submit" name="action_form" class="btn btn-default col-sm-12">Commit</button>
+                            <button type="submit" name="action_form" class="btn btn-default col-sm-12">Apply actions</button>
                         </fieldset>
                     </form>
                     {% else %}

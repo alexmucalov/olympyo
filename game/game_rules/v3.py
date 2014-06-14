@@ -109,9 +109,11 @@ def perform(instance):
             )
 
 
-    # Living players eat 1 wealth:
+    # Living players and living labourers eat 1 wealth:
     for player in living_players:
-        eat(player)           
+        eat(player)
+    for labourer in living_labourers:
+        eat(labourer)            
 
 
     # Have players who work AND own their own properties take the highest wage that they set
@@ -126,12 +128,10 @@ def perform(instance):
     own_wage_working_players = []
     for player in landed_working_players:
         if player in wage_offerors:
-            own_wage_action = list(
-                    player.initiated_actions.all().filter(
+            own_wage_action = player.initiated_actions.all().filter(
                         turn=turn,
                         action__arch_action='set_wage',
-                        ).order_by('-parameters')[:1]
-                    )[0]
+                        ).order_by('-parameters')[0]
             player.act(
                     action_name='take_wage',
                     parameters=own_wage_action.parameters,
@@ -146,8 +146,9 @@ def perform(instance):
     working_labourers = []
     for labourer in living_labourers:
         wealth_attr = labourer.attribute_values.all().get(attribute__arch_attribute='wealth')
-        chance_of_work = 1/(1+(1/3)*(float(wealth_attr.value)**0.5))
-        random_unit = seed(float(wealth_attr.value))                                        # Randomly seeded with own wealth
+        chance_of_work = 1/(1+(1/3)*(float(wealth_attr.value)**0.5))                        # Work function based on wealth cushion
+        seed(float(wealth_attr.value))                                                      # Randomly seeded with own wealth
+        random_unit = random()
         if random_unit < chance_of_work:
             working_labourers = working_labourers + [labourer]
     
